@@ -6,7 +6,7 @@
 /*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/09 02:31:21 by rkultaev         ###   ########.fr       */
+/*   Updated: 2022/11/09 15:03:01 by rkultaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,20 @@
 #include <iostream>
 #include <vector>
 #include <netdb.h>
+#include <sys/event.h>
 
-#define PORT "6969"
-#define MAXX_BUFF 256
 
-//poll() --> passes an array of structs rather than arr of bytes, so passes one struct for each descriptor
+#define SERVERPORT "6969"
+
+#define NUM_CLIENTS 10
+#define MAX_EVENTS 32
+#define MAX_BUFF 256
+#define ERROR -1
+
+//kqueue() provides generic method of notifying user when an event happens,based on result of "filters". A kevent() is identified
+//by the (ident, filter) pair. There may only be 1 unique kevent() per kqueue()
+//Multiple events which trigger filter dont result in multiple kevents() being place on kqueue(). Instead
+//filter will aggregate the events into a single struct  kevent.
 
 //socket() ---> returns a socket descriptor, which represents an endpoint. 
 
@@ -39,21 +48,42 @@
 
 //listen() can allow the server to accept incoming client connections
 
-//poll() allows the process to wait for an event to occur and to wake up the process when the event occurs. poll() returns
-// 0-->if the process times out(3 minutes default)
-//-1--->the process failed
-//1--->only 1 descriptor is ready to be processed, which is processed only if it is listening socket
-//++1--->multiple descriptors are waiting to be processed
+
 
 void error_message(const char *msg) {
+    std::cout << "ERROR : ";
     perror(msg);
+    std::cout << std::endl;
     exit(1);
 }
 
-// struct pollfd {
-// 	int socket_fd; //the socket descriptor
-// 	short 
-// }
+//WHAT WE NEED
+//1)SYSCALL handling failures
+//2)large messages correctly
+
+//store array of clients with fds.
+struct client_content {
+    int fd;
+}   clients[NUM_CLIENTS];
+
+struct content_t {
+    //buffer for client content
+    char buf[MAX_BUFF];
+    int bytes_read;
+    char msg[100];
+    int new_socket_fd;
+    struct kevent evSet;
+    struct kevent evList[MAX_EVENTS];
+    //Client address
+    struct sockaddr_storage addr;
+    int num_events;
+    int listener;
+    int new_kqueue; //create an empty queue
+    socklen_t socket_length;
+	struct addrinfo hints;
+    int opt;
+    
+};
 
 
 // struct data_t {
@@ -76,222 +106,180 @@ void error_message(const char *msg) {
 //     // ~data_t() { pthread_mutex_destroy(&mutex); }
 // };
 
-void *get_sock_addr(struct sockaddr *sa) {
-	if (sa->sa_family == AF_INET)
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+
+//with fd we can search the corresponding client-content by iteration
+int get_connection(int fd) {
+    for (int i = 0; i < NUM_CLIENTS; i++)
+        if (clients[i].fd == fd)
+            return i;
+    return -1;
 }
 
-// void *accept_clients(struct pollfd *pfds[], int new_fd, int *fd_count, int *fd_size) {
-//     // data_t *data = (data_t *)data_void;
+//sending welcome message on the according socket
+void send_welcome_msg(content_t &content) {
+    // content_t *content = (content_t *)content_void;
+    std::cout << "welcome! you are client #" << get_connection(content.new_socket_fd) << std::endl;
+    send(content.new_socket_fd, content.msg, strlen(content.msg), 0);
+}
 
-//     while (1) {
-//         pthread_mutex_lock(&data->mutex);
-//         int fresh_socket_fd =
-//             accept(data->socketid, (sockaddr *)&data->address, &data->addrlen);
-//         if (fresh_socket_fd < 0)
-//             error_message("error on accepting the client;s address");
-//         if (fcntl(fresh_socket_fd, F_SETFL, O_NONBLOCK) == -1) {
-//             perror("fcntl failed");
-//             exit(1);
-//         }
+//we search for the first free item in array to store the clients fd
+int add_connection(int fd) {
+    if (fd < 1) {
+        error_message("fd during connection issue!");
+        return -1;
+    }
+    int i = get_connection(0);
+    if (i == -1) {
+        error_message("appending clients issue!");
+        return -1;
+    }
+    clients[i].fd = fd;
+    return 0;
+}
 
-//         if (fresh_socket_fd > data->highest_socket)
-//             data->highest_socket = fresh_socket_fd;
-//         FD_SET(fresh_socket_fd, &data->clients);
-//         data->clients_v.push_back(fresh_socket_fd);
-//         pthread_mutex_unlock(&data->mutex);
-//         usleep(100);
-//     }
-//     return (NULL);
-// }
+//if connection is lost, we free item with setting to fd to 0
+int remove_connection(int fd) {
+    if (fd < 1) {
+        error_message("erasing connections issue!");
+        return -1;
+    }
+    int i = get_connection(fd);
+    if (i == -1) {
+        error_message("appending connections issue!");
+        return -1;
+    }
+    clients[i].fd = 0;
+    return close(fd);
+}
 
-int get_socket_listener(void) {
-	int listener;
-	int opt = 1;
-	int rv;
-	struct addrinfo hints, *ai, *p;
 
-	    // clear address structure
-    // bzero((char *)&hints, sizeof(hints));
-	    memset(&hints, 0, sizeof hints);
 
+void receive_messages(int new_socket) {
+    
+    
+    content_t content;
+    content.new_socket_fd = new_socket;
+    
+    //sockfd ---> is socket descriptor to read from
+    content.bytes_read = recv(content.new_socket_fd, content.buf, sizeof(content.buf) - 1, 0);
+    // std::cout << content.bytes_read << std::endl;
+    if (content.bytes_read <= 0) {
+        //error or connection close by client(remote side)
+        if (content.bytes_read == 0) {
+            //connection closed
+            error_message("socket hung up");
+        }
+        else
+            error_message("recv() issue");
+    }
+    content.buf[content.bytes_read] = 0;
+    std::cout << "client #" << get_connection(content.new_socket_fd) << ": " << content.buf << std::endl;
+    fflush(stdout);
+}
+// data_t *data = (data_t *)data_void;
+
+int create_socket_and_listen(void) {
+    
+    content_t content;
+	content.opt = 1;
+	int err_code_getaddrinfo;
+    struct addrinfo *addr;
+    
+     //filling up address structs with getddrinfo()
+	memset(&content.hints, 0, sizeof content.hints);
     // setup the host address structure for use in bind
         // server byte order
-    hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-	if (rv == getaddrinfo(NULL, PORT, &hints, &ai)) {
-		std::cerr << gai_strerror(rv) << std::endl;
+    content.hints.ai_family = AF_UNSPEC; //use ipv4 or ipv6
+	content.hints.ai_socktype = SOCK_STREAM;
+	content.hints.ai_flags = AI_PASSIVE; //fill in my Ip for me
+     //getaddrinfo() returns 0 if success, otherwisereturns error code
+	if (err_code_getaddrinfo == getaddrinfo(NULL, SERVERPORT, &content.hints, &addr)) {
+		std::cerr << gai_strerror(err_code_getaddrinfo) << std::endl;
 		exit(1);
 	}
-    for (p = ai; p != NULL; p = p->ai_next) {
-		listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (listener < 0) {
-            error_message("ERROR opening a socket");
-			continue;
+    //create a socket
+	content.listener = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+    if (content.listener < 0) {
+            error_message("opening a socket issue");
         }
-		setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
-		if (bind(listener, p->ai_addr, p->ai_addrlen) < 0)
-            error_message("error on binding");
-	break;
+    fcntl(content.listener, F_SETFL, O_NONBLOCK);
+	setsockopt(content.listener, SOL_SOCKET, SO_REUSEADDR, &content.opt, sizeof(int));
+    //bind it to address
+	if (bind(content.listener, addr->ai_addr, addr->ai_addrlen) < 0)
+        error_message("binding issue");
+
+    //listen on the socket for incoming connections
+	if (listen(content.listener,10) == -1) {
+		error_message("listening issue");
 	}
-	freeaddrinfo(ai);
-
-	if (listen(listener,10) == -1) {
-		error_message("error on listening");
-	}
-	return listener;
-}
-
-// void add_fresh_fd_to_pfds(struct pollfd *pfds[], int new_fd, int *fd_count, int *fd_amount) {
-// 	if (*fd_count = *fd_amount) {
-// 		*fd_amount *= 2;
-// 	}
-// 	*pfds = 
-// }
-
-void add_to_pfds(struct pollfd *pfds[], int newfd, int *fd_count, int *fd_size)
-{
-    // If we don't have room, add more space in the pfds array
-    if (*fd_count == *fd_size) {
-        *fd_size *= 2; // Double it
-
-        *pfds = (struct pollfd *)realloc(*pfds, sizeof(**pfds) * (*fd_size));
-    }
-
-    (*pfds)[*fd_count].fd = newfd;
-    (*pfds)[*fd_count].events = POLLIN; // Check ready-to-read
-
-    (*fd_count)++;
-}
-
-// Remove an index from the set
-void del_from_pfds(struct pollfd pfds[], int i, int *fd_count)
-{
-    // Copy the one from the end over this one
-    pfds[i] = pfds[*fd_count-1];
-
-    (*fd_count)--;
+	return content.listener;
 }
 
 
+void run_event_loop(int kq, int listener) {
 
-int main(int argc, char **argv) {
-    // pthread_t accept_thread;
-    // data_t data;
-	int listener;
-	int new_fd;
-	struct sockaddr_storage client_address;
-	socklen_t address_length;
-	int fd_count = 0;
-	int fd_size = 5;
-	char remoteIP[INET6_ADDRSTRLEN];
-	 int poll_count = -1;
-
-
-	char buff[MAXX_BUFF];
-	struct pollfd *pfds = new struct pollfd();
-		// std::cout << "hey" << std::endl;
-	
-    // Transfer socket into listening state
-    listener = get_socket_listener();
-	if (listener < 0) {
-		error_message("error getting listening socket");
-		exit(1);
-	}
-	
-	pfds[0].fd = listener;
-	// std::cout << listener << std::endl;
-	pfds[0].events = POLLIN;
-	// std::cout << pfds[1].events << std::endl;
-
-	fd_count = 1;
-    for(;;) {
-        poll_count = poll(pfds,fd_count, -1);
-		// std::cout << "hey111" << std::endl;
-		// memset(&client_address, 0, sizeof(client_address));
-		// address_length = sizeof(client_address);
-		if (!(pfds->events & POLLIN)) {
-			std::cout << "ERROR\n";
-			exit(1);
-		}
-	
-
-        // if (poll_count == -1) {
-        //     perror("poll");
-        //     exit(1);
-        // }
-		// if (poll_count > 0) {
-		// 	if ((pfds[0].revents & POLLIN) != 0)
-		// 		continue;
-		// }
-        // Run through the existing connections looking for data to read
-		// sleep(1);
-        for(int i = 0; i < fd_count; i++) {
-
-            // Check if someone's ready to read
-            if (pfds[i].revents & POLLIN) { // We got one!!
-
-                if (pfds[i].fd == listener) {
-                    // If listener is ready to read, handle new connection
-
-                    address_length = sizeof client_address;
-                    new_fd = accept(listener,
-                        (struct sockaddr *)&client_address,
-                        &address_length);
-
-                    if (new_fd == -1) {
-                        perror("accept");
-                    } else {
-                        add_to_pfds(&pfds, new_fd, &fd_count, &fd_size);
-
-                        std::cout << "pollserver: new connection from" << inet_ntop(client_address.ss_family,
-                                get_sock_addr((struct sockaddr*)&client_address),
-                                remoteIP, INET6_ADDRSTRLEN) << ", on socket" << new_fd << std::endl;
-                    }
+    content_t content;
+    content.socket_length = sizeof(content.addr);
+    //we handle incoming connection pending
+    //we create a loop where we call kevent() to receive incoming events and process them
+    //
+    while (1) {
+        content.num_events = kevent(kq, NULL, 0, content.evList, MAX_EVENTS, NULL);
+        if (content.num_events == ERROR) {
+            error_message("kevent() issue");
+        }
+        //run through the existing connections looking for content
+        for (int i = 0; i < content.num_events; i++) {
+            // handle events
+            //check if smb is ready to read
+            if (content.evList[i].ident == listener) {
+                //we accept the connection on each receiving.
+                //accept() creates a socket for further communication with client and eturns fd
+                //if listener is ready to read, we handle new connection
+                content.new_socket_fd = accept(content.evList[i].ident, (struct sockaddr *) &content.addr, &content.socket_length);
+                if (content.new_socket_fd == ERROR)
+                    error_message("accept() issue");
+                if (add_connection(content.new_socket_fd) == 0) {
+                    //notification there is data available for reading a socket , so we specify a kevent
+                    EV_SET(&content.evSet, content.new_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                    kevent(kq, &content.evSet, 1, NULL, 0, NULL);
+                    send_welcome_msg(content);
                 } else {
-                    // If not the listener, we're just a regular client
-                    int nbytes = recv(pfds[i].fd, buff, sizeof buff, 0);
-                    int sender_fd = pfds[i].fd;
-
-					
-                    if (nbytes <= 0) {
-						// std::cerr << "nbytes less than 0\n";
-                        // Got error or connection closed by client
-                        if (nbytes == 0) {
-                            // Connection closed
-                            printf("pollserver: socket %d hung up\n", sender_fd);
-                        } else {
-                            perror("recv");
-                        }
-
-                        close(pfds[i].fd); // Bye!
-
-                        del_from_pfds(pfds, i, &fd_count);
-
-                    } else {
-                        // We got some good data from a client
-
-                        for(int j = 0; j < fd_count; j++) {
-                            // Send to everyone!
-                            int dest_fd = pfds[j].fd;
-                            // Except the listener and ourselves
-		//1)figure out why send() throws socket is not connected;
-		//2)read and send the messages to the server and way back
-		//3)non-blocking handling
-								std::cout << listener << std::endl;
-								std::cout << dest_fd << std::endl;
-                            if (dest_fd != listener && dest_fd != sender_fd) {
-                                if (send(dest_fd, buff, nbytes, 0) == -1) {
-                                    error_message("sent");
-                                }
-                            }
-                        }
-                    }
+                    error_message(" connection refusion issue");
+                    close(content.new_socket_fd);
                 }
-            } 
+            } // client disconnected
+            //when client disconnects , we receive an event where EOF flag is set on the socket.
+            
+            else if (content.evList[i].flags & EV_EOF) {
+                content.new_socket_fd = content.evList[i].ident;
+                // printf("client #%d disconnected.\n", get_connection(new_socket_fd));
+                std::cout << "client #" << get_connection(content.new_socket_fd) << " disconnected" << std::endl;
+                //we free that connection in the pool and remove event from kqueue --> EV_DELETE
+                EV_SET(&content.evSet, content.new_socket_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                kevent(kq, &content.evSet, 1, NULL, 0, NULL);
+                remove_connection(content.new_socket_fd);
+            } // read message from client
+            //handling incoming content from clients and receive message
+            else if (content.evList[i].filter == EVFILT_READ) {
+                receive_messages(content.evList[i].ident);
+            }
         }
-	}
-
+    }
 }
+
+int main(int argc, char *argv[]) {
+    content_t content;
+    content.listener = create_socket_and_listen();
+  
+    
+    //kqueue() holds all events we are working with 
+    if ((content.new_kqueue = kqueue()) == ERROR)
+        error_message("kqueue() issue");
+    
+    //we register to receive incoming connectios on the main socket!
+    EV_SET(&content.evSet, content.listener, EVFILT_READ, EV_ADD, 0, 0, NULL);
+    kevent(content.new_kqueue, &content.evSet, 1, NULL, 0, NULL);
+    run_event_loop(content.new_kqueue, content.listener);
+}
+
