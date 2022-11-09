@@ -6,7 +6,7 @@
 /*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/09 15:03:01 by rkultaev         ###   ########.fr       */
+/*   Updated: 2022/11/09 17:49:40 by rkultaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@
 void error_message(const char *msg) {
     std::cout << "ERROR : ";
     perror(msg);
-    std::cout << std::endl;
+    // std::cout << std::endl;
     exit(1);
 }
 
@@ -82,7 +82,7 @@ struct content_t {
     socklen_t socket_length;
 	struct addrinfo hints;
     int opt;
-    
+    // char remoteIP[INET6_ADDRSTRLEN];
 };
 
 
@@ -112,7 +112,7 @@ int get_connection(int fd) {
     for (int i = 0; i < NUM_CLIENTS; i++)
         if (clients[i].fd == fd)
             return i;
-    return -1;
+    return ERROR;
 }
 
 //sending welcome message on the according socket
@@ -126,12 +126,12 @@ void send_welcome_msg(content_t &content) {
 int add_connection(int fd) {
     if (fd < 1) {
         error_message("fd during connection issue!");
-        return -1;
+        return ERROR;
     }
     int i = get_connection(0);
-    if (i == -1) {
+    if (i == ERROR) {
         error_message("appending clients issue!");
-        return -1;
+        return ERROR;
     }
     clients[i].fd = fd;
     return 0;
@@ -144,9 +144,9 @@ int remove_connection(int fd) {
         return -1;
     }
     int i = get_connection(fd);
-    if (i == -1) {
+    if (i == ERROR) {
         error_message("appending connections issue!");
-        return -1;
+        return ERROR;
     }
     clients[i].fd = 0;
     return close(fd);
@@ -184,27 +184,32 @@ int create_socket_and_listen(void) {
 	content.opt = 1;
 	int err_code_getaddrinfo;
     struct addrinfo *addr;
+
+    //hints -->points to addrinfo_struct that specifies criteria for selectin socket addr struct 
+    //returned in list pointed to by [addr]
     
      //filling up address structs with getddrinfo()
 	memset(&content.hints, 0, sizeof content.hints);
     // setup the host address structure for use in bind
-        // server byte order
+    
+    //hits points to addrinfo struct (ai.family,...)
     content.hints.ai_family = AF_UNSPEC; //use ipv4 or ipv6
-	content.hints.ai_socktype = SOCK_STREAM;
+	content.hints.ai_socktype = SOCK_STREAM; //chooses preferred socket type
 	content.hints.ai_flags = AI_PASSIVE; //fill in my Ip for me
-     //getaddrinfo() returns 0 if success, otherwisereturns error code
+     //getaddrinfo() returns 0 if success, otherwise returns error code
 	if (err_code_getaddrinfo == getaddrinfo(NULL, SERVERPORT, &content.hints, &addr)) {
 		std::cerr << gai_strerror(err_code_getaddrinfo) << std::endl;
 		exit(1);
 	}
-    //create a socket
+    //create a new communication endpoint
 	content.listener = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
     if (content.listener < 0) {
             error_message("opening a socket issue");
         }
+    //set socket to non-blocking
     fcntl(content.listener, F_SETFL, O_NONBLOCK);
 	setsockopt(content.listener, SOL_SOCKET, SO_REUSEADDR, &content.opt, sizeof(int));
-    //bind it to address
+    //associate a local address(port) with a socket
 	if (bind(content.listener, addr->ai_addr, addr->ai_addrlen) < 0)
         error_message("binding issue");
 
@@ -215,15 +220,26 @@ int create_socket_and_listen(void) {
 	return content.listener;
 }
 
+void *get_in_addr(struct sockaddr_storage *sa)
+{
+    if (sa->ss_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
+    }
 
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+//There are predefined system filters(EVFILT_READ), and are triggered when content exists
 void run_event_loop(int kq, int listener) {
-
+    struct sockaddr_storage remoteaddr;
     content_t content;
     content.socket_length = sizeof(content.addr);
     //we handle incoming connection pending
     //we create a loop where we call kevent() to receive incoming events and process them
     //
     while (1) {
+        //any returned events are places in evList[i]
+        //NULL will block until event is ready
         content.num_events = kevent(kq, NULL, 0, content.evList, MAX_EVENTS, NULL);
         if (content.num_events == ERROR) {
             error_message("kevent() issue");
@@ -232,10 +248,13 @@ void run_event_loop(int kq, int listener) {
         for (int i = 0; i < content.num_events; i++) {
             // handle events
             //check if smb is ready to read
+            //can be only one <filter, ident> pair for one kqueue
+            //<ident> contains the descriptor number
             if (content.evList[i].ident == listener) {
                 //we accept the connection on each receiving.
                 //accept() creates a socket for further communication with client and eturns fd
                 //if listener is ready to read, we handle new connection
+                //a new socket is created thats different from named. New socket is used to interact with particular client
                 content.new_socket_fd = accept(content.evList[i].ident, (struct sockaddr *) &content.addr, &content.socket_length);
                 if (content.new_socket_fd == ERROR)
                     error_message("accept() issue");
@@ -244,13 +263,14 @@ void run_event_loop(int kq, int listener) {
                     EV_SET(&content.evSet, content.new_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
                     kevent(kq, &content.evSet, 1, NULL, 0, NULL);
                     send_welcome_msg(content);
+                    // std::cout << "server :  new connection from " << inet_ntop(content.addr.ss_family, get_in_addr((struct sockaddr_storage *) &content.addr), content.remoteIP, INET6_ADDRSTRLEN);
+                    // std::cout << " on socket : " <<  content.new_socket_fd << std::endl;
                 } else {
                     error_message(" connection refusion issue");
                     close(content.new_socket_fd);
                 }
             } // client disconnected
             //when client disconnects , we receive an event where EOF flag is set on the socket.
-            
             else if (content.evList[i].flags & EV_EOF) {
                 content.new_socket_fd = content.evList[i].ident;
                 // printf("client #%d disconnected.\n", get_connection(new_socket_fd));
@@ -271,14 +291,15 @@ void run_event_loop(int kq, int listener) {
 int main(int argc, char *argv[]) {
     content_t content;
     content.listener = create_socket_and_listen();
-  
-    
-    //kqueue() holds all events we are working with 
+
+    //kqueue() registers which events we are interested in
+    //returns ordinary fd
     if ((content.new_kqueue = kqueue()) == ERROR)
         error_message("kqueue() issue");
-    
+
     //we register to receive incoming connectios on the main socket!
     EV_SET(&content.evSet, content.listener, EVFILT_READ, EV_ADD, 0, 0, NULL);
+    //kevent() registers new events with kqueue() and retrieves any pending events.
     kevent(content.new_kqueue, &content.evSet, 1, NULL, 0, NULL);
     run_event_loop(content.new_kqueue, content.listener);
 }
