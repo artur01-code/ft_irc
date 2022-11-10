@@ -6,8 +6,8 @@
 #define M_DEBUG	0
 #endif
 
+#include <iostream>
 #include <string>
-
 #include <vector>
 
 class Message
@@ -23,7 +23,14 @@ class Message
 		Message(const std::string &input);
 		Message &operator=(const Message &rhs);
 		~Message();
-}
 
+		std::string					getPrefix() const;
+		std::string					getCommand() const;
+		std::vector<std::string>	getParameters() const;
+		std::string					getRawInput()const ;
+		void						parseMessage(std::string input);
+};
+
+std::ostream &operator<<(std::ostream &os, const Message &message);
 
 #endif
