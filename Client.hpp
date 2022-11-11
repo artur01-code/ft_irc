@@ -31,7 +31,7 @@ class Client
 		Client(const Client &rhs);
 		Client(int socket);
 		~Client();
-		Client &operator=(const CLient &rhs);
+		Client &operator=(const Client &rhs);
 };
 
 #endif
