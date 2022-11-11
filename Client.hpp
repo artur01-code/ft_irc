@@ -48,6 +48,8 @@ class Client
 		void setHostname(std::string hostname);
 		std::map<std::string, Channel *> getChannels(void);
 		void setChannels(std::map<std::string, Channel *> channels);
+
+		void printAttributes(void);
 };
 
 #endif

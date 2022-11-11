@@ -97,3 +97,17 @@ void Client::setChannels(std::map<std::string, Channel *> channels)
 {
 	this->_channels = channels;
 }
+
+void Client::printAttributes(void)
+{
+	if (this->getSocket() != -1)
+		std::cout << "Nickname: " << this->getSocket() << std::endl;
+	if (this->getNickname() != "")
+		std::cout << "Nickname: " << this->getNickname() << std::endl;
+	if (this->getHostname() != "")
+		std::cout << "Hostname: " << this->getHostname() << std::endl;
+	if (this->getRealname() != "")
+		std::cout << "Realname: " << this->getRealname() << std::endl;
+	if (this->getUsername() != "")
+		std::cout << "Username: " << this->getUsername() << std::endl;
+}
