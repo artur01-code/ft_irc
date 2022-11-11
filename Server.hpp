@@ -23,6 +23,8 @@
 
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Message.hpp"
+
 
 class Client;
 class Channel;
@@ -45,6 +47,10 @@ class Server
 	public:
 		Server(int port, std::string password);
 		~Server();
+
+        /*---COMMAND FUNCTIONS---*/
+        void    checkCommands(const Message &obj);
+		void    USER(const Message &obj);
 
 	private:
 		/*
