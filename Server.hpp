@@ -47,7 +47,10 @@ class Server
 	public:
 		Server(int port, std::string password);
 		~Server();
-		void						USER(const Message &obj);
+
+        /*---COMMAND FUNCTIONS---*/
+        void    checkCommands(const Message &obj);
+		void    USER(const Message &obj);
 
 	private:
 		/*

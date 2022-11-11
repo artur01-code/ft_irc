@@ -6,7 +6,7 @@
 /*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/11 11:47:37 by jtomala          ###   ########.fr       */
+/*   Updated: 2022/11/11 13:00:37 by jtomala          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,12 +175,11 @@ void receive_messages(int new_socket) {
     std::cout << "client #" << get_connection(content.new_socket_fd) << ": "
               << content.buf << std::endl;
 	
-	//function that returns a new obj of msg
+	//PARSING
 	Message msg1(content.buf);
-    // Server testserver(6969, "dings");
-	// msg1.parseMessage(content.buf);
-	std::cout << msg1 << std::endl;
-	// testserver.USER(msg1);
+    Server testserver(6969, "dings");
+    testserver.USER(msg1);
+    
     fflush(stdout);
 }
 // data_t *data = (data_t *)data_void;
