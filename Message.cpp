@@ -68,7 +68,7 @@ std::string	Message::getRawInput() const
 	{
 		if (res.length() > 0)
 			res =+ " ";
-		for (int i = 0; i < this->_parameters.size(); i++)
+		for (size_t i = 0; i < this->_parameters.size(); i++)
 			res += this->_parameters[i] + " ";
 		res.erase(res.end() - 1);	// delete the last " " that was added
 		res += "\r\n";				//Messages always end in CR-LF (Carriage Return - Line Feed)

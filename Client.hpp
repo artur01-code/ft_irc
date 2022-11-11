@@ -22,9 +22,9 @@ class Client
 	private:
 		int			_socket;
 		std::string	_nickname;
+		std::string _hostname;
 		std::string	_realname;
 		std::string	_username;
-		std::string _hostname;
 		std::map<std::string, Channel *> _channels;
 
 	public:

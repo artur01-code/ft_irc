@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client()
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username("")
 {
 
 }
@@ -15,7 +15,7 @@ Client::Client(const Client &rhs)
 	*this = rhs;
 }
 
-Client::Client(int socket) : _socket(socket)
+Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username("")
 {
 
 }

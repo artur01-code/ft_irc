@@ -5,7 +5,7 @@
 
 void Server::checkCommands(const Message &obj)
 {
-
+	this->USER(obj);
 }
 
 /*
