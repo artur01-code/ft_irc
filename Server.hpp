@@ -28,7 +28,7 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 
-#define NUM_CLIENTS 10
+
 #define MAX_EVENTS 32
 #define MAX_BUFF 256
 #define ERROR -1
@@ -40,51 +40,77 @@ class Server {
     typedef std::map<int, Client>::iterator it;
 
    private:
-    int _port;
-    std::string _password;
-    struct sockaddr_in _address;
-    std::map<int, Client> _clients;
-    std::string _host;
-    std::string _servername;
-    std::string _motd;
-    std::string _password_operator;
-    std::map<int, Channel> _channels;
-    std::map<int, Client> _bots;
+    // int _port;
+    // std::string _password;
+    // struct sockaddr_in _address;
+    // std::map<int, Client> _clients;
+    // std::string _host;
+    // std::string _servername;
+    // std::string _motd;
+    // std::string _password_operator;
+    // std::map<int, Channel> _channels;
+    // std::map<int, Client> _bots;
 
-    int new_socket_fd;
-	int fd_listen;
-    char _msg[2048];
-    int _bytes_read;
-    char _buf[MAX_BUFF];
+    int _new_events;
+	int _fd_client;
+    int _kq_fd;
 
-    int port;
-    socklen_t socket_length;
-    struct sockaddr_storage remote_addr;
-    int num_events;
-	int _kqueue;
+    std::string _ip_address;
+    int         _port;
+   
+
+    
+    // char _msg[2048];
+    // char _buf[MAX_BUFF];
+    // int _bytes_read;
+
+    // int port;
+    // socklen_t socket_length;
+    // struct sockaddr_storage remote_addr;
+    // int num_events;
+	// int _kqueue;
 
 
     // Client					clients;
 
    public:
     Server();
-    // Server(int port);
-    Server(int port, std::string password);
-    // Server(int port, const char *ip_addr);
+    Server(int port);
+    Server(int port, std::string ip_address);
+    // Server(int port, const char *ip_address) {};
     ~Server();
 
-    void CountDown();
-    int listener_fd;
-    int new_queue;
+    //--------------SETUP_CONNECTION-------------//
+    void setup_connection(std::string &ip_address, int port);
+
+    int set_socket();
+    int set_bind();
+    int set_listen();
+    int set_accept();
+    int receive_messages(int fd);
+    int set_send(int fd, std::string message);
+    void set_kqueue();
+    void set_add_kqueue(int fd);
+    void set_delete_kqueue(int fd);
+    void kqueue_engine();
+    int pending_events();
+    int examine_and_read();
+    // void add_connection(int fd_client, sockaddr_in address_info_client, std::string server_ip_address);
+    int add_connection(int fd);
+    int get_connection(int fd);
+    int remove_connection(int fd);
+
+    Client *getClientFd(int fd);
 
     Client *get_connection_with_client(int fd);
     void send_welcome_msg();
-    void add_connection();
-    void remove_connection(int fd);
-    void receive_messages();
+    
     int create_socket_and_listen();
+
+
+    //Countdown
     void run_event_loop();
-	int setAccept();
+	
 
     // getter
     std::string getPassword(void) const;
@@ -96,7 +122,7 @@ class Server {
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
     // returned events are places in event_list
-    struct kevent _event_list;
+    struct kevent _event_list[256];
 
     std::vector<Client *> client_vector;
 
@@ -149,6 +175,12 @@ class Server {
     class LimitMessageException : public std::exception {
         virtual const char *what() const throw();
     };
+    class KeventAddException : public std::exception {
+        virtual const char *what() const throw();
+    };
+    class KeventDeleteException : public std::exception {
+        virtual const char *what() const throw();
+    };
 
    private:
     /*
@@ -159,6 +191,24 @@ class Server {
 
     // Server(const Server &rhs);
     // Server &operator=(const Server &rhs);
+
+    struct sockaddr_in _server_address;
+    int                 _server_fd;
+
+
+    //message for receiving and reading
+    std::string _message;
+    // std::vector<Client *> _Client;
+    // Client *client;
+
+    struct client_data {
+        int fd;
+    } clients[NUM_CLIENTS];
+
+    int                 last_itr_connect;
+    int                 last_itr_disconnect;
+    int                 last_itr_read;
+
 };
 
 #endif

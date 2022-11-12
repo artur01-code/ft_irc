@@ -15,6 +15,7 @@
 #include <netinet/ip.h> 
 
 #include "Channel.hpp"
+#define NUM_CLIENTS 20
 
 class Channel;
 class Server;
@@ -48,7 +49,7 @@ class Client {
 	int getFdSocket(void) const {
 		return this->_fd_socket;
 	}
-
+    
 	//setters
 	void setFdSocket(int param_fdsocket) {
 		this->_fd_socket = param_fdsocket;
