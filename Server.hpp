@@ -95,10 +95,18 @@ class Server {
     void kqueue_engine();
     int pending_events();
     int examine_and_read();
-    // void add_connection(int fd_client, sockaddr_in address_info_client, std::string server_ip_address);
     int add_connection(int fd);
-    int get_connection(int fd);
-    int remove_connection(int fd);
+    // int get_connection(int fd);
+    // int remove_connection(int fd);
+    // void 	AddClient(int fd_client, sockaddr_in addrinfo_client, std::string server_ipaddr);
+    // void 	RemoveClient(int fd_client);
+    // void GetNameInfo(const sockaddr * clientaddr);
+    // int CheckConnect();
+    // int CheckDisconnect();
+    // int	CheckAndRead();
+    // int CheckAndRead2();
+    // Client* GetClientFromFd(int fd);
+    // int get_connection(int fd);
 
     Client *getClientFd(int fd);
 
@@ -122,7 +130,7 @@ class Server {
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
     // returned events are places in event_list
-    struct kevent _event_list[256];
+    struct kevent _event_list[20];
 
     std::vector<Client *> client_vector;
 
@@ -198,12 +206,12 @@ class Server {
 
     //message for receiving and reading
     std::string _message;
-    // std::vector<Client *> _Client;
+    std::vector<Client *> _Client;
     // Client *client;
 
-    struct client_data {
-        int fd;
-    } clients[NUM_CLIENTS];
+    // struct client_data {
+    //     int fd;
+    // } clients[NUM_CLIENTS];
 
     int                 last_itr_connect;
     int                 last_itr_disconnect;

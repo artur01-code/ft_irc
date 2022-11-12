@@ -34,11 +34,12 @@ class Client {
 
 
    public:
-    Client() {};
-    Client(const Client &rhs);
+    Client(int fd_client, sockaddr_in addrinfo_client, std::string serv_ipaddr);
+    // Client(const Client &rhs);
     Client(int socket);
     ~Client() {};
     Client &operator=(const Client &rhs);
+    int getFd() const;
 
 	//getters
     // int getFd(void) const { return this->_fd; }
@@ -54,6 +55,16 @@ class Client {
 	void setFdSocket(int param_fdsocket) {
 		this->_fd_socket = param_fdsocket;
 	}
+
+    struct sockaddr_in getAddrInfo() const {
+        return (_addrinfo);
+    }
+
+    struct sockaddr_in _addrinfo;
+    int                _fd;
+    std::string _server_ipaddr;
+    std::string _host;
+
 };
 
 #endif

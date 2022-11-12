@@ -6,7 +6,7 @@
 /*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 02:51:29 by rkultaev          #+#    #+#             */
-/*   Updated: 2022/11/12 09:57:10 by rkultaev         ###   ########.fr       */
+/*   Updated: 2022/11/12 18:52:34 by rkultaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,5 @@ int main(int argc, char **argv) {
     Server server;
 
     server.kqueue_engine();
-    // std::cout << "hey" << std::endl;
+    std::cout << "hey" << std::endl;
 }
