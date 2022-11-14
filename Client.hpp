@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "Channel.hpp"
+#include "Colors.hpp"
 
 class Channel;
 

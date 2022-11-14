@@ -26,7 +26,9 @@ Server::Server(int port, std::string ip_address) {
 }
 
 //--------------DESTRUCTOR-------------//
-Server::~Server() {}
+Server::~Server() {
+    
+}
 
 
 //--------------SETUP_CONNECTION-------------//
@@ -134,7 +136,6 @@ int Server::parsing_messages(std::string read)
         every message is seperated by "\r\n" and gets their own Message obj
         every Message obj gets redirected to the commandCheck() function of the server
     */
-    // Server testserver(6969, "dings");
     std::vector<Message> v_message;
     
     std::string buf_string(read);

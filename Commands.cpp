@@ -27,13 +27,15 @@ void Server::USER(const Message &obj)
 	//set the value that got passed for the user
 	std::vector<std::string> vec = obj.getParameters();
 	//Client(std::string nickname, std::string hostname, std::string realname, std::string username);
-	Client client_obj("", vec[1], vec[3], vec[0]);
+	Client *client_obj = new Client("", vec[1], vec[3], vec[0]);
+
 	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
-	this->_clients.insert(std::make_pair(client_obj.getSocket(), client_obj));
+	// this->_clients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
+
 	if (M_DEBUG)
 	{
 		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl;
-		client_obj.printAttributes();
+		client_obj->printAttributes();
 		std::cout << std::endl;
 	}
 }
@@ -49,8 +51,11 @@ void Server::NICK(const Message &obj)
 	//create new Client and save it in the map of the server
 	//set the value that got passed for the user
 	std::vector<std::string> vec = obj.getParameters();
-	//Client(std::string nickname);
-	Client client_obj(vec[0]);
+
+	/*we need to store it in the client that got created when the USER command got executed -> socketaddr*/
+	Client client_obj(vec[0]); //thats wrong
+
+
 	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
 	this->_clients.insert(std::make_pair(client_obj.getSocket(), client_obj));
 	if (M_DEBUG)
