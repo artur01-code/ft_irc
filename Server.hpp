@@ -51,6 +51,7 @@ class Server
         /*---COMMAND FUNCTIONS---*/
         void    checkCommands(const Message &obj);
 		void    USER(const Message &obj);
+		void    NICK(const Message &obj);
 
 	private:
 		/*

@@ -5,7 +5,10 @@
 
 void Server::checkCommands(const Message &obj)
 {
-	this->USER(obj);
+	if (obj.getCommand() == "USER")
+		this->USER(obj);
+	else if (obj.getCommand() == "NICK")
+		this->NICK(obj);
 }
 
 /*
@@ -20,19 +23,40 @@ Parameters:
 */
 void Server::USER(const Message &obj)
 {
-	if (obj.getPrefix() == "" && obj.getCommand() == "USER")
+	//create new Client and save it in the map of the server
+	//set the value that got passed for the user
+	std::vector<std::string> vec = obj.getParameters();
+	//Client(std::string nickname, std::string hostname, std::string realname, std::string username);
+	Client client_obj("", vec[1], vec[3], vec[0]);
+	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
+	this->_clients.insert(std::make_pair(client_obj.getSocket(), client_obj));
+	if (M_DEBUG)
 	{
-		std::cout << "COMMAND FUNCTION GOT TRIGGERT" << std::endl;
-		//create new Client and save it in the map of the server
-		//set the value that got passed for the user
-		std::vector<std::string> vec = obj.getParameters();
-		//Client(std::string nickname, std::string hostname, std::string realname, std::string username);
-		Client client1("", vec[1], vec[3], vec[0]);
-		client1.printAttributes();
+		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl;
+		client_obj.printAttributes();
+		std::cout << std::endl;
 	}
-	else
+}
+
+/*
+Prefix:
+Command:        NICK
+Parameters:
+        [0]     second
+*/
+void Server::NICK(const Message &obj)
+{
+	//create new Client and save it in the map of the server
+	//set the value that got passed for the user
+	std::vector<std::string> vec = obj.getParameters();
+	//Client(std::string nickname);
+	Client client_obj(vec[0]);
+	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
+	this->_clients.insert(std::make_pair(client_obj.getSocket(), client_obj));
+	if (M_DEBUG)
 	{
-		std::cout << "\nCommand not found." << std::endl;
-		std::cout << "Message was:\n" << obj << std::endl;
+		std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERT" << std::endl;
+		client_obj.printAttributes();
+		std::cout << std::endl;
 	}
 }

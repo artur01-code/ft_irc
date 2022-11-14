@@ -5,6 +5,11 @@ Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _us
 
 }
 
+Client::Client(std::string nickname) : _nickname(nickname)
+{
+
+}
+
 Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username) : _nickname(nickname), _hostname(hostname), _realname(realname), _username(username)
 {
 
