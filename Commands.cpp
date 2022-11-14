@@ -31,5 +31,8 @@ void Server::USER(const Message &obj)
 		client1.printAttributes();
 	}
 	else
-		std::cout << "Command: \"USER\" not found." << std::endl;
+	{
+		std::cout << "\nCommand not found." << std::endl;
+		std::cout << "Message was:\n" << obj << std::endl;
+	}
 }

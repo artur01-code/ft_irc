@@ -101,7 +101,7 @@ void Client::setChannels(std::map<std::string, Channel *> channels)
 void Client::printAttributes(void)
 {
 	if (this->getSocket() != -1)
-		std::cout << "Nickname: " << this->getSocket() << std::endl;
+		std::cout << "Socket: " << this->getSocket() << std::endl;
 	if (this->getNickname() != "")
 		std::cout << "Nickname: " << this->getNickname() << std::endl;
 	if (this->getHostname() != "")

@@ -6,7 +6,7 @@
 /*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/11 15:14:17 by jtomala          ###   ########.fr       */
+/*   Updated: 2022/11/14 10:37:31 by jtomala          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,12 +175,30 @@ void receive_messages(int new_socket) {
     std::cout << "client #" << get_connection(content.new_socket_fd) << ": "
               << content.buf << std::endl;
 	
-	//PARSING
-	Message msg1(content.buf);
+	/*--- PARSIND START ---*/
+    /*
+        create a vector(list) of all the possible messages;
+        every message is seperated by "\r\n" and gets their own Message obj
+        every Message obj gets redirected to the commandCheck() function of the server
+    */
     Server testserver(6969, "dings");
-    testserver.USER(msg1);
+    std::vector<Message> v_message;
     
-    fflush(stdout);
+    std::string buf_string(content.buf);
+    while (buf_string.find("\r\n") != buf_string.npos)
+    {
+        Message msg(buf_string.substr(0, buf_string.find("\r\n")));
+        v_message.push_back(msg);
+        buf_string = buf_string.substr(buf_string.find("\r\n") + 2, (size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
+    }
+    std::vector<Message>::iterator it = v_message.begin();
+    while (it != v_message.end())
+    {
+        testserver.checkCommands(*it);
+        it++;
+    }
+    /*--- PARSING END ---*/
+
 }
 // data_t *data = (data_t *)data_void;
 
