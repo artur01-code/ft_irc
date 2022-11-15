@@ -11,6 +11,8 @@ void Server::checkCommands(const Message &obj)
 		this->NICK(obj);
 	else if (obj.getCommand() == "PASS")
 		this->PASS(obj);
+	else if (obj.getCommand() == "JOIN")
+		this->JOIN(obj);
 
 	//call channel commands
 	
@@ -48,10 +50,23 @@ void Server::PASS(const Message &obj)
 			{
 				std::cout << "bad password!" << std::endl;
 			}	
-
 			break;
 		}
 		it++;
+	}
+}
+
+void	Server::JOIN(const Message &obj)
+{
+	if (M_DEBUG)
+		std::cout << "TRIGGERED JOIN" << std::endl;
+	typedef std::vector<std::string>::iterator	iterator;
+	std::vector<std::string>	ret = obj.getParameters();
+
+	iterator end(ret.end());
+	for (iterator begin(ret.begin()); begin < end; begin++)
+	{
+		std::cout << "This is a param: " << *begin << std::endl;
 	}
 }
 
@@ -76,12 +91,12 @@ void Server::USER(const Message &obj)
 	std::map<int, Client>::iterator it = this->_clients.begin();
 	while (it != this->_clients.end())
 	{
-		if (1002 /*SOCKETADDRESS*/ == it->first)
+		if (this->_fd_client == it->first)
 			return; //send error message to client (USERALREADYEXISTS)
 		it++;
 	}
 	
-	Client *client_obj = new Client("", vec[1], vec[3], vec[0]);
+	Client *client_obj = new Client("", vec[1], vec[3], vec[0], this->_fd_client);
 
 	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
 	this->_clients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
@@ -109,7 +124,7 @@ void Server::NICK(const Message &obj)
 	std::map<int, Client>::iterator it = this->_clients.begin();
 	while (it != this->_clients.end())
 	{
-		if (0 /*SOCKETADDRESS*/ == it->first)
+		if (this->_fd_client == it->first)
 		{
 			Client obj = it->second;
 			obj.setNickname(vec[0]);
