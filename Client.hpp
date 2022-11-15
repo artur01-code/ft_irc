@@ -31,7 +31,7 @@ class Client
 	public:
 		Client();
 		Client(std::string nickname);
-		Client(std::string nickname, std::string hostname, std::string realname, std::string username);
+		Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket);
 		Client(const Client &rhs);
 		Client(int socket);
 		~Client();

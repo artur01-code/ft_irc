@@ -12,7 +12,7 @@ Client::Client(std::string nickname) : _nickname(nickname)
 		std::cout << COLOR_GREEN << " Client nickname Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username) : _nickname(nickname), _hostname(hostname), _realname(realname), _username(username)
+Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket) : _nickname(nickname), _hostname(hostname), _realname(realname), _username(username), _socket(socket)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client params Constructor" << END << std::endl;

@@ -32,7 +32,7 @@ void Server::USER(const Message &obj)
 	// else if (/*USER ALREADY REGISTERED*/)
 	// 	return ; // send error message to client
 	
-	Client *client_obj = new Client("", vec[1], vec[3], vec[0]);
+	Client *client_obj = new Client("", vec[1], vec[3], vec[0], _fd_client);
 
 	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
 	this->_clients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
