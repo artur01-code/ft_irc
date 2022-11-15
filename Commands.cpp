@@ -11,6 +11,9 @@ void Server::checkCommands(const Message &obj)
 		this->NICK(obj);
 	else if (obj.getCommand() == "PASS")
 		this->PASS(obj);
+
+	//call channel commands
+	
 }
 
 /*

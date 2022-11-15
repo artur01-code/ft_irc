@@ -48,8 +48,8 @@ class Server {
     std::string _host;
     std::string _servername;
     std::string _motd;
-    std::string _password_operator;
-    std::map<int, Channel> _channels;
+    std::string _password_opera    std::map<int, Channel> _channels;tor;
+
     std::map<int, Client> _bots;
 
     int _new_events;
