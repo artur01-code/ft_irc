@@ -26,7 +26,9 @@ Server::Server(int port, std::string ip_address) {
 }
 
 //--------------DESTRUCTOR-------------//
-Server::~Server() {}
+Server::~Server() {
+    
+}
 
 
 //--------------SETUP_CONNECTION-------------//
@@ -92,6 +94,7 @@ int Server::set_accept() {
     socklen_t socket_length;
     int client_fd;
     char buffer[2048];
+    char ip_str[INET_ADDRSTRLEN];
     client_fd = accept(this->_server_fd, (struct sockaddr *)&client_address, (socklen_t *)&socket_length);
     if (client_fd == ERROR)
         throw Server::AcceptException();
@@ -100,7 +103,9 @@ int Server::set_accept() {
     // AddClient(client_fd, client_address, _ip_address);
     // add_connection(client_fd);
     inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer, sizeof(client_address));
-    // std::cout << client_fd << std::endl;
+    inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str, sizeof(client_address));
+    std::string message = std::string("IPv4 address is : ") + ip_str;
+    std::cout << message << std::endl;
     return client_fd;
 }
 
@@ -122,7 +127,37 @@ int Server::receive_messages(int fd) {
 
     buffer[bytes_read] = 0;
     std::cout << "client #" << buffer << std::endl;
+    this->parsing_messages(buffer);
     return 1;
+}
+
+int Server::parsing_messages(std::string read)
+{
+    /*--- PARSIND START ---*/
+    /*
+        create a vector(list) of all the possible messages;
+        every message is seperated by "\r\n" and gets their own Message obj
+        every Message obj gets redirected to the commandCheck() function of the server
+    */
+    std::vector<Message> v_message;
+    
+    std::string buf_string(read);
+    while (buf_string.find("\r\n") != buf_string.npos)
+    {
+        Message msg(buf_string.substr(0, buf_string.find("\r\n")));
+        v_message.push_back(msg);
+        buf_string = buf_string.substr(buf_string.find("\r\n") + 2, (size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
+    }
+    std::vector<Message>::iterator it = v_message.begin();
+    while (it != v_message.end())
+    {
+		if (M_DEBUG)
+			std::cout << "Enters anyways" << std::endl;
+        this->checkCommands(*it);
+        it++;
+    }
+    return (1);
+    /*--- PARSING END ---*/
 }
 
 // int Server::get_connection(int fd) {

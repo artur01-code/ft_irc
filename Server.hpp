@@ -27,6 +27,7 @@
 
 #include "Channel.hpp"
 #include "Client.hpp"
+#include "Message.hpp"
 
 
 #define MAX_EVENTS 32
@@ -40,16 +41,16 @@ class Server {
     typedef std::map<int, Client>::iterator it;
 
    private:
-    // int _port;
-    // std::string _password;
-    // struct sockaddr_in _address;
-    // std::map<int, Client> _clients;
-    // std::string _host;
-    // std::string _servername;
-    // std::string _motd;
-    // std::string _password_operator;
-    // std::map<int, Channel> _channels;
-    // std::map<int, Client> _bots;
+
+    std::string _password;
+    struct sockaddr_in _address;
+    std::map<int, Client> _clients;
+    std::string _host;
+    std::string _servername;
+    std::string _motd;
+    std::string _password_operator;
+    std::map<int, Channel> _channels;
+    std::map<int, Client> _bots;
 
     int _new_events;
 	int _fd_client;
@@ -133,6 +134,15 @@ class Server {
     struct kevent _event_list[20];
 
     std::vector<Client *> client_vector;
+
+    /*---COMMAND FUNCTIONS---*/
+        int     parsing_messages(std::string read);
+        void    checkCommands(const Message &obj);
+		void    USER(const Message &obj);
+		void    NICK(const Message &obj);
+        void    PASS(const Message &obj);
+		void	JOIN(const Message &obj);
+
 
     //--------------Exceptions-------------//
     class SendException : public std::exception {
