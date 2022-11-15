@@ -148,6 +148,8 @@ int Server::parsing_messages(std::string read)
     std::vector<Message>::iterator it = v_message.begin();
     while (it != v_message.end())
     {
+		if (M_DEBUG)
+			std::cout << "Enters anyways" << std::endl;
         this->checkCommands(*it);
         it++;
     }
