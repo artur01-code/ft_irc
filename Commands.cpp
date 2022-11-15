@@ -9,6 +9,22 @@ void Server::checkCommands(const Message &obj)
 		this->USER(obj);
 	else if (obj.getCommand() == "NICK")
 		this->NICK(obj);
+	else if (obj.getCommand() == "JOIN")
+		this->JOIN(obj);
+}
+
+void	Server::JOIN(const Message &obj)
+{
+	if (M_DEBUG)
+		std::cout << "TRIGGERED JOIN" << std::endl;
+	typedef std::vector<std::string>::iterator	iterator;
+	std::vector<std::string>	ret = obj.getParameters();
+
+	iterator end(ret.end());
+	for (iterator begin(ret.begin()); begin < end; begin++)
+	{
+		std::cout << "This is a param: " << *begin << std::endl;
+	}
 }
 
 /*
