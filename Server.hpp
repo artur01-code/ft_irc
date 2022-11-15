@@ -140,6 +140,7 @@ class Server {
         void    checkCommands(const Message &obj);
 		void    USER(const Message &obj);
 		void    NICK(const Message &obj);
+        void    PASS(const Message &obj);
 
     //--------------Exceptions-------------//
     class SendException : public std::exception {
