@@ -12,6 +12,8 @@ void Server::checkCommands(const Message &obj)
 }
 
 /*
+create new Client and save it in the map of the server
+set the value that got passed for the user
 string that got passed for exp.:
 Prefix:
 Command:        USER
@@ -23,14 +25,17 @@ Parameters:
 */
 void Server::USER(const Message &obj)
 {
-	//create new Client and save it in the map of the server
-	//set the value that got passed for the user
 	std::vector<std::string> vec = obj.getParameters();
-	//Client(std::string nickname, std::string hostname, std::string realname, std::string username);
+
+	// if (vec.size() < 4)
+	// 	return ; //send error message to client
+	// else if (/*USER ALREADY REGISTERED*/)
+	// 	return ; // send error message to client
+	
 	Client *client_obj = new Client("", vec[1], vec[3], vec[0]);
 
 	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
-	// this->_clients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
+	this->_clients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
 
 	if (M_DEBUG)
 	{
@@ -52,7 +57,7 @@ void Server::NICK(const Message &obj)
 	//set the value that got passed for the user
 	std::vector<std::string> vec = obj.getParameters();
 
-	/*we need to store it in the client that got created when the USER command got executed -> socketaddr*/
+	/*take the socket adress and look it up in the map of the server*/
 	Client client_obj(vec[0]); //thats wrong
 
 
