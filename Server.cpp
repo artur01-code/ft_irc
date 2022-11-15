@@ -94,6 +94,7 @@ int Server::set_accept() {
     socklen_t socket_length;
     int client_fd;
     char buffer[2048];
+    char ip_str[INET_ADDRSTRLEN];
     client_fd = accept(this->_server_fd, (struct sockaddr *)&client_address, (socklen_t *)&socket_length);
     if (client_fd == ERROR)
         throw Server::AcceptException();
@@ -102,7 +103,9 @@ int Server::set_accept() {
     // AddClient(client_fd, client_address, _ip_address);
     // add_connection(client_fd);
     inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer, sizeof(client_address));
-    // std::cout << client_fd << std::endl;
+    inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str, sizeof(client_address));
+    std::string message = std::string("IPv4 address is : ") + ip_str;
+    std::cout << message << std::endl;
     return client_fd;
 }
 
