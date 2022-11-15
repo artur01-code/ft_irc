@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "Channel.hpp"
+#include "Colors.hpp"
 
 class Channel;
 
@@ -29,6 +30,7 @@ class Client
 
 	public:
 		Client();
+		Client(std::string nickname);
 		Client(std::string nickname, std::string hostname, std::string realname, std::string username);
 		Client(const Client &rhs);
 		Client(int socket);
