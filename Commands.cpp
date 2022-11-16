@@ -171,23 +171,22 @@ void Server::NICK(const Message &obj)
 	}
 }
 
-void	Server::TOPIC(Client *cl, const Message &msg)
+void	Server::TOPIC(Client *cl, Message msg)
 {
-	std::string	tmpMsg;
-	if (!msg.getParameters().size())
+	if (msg.getParameters().empty())
 	{
 		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, "TOPIC"));
 		return ;
 	}
-	if (!this->_channels.count(msg.getParameters().front()))
+	if (!this->_channels.count(msg.getParameters()[0]))
 	{
-		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters().front())));
+		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters()[0])));
 		return ;
 	}
-	Channel *ch = &this->_channels.at(msg.getParameters().front());
+	Channel *ch = &this->_channels.at(msg.getParameters()[0]);
 	if (!) // make member function of this
 	{
-		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters().front()));
+		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters()[0]));
 		return ;
 	}
 	if (msg.getParameters().size() == 1)
@@ -203,5 +202,40 @@ void	Server::TOPIC(Client *cl, const Message &msg)
 			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
 		else
 			ch->setTopic(msg.getParameters()[1]);
+	}
+}
+
+void	Server::PRIVMSG(Client *cl, const Message &msg)
+{
+	std::vector<std::string>	recipients;
+	std::string					text;
+
+	if (msg.getParameters().empty())
+	{
+		this->sendMessage(cl, ERR_NORECIPIENT(cl, "PRIVMSG"));
+		return ;
+	}
+	if (msg.getParameters().size() < 2)
+	{
+		this->sendMessage(cl, ERR_NOTEXTTOSEND(cl));
+		return ;
+	}
+	// possibly split first parameter into recipients separated by commas
+	std::string tmp = msg.getParameters()[0];
+	size_t		comma;
+	while ((comma = tmp.find(',')) != tmp.npos)
+	{
+		std::cout << tmp << std::endl;
+		std::cout << comma << std::endl;
+		recipients.push_back(tmp.substr(0, comma));
+		tmp.erase(0, comma + 1);
+	}
+	recipients.push_back(tmp.substr(0, tmp.npos));
+	// iterate over all recipients and send messages accordingly
+	// - if channel, distribute message to all users in that channel
+	// - if user, send privmsg to that user
+	for (size_t i = 0; i < recipients.size(); i++)
+	{
+
 	}
 }

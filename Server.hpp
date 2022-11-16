@@ -112,8 +112,8 @@ class Server {
     void NICK(const Message &obj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
-	void TOPIC(Client *cl, const Message &msg);
-
+	void TOPIC(Client *cl, Message msg);
+	void PRIVMSG(Client *cl, const Message &msg);
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
     std::string ERR_NOSUCHSERVER(Client *client);
