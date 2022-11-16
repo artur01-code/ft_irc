@@ -130,8 +130,19 @@ Parameters:
 */
 void Server::NICK(const Message &obj)
 {
+	Client tmpClient1 = Client();
+	if (obj.getParameters().empty())
+	{
+		std::string msg = ERR_NONICKNAMEGIVEN(&tmpClient1);
+		if (M_DEBUG)
+		{
+			std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
+			std::cout << msg << std::endl;
+		}
+		send(this->_fd_client, msg.c_str(), msg.size(), 0);
+		return;
+	}
 	std::vector<std::string> vec = obj.getParameters();
-
 	Client tmpClient = Client(vec[0]);
 	if (vec[0].size() > 9 || !isalpha(vec[0][0]))
 	{
@@ -144,7 +155,6 @@ void Server::NICK(const Message &obj)
 		send(this->_fd_client, msg.c_str(), msg.size(), 0);
 		return;
 	}
-
 	std::map<int, Client>::iterator itReg = this->_regClients.begin();
 	while (itReg != this->_regClients.end())
 	{
