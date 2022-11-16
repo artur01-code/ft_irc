@@ -3,16 +3,16 @@
 #include "Message.hpp"
 #include "Server.hpp"
 
-void Server::checkCommands(const Message &obj)
+void Server::checkCommands(const Message &msgObj, const Client &clientObj)
 {
-	if (obj.getCommand() == "USER")
-		this->USER(obj);
-	else if (obj.getCommand() == "NICK")
-		this->NICK(obj);
-	else if (obj.getCommand() == "PASS")
-		this->PASS(obj);
-	else if (obj.getCommand() == "JOIN")
-		this->JOIN(obj);
+	if (msgObj.getCommand() == "USER")
+		this->USER(msgObj, clientObj);
+	else if (msgObj.getCommand() == "NICK")
+		this->NICK(msgObj);
+	else if (msgObj.getCommand() == "PASS")
+		this->PASS(msgObj);
+	else if (msgObj.getCommand() == "JOIN")
+		this->JOIN(msgObj);
 
 	//call channel commands
 
@@ -82,13 +82,12 @@ Parameters:
         [2]     localhost
         [3]     Jorit
 */
-void Server::USER(const Message &obj)
+void Server::USER(const Message &obj, Client &clientObj)
 {
 	std::vector<std::string> vec = obj.getParameters();
 	if (vec.size() < 4)
 	{
-		Client tmpClient = Client();
-		std::string msg = ERR_NEEDMOREPARAMS(&tmpClient, "USER");
+		std::string msg = ERR_NEEDMOREPARAMS(&clientObj, "USER");
 		if (M_DEBUG)
 			std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl \
 			<< msg << std::endl;

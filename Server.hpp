@@ -107,8 +107,8 @@ class Server {
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
-    void checkCommands(const Message &obj);
-    void USER(const Message &obj);
+    void checkCommands(const Message &msgObj, const Client &clientObj);
+    void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
