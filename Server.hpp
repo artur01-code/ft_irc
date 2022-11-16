@@ -122,10 +122,13 @@ class Server {
 
 
 		// getter
-		std::string getPassword(void) const;
+		std::string	getPassword(void) const;
+		std::string	getServerName();
+		std::string	getHost();
+		std::string	getMotd();
 		// setter
-		void setPassword(std::string param_password);
-		void setKEvent();
+		void	setPassword(std::string param_password);
+		void	setKEvent();
 
 		// kevent data struct info
 		// changes that should be applied to kqueue() are given in change_list
@@ -136,7 +139,7 @@ class Server {
 		std::vector<Client *> client_vector;
 
 	/*---COMMAND FUNCTIONS---*/
-		int	 parsing_messages(std::string read);
+		int	 	parsing_messages(std::string read);
 		void	checkCommands(const Message &obj);
 		void	USER(const Message &obj);
 		void	NICK(const Message &obj);
