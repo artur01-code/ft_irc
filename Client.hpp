@@ -38,13 +38,13 @@ class Client
 		Client &operator=(const Client &rhs);
 
 		/*---GETTER AND SETTER---*/
-		int getSocket(void);
+		int getSocket(void) const;
 		void setSocket(int socket);
 		std::string getNickname(void);
 		void setNickname(std::string nickname);
 		std::string getRealname(void);
 		void setRealname(std::string realname);
-		std::string getUsername(void);
+		std::string getUsername(void) const;
 		void setUsername(std::string username);
 		std::string getHostname(void);
 		void setHostname(std::string hostname);
@@ -52,6 +52,12 @@ class Client
 		void setChannels(std::map<std::string, Channel *> channels);
 
 		void printAttributes(void);
+		bool	operator==(const Client &obj) const
+		{
+			return (_socket == obj.getSocket());
+		}
 };
+
+std::ostream	&operator<<(std::ostream &os, Client &obj);
 
 #endif

@@ -49,7 +49,8 @@ class Server {
     std::string _servername;
     std::string _motd;
     std::string _password_operator;
-    std::map<int, Channel> _channels;
+	// For iteration purposes
+	std::vector<Channel>	_v_channels;
     std::map<int, Client> _bots;
 
     int _new_events;
@@ -142,6 +143,7 @@ class Server {
 		void    NICK(const Message &obj);
         void    PASS(const Message &obj);
 		void	JOIN(const Message &obj);
+		void	PART(const Message &obj);
 
     //--------------Exceptions-------------//
     class SendException : public std::exception {

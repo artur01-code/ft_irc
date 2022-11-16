@@ -47,7 +47,7 @@ Client &Client::operator=(const Client &rhs)
 
 /*---GETTER AND SETTER*/
 
-int Client::getSocket(void)
+int Client::getSocket(void) const
 {
 	return (this->_socket);
 }
@@ -77,7 +77,7 @@ void Client::setRealname(std::string realname)
 	this->_realname = realname;
 }
 
-std::string Client::getUsername(void)
+std::string Client::getUsername(void) const
 {
 	return (this->_username);
 }
@@ -119,4 +119,10 @@ void Client::printAttributes(void)
 		std::cout << "Realname: " << this->getRealname() << std::endl;
 	if (this->getUsername() != "")
 		std::cout << "Username: " << this->getUsername() << std::endl;
+}
+
+std::ostream	&operator<<(std::ostream &os, Client &obj)
+{
+	os << obj.getSocket();
+	return (os);
 }

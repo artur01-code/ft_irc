@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 //--------------DEFAULT CONSTRUCTOR-------------//
-Server::Server() {
+Server::Server() : _v_channels() {
     std::string ip_address = "127.0.0.1";
     int port = 6969;
     setup_connection(_ip_address, port);
@@ -10,7 +10,7 @@ Server::Server() {
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) {
+Server::Server(int port) : _v_channels() {
 
     std::cout << "hey1\n";
     std::string tmp = "127.0.0.1";
@@ -19,7 +19,7 @@ Server::Server(int port) {
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port, std::string ip_address) {
+Server::Server(int port, std::string ip_address) : _v_channels() {
 
     setup_connection(ip_address, port);
     set_kqueue();
@@ -139,6 +139,9 @@ int Server::parsing_messages(std::string read)
     std::vector<Message> v_message;
     
     std::string buf_string(read);
+	buf_string = buf_string.substr(0, buf_string.length() - 1);
+	buf_string += "\r\n";
+
     while (buf_string.find("\r\n") != buf_string.npos)
     {
         Message msg(buf_string.substr(0, buf_string.find("\r\n")));

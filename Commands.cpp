@@ -13,7 +13,8 @@ void Server::checkCommands(const Message &obj)
 		this->PASS(obj);
 	else if (obj.getCommand() == "JOIN")
 		this->JOIN(obj);
-
+	else if (obj.getCommand() == "PART")
+		this->PART(obj);
 	//call channel commands
 	
 }
@@ -56,18 +57,135 @@ void Server::PASS(const Message &obj)
 	}
 }
 
-void	Server::JOIN(const Message &obj)
+std::vector<std::vector<std::string> >	getTree(const Message &obj)
 {
-	if (M_DEBUG)
-		std::cout << "TRIGGERED JOIN" << std::endl;
-	typedef std::vector<std::string>::iterator	iterator;
+	typedef std::vector<std::string>::iterator	viterator;
+	typedef std::vector<std::vector<std::string> >::iterator	vmeta_iterator;
 	std::vector<std::string>	ret = obj.getParameters();
 
-	iterator end(ret.end());
-	for (iterator begin(ret.begin()); begin < end; begin++)
+	std::vector<std::vector<std::string> >	tree;
 	{
-		std::cout << "This is a param: " << *begin << std::endl;
+		viterator end(ret.end());
+		size_t	i = 0;
+		for (viterator begin(ret.begin()); begin < end; begin++)
+		{
+			tree.push_back(std::vector<std::string>());
+			std::string remainder = *begin;
+		
+			while (1)
+			{
+				tree[i].push_back(remainder.substr(0, remainder.find(",")));
+				if (remainder.find(",") == std::string::npos)
+					break ;
+				remainder = remainder.substr(remainder.find(",") + 1);
+			}
+			i++;
+		}
 	}
+	return (tree);
+}
+
+// Very, very inefficent because I am not using maps... talk to your team mates
+void	Server::PART(const Message &obj)
+{
+	typedef std::vector<Channel>::iterator	iterator;
+	typedef	std::vector<std::string>::iterator	str_iterator;
+	if (M_DEBUG)
+		std::cout << "TRIGGERED PART" << std::endl;
+
+	std::vector<std::vector<std::string> >	tree = getTree(obj);
+
+	iterator begin(_v_channels.begin());
+	for (iterator end(_v_channels.end()); begin < end; begin++)
+	{
+		str_iterator	param_begin(tree[0].begin());
+		for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
+		{
+			if ( (*begin).getName() == *param_begin)
+				(*begin).rm_client(_clients[_fd_client]);
+		}
+	}
+}
+
+
+
+void	Server::JOIN(const Message &obj)
+{
+	typedef std::vector<std::string>::iterator	viterator;
+	if (M_DEBUG)
+		std::cout << "TRIGGERED JOIN" << std::endl;
+
+	std::vector<std::vector<std::string> >	tree = getTree(obj);
+
+	// Add user to channel or create channel.
+	size_t key = 0;
+	viterator	chanelname2(tree[0].end());
+	for (viterator chanelname1(tree[0].begin()); chanelname1 < chanelname2; chanelname1++)
+	{
+		Channel	*chany = NULL;
+		{
+			std::vector<Channel>::iterator chanel_list2(_v_channels.end());
+			for (std::vector<Channel>::iterator chanel_list1(_v_channels.begin()); chanel_list1 < chanel_list2; chanel_list1++)
+			{
+				if ( (*chanel_list1).getName() == *chanelname1 )
+				{
+					chany = chanel_list1.base();
+					break ;
+				}
+			}
+		}
+		if (chany)
+		{
+			// Selection criteria
+			if (chany->getHas_pwd())
+			{
+				try
+				{
+					tree.at(1).at(key);
+				}
+				catch (std::out_of_range &e)
+				{
+					send(_fd_client, "Server requires pwd\n", 20, 0);
+					return ;
+				}
+			}
+			if (chany->getInvite_only())
+			{
+				if (!chany->InviteContains(_clients[_fd_client]))
+				{
+					send(_fd_client, "Server requires invite\n", 24, 0);
+					return ;
+				}
+			}
+			// check if banned
+			if (chany->isClientRight(_clients[_fd_client].getUsername(), 'b'))
+			{
+				send(_fd_client, "You are banned from this server\n", 33, 0);
+				return ;
+			}
+			// </Selection criteria>
+			if (!chany->contains(_clients[_fd_client]))
+				chany->add_client(_clients[_fd_client]);
+			else
+				send(_fd_client, "You are allready member of this server\n", 40, 0);
+		}
+		else
+		{
+			_v_channels.push_back(Channel(*chanelname1));
+			_v_channels[_v_channels.size() - 1].add_client(_clients[_fd_client]);
+			_v_channels[_v_channels.size() - 1].setClientRight("Herbert", 'b', true);
+			std::cout << ((_v_channels[_v_channels.size() - 1].isClientRight("Herbert", 'b')) ? ("True") : ("False")) << std::endl;
+			std::cout << ((_v_channels[_v_channels.size() - 1].isClientRight("Herbert", 'i')) ? ("True") : ("False")) << std::endl;
+		}
+		key++;
+	}
+
+	std::cout << "The socketid of the caller: " << _fd_client << std::endl;
+	std::cout << "Through the map: " << _clients[_fd_client].getSocket() << std::endl;
+
+	std::vector<Channel>::iterator	end(_v_channels.end());
+	for (std::vector<Channel>::iterator begin(_v_channels.begin()); begin < end; begin++)
+		std::cout << *begin << std::endl;
 }
 
 /*
