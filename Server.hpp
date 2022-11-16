@@ -111,6 +111,7 @@ std::string server_ipaddr);
     void NICK(const Message &obj, Client &clientObj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
+    void QUIT(const Message &obj, Client &clientObj);
 
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);

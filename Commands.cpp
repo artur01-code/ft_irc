@@ -191,3 +191,13 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	else
 		clientObj.setRegFlag(1);
 }
+
+void Server::QUIT(const Message& obj, Client &clientObj)
+{
+	if (M_DEBUG)
+		std::cout << "COMMAND: *QUIT* FUNCTION GOT TRIGGERED" << std::endl;
+	//If there is a quit message, send it, if not, default
+	//close the connection to the server
+	//if the client connection is closed without the Quit command
+	// it need to display a message reflecting on what happen
+}
