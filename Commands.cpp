@@ -92,7 +92,11 @@ void Server::USER(const Message &obj)
 	while (it != this->_clients.end())
 	{
 		if (this->_fd_client == it->first)
-			return; //send error message to client (USERALREADYEXISTS)
+		{
+			std::string msg = ERR_ALREADYREGISTERED(&it->second);
+			send(this->_fd_client, msg.c_str(), msg.size(), 0);
+			return;
+		}
 		it++;
 	}
 	
