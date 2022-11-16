@@ -50,7 +50,7 @@ void Server::setup_connection(std::string &ipaddr, int port) {
     this->_port = port;
 
     // filling up address structs with getddrinfo()
-     bzero(_event_list, sizeof(_event_list));
+    bzero(_event_list, sizeof(_event_list));
     // setup the host address structure for use in bind
     this->_server_address.sin_family = AF_INET;
 
