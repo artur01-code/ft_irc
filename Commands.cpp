@@ -85,26 +85,33 @@ Parameters:
 void Server::USER(const Message &obj)
 {
 	std::vector<std::string> vec = obj.getParameters();
-
-	// if (vec.size() < 4)
-	// 	return ; //send error message to client
+	if (vec.size() < 4)
+	{
+		Client tmpClient = Client();
+		std::string msg = ERR_NEEDMOREPARAMS(&tmpClient, "USER");
+		if (M_DEBUG)
+			std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl \
+			<< msg << std::endl;
+		send(this->_fd_client, msg.c_str(), msg.size(), 0);
+		return;
+	}
 	std::map<int, Client>::iterator it = this->_conClients.begin();
 	while (it != this->_conClients.end())
 	{
 		if (this->_fd_client == it->first)
 		{
 			std::string msg = ERR_ALREADYREGISTERED(&it->second);
+			if (M_DEBUG)
+				std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl \
+				<< msg << std::endl;
 			send(this->_fd_client, msg.c_str(), msg.size(), 0);
 			return;
 		}
 		it++;
 	}
-	
+	/*FUNCTINALITY*/
 	Client *client_obj = new Client("", vec[1], vec[3], vec[0], this->_fd_client);
-
-	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
 	this->_conClients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
-
 	if (M_DEBUG)
 	{
 		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl;
@@ -142,6 +149,7 @@ void Server::NICK(const Message &obj)
 		}
 		itReg++;
 	}
+	/*FUNCTINALITY*/
 	std::map<int, Client>::iterator itCon = this->_conClients.begin();
 	while (itCon != this->_conClients.end())
 	{
