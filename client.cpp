@@ -2,12 +2,20 @@
 
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username("")
 {
-
+	if (M_DEBUG)
+		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username) : _nickname(nickname), _hostname(hostname), _realname(realname), _username(username)
+Client::Client(std::string nickname) : _nickname(nickname)
 {
+	if (M_DEBUG)
+		std::cout << COLOR_GREEN << " Client nickname Constructor" << END << std::endl;
+}
 
+Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket) : _socket(socket), _nickname(nickname), _hostname(hostname), _realname(realname), _username(username)
+{
+	if (M_DEBUG)
+		std::cout << COLOR_GREEN << " Client params Constructor" << END << std::endl;
 }
 
 Client::Client(const Client &rhs)
@@ -22,7 +30,8 @@ Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _rea
 
 Client::~Client()
 {
-
+	if (M_DEBUG)
+		std::cout << COLOR_RED << " Client Default Destructor" << END << std::endl;
 }
 
 Client &Client::operator=(const Client &rhs)
@@ -101,7 +110,7 @@ void Client::setChannels(std::map<std::string, Channel *> channels)
 void Client::printAttributes(void)
 {
 	if (this->getSocket() != -1)
-		std::cout << "Nickname: " << this->getSocket() << std::endl;
+		std::cout << "Socket: " << this->getSocket() << std::endl;
 	if (this->getNickname() != "")
 		std::cout << "Nickname: " << this->getNickname() << std::endl;
 	if (this->getHostname() != "")

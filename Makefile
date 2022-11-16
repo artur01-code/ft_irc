@@ -2,7 +2,7 @@ NAME	= ircserv
 
 CC		=	c++
 FLAGS	=	-Wall -Wextra -Werror -std=c++98 -pedantic
-SRCS	=	main.ruslan.cpp \
+SRCS	=	main.cpp \
 			Channel.cpp \
 			Client.cpp \
 			Commands.cpp \
