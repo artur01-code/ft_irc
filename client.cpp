@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/11/07 16:07:52 by ljahn             #+#    #+#             */
+/*          										  ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Client.hpp"
 
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username("")
@@ -120,3 +132,5 @@ void Client::printAttributes(void)
 	if (this->getUsername() != "")
 		std::cout << "Username: " << this->getUsername() << std::endl;
 }
+
+
