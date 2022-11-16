@@ -146,7 +146,7 @@ class Server {
 	/*---ERRORS---*/
 	std::string	ERR_NOSUCHNICK(Client *client, std::string nick);
 	std::string	ERR_NOSUCHSERVER(Client *client);
-	std::string	ERR_NOSUCHNICK(Client *client, std::string nick)
+	std::string	ERR_NOSUCHNICK(Client *client, std::string nick);
 	std::string	ERR_NOSUCHSERVER(Client *client);
 	std::string	ERR_NOSUCHCHANNEL(Client *client, std::string channel);
 	std::string	ERR_CANNOTSENDTOCHAN(Client *client, std::string channel);
