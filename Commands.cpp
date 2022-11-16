@@ -15,7 +15,7 @@ void Server::checkCommands(const Message &obj)
 		this->JOIN(obj);
 
 	//call channel commands
-	
+
 }
 
 /*
@@ -39,7 +39,7 @@ void Server::PASS(const Message &obj)
 				std::cout << std::endl;
 			}
 			Client obj = it->second;
-			
+
 			//the password belongs to the server so check if there is a password set (!"")
 			//and then check if correct or not
 			if (this->_password != "" && this->_password == vec[0])
@@ -49,7 +49,7 @@ void Server::PASS(const Message &obj)
 			else
 			{
 				std::cout << "bad password!" << std::endl;
-			}	
+			}
 			break;
 		}
 		it++;
@@ -168,5 +168,15 @@ void Server::NICK(const Message &obj)
 			break;
 		}
 		itCon++;
+	}
+}
+
+void	Server::JOIN(Client *cl, Message msg)
+{
+	if (!msg.getParameters().size())
+	{
+		std::string tmpMsg = ERR_NEEDMOREPARAMS(cl, "JOIN");
+		send(cl->getSocket(), tmpMsg.c_str(), msg.size(), 0);
+		return ;
 	}
 }
