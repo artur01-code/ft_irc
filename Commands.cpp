@@ -171,12 +171,40 @@ void Server::NICK(const Message &obj)
 	}
 }
 
-void	Server::JOIN(Client *cl, Message msg)
+void	Server::TOPIC(Client *cl, const Message &msg)
 {
+	std::string	tmpMsg;
 	if (!msg.getParameters().size())
 	{
-		std::string tmpMsg = ERR_NEEDMOREPARAMS(cl, "JOIN");
-		send(cl->getSocket(), tmpMsg.c_str(), msg.size(), 0);
+		tmpMsg = ERR_NEEDMOREPARAMS(cl, "TOPIC");
+		send(cl->getSocket(), msg.c_str(), msg.size(), 0);
 		return ;
+	}
+	if (!this->_channels.count(msg.getParameters().front()))
+	{
+		tmpMsg = ERR_NOSUCHCHANNEL(cl, msg.getParameters().front());
+		send(cl->getSocket(), msg.c_str(), msg.size(), 0);
+		return ;
+	}
+	Channel *ch = &this->_channels.at(msg.getParameters().front());
+	if (!ch->_clients.count(cl->getNickname()))
+	{
+		tmpMsg = ERR_NOTONCHANNEL(cl, msg.getParameters().front());
+		send(cl->getSocket(), msg.c_str(), msg.size(), 0);
+		return ;
+	}
+	if (msg.getParameters().size() == 1)
+	{
+		if (ch->_topic == "")
+			// RPL_NOTOPIC
+		else
+			// RPL_TOPIC
+	}
+	else
+	{
+		if (/*not operator*/)
+			// ERR_CHANOPRIVSNEEDED
+		else
+			// 
 	}
 }
