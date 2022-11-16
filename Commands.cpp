@@ -15,7 +15,7 @@ void Server::checkCommands(const Message &obj)
 		this->JOIN(obj);
 
 	//call channel commands
-	
+
 }
 
 /*
@@ -137,7 +137,7 @@ void Server::NICK(const Message &obj)
 				std::cout << "Nickname already registered!" << std::endl;
 			}
 			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
-			send(this->_fd_client, msg.c_str(), msg.size(), 0);
+			sendMessage(&tmpClientReg, msg);
 			return;
 		}
 		itReg++;

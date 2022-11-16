@@ -31,7 +31,7 @@ test_errors:
 
 fclean:
 	rm -f ${NAME}
-	rm *.test
+	# rm *.test
 
 re: fclean all
 

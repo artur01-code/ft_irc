@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.ruslan.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qduong <qduong@student.42.fr>              +#+  +:+       +#+        */
+/*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/15 18:49:22 by qduong           ###   ########.fr       */
+/*   Updated: 2022/11/16 13:49:42 by rkultaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void send_welcome_msg(content_t &content) {
 }
 
 // we search for the first free item in array to store the clients fd
-int add_connection(int fd) {
+int addConnection(int fd) {
     if (fd < 1) {
         error_message("fd during connection issue!");
         return ERROR;
@@ -155,7 +155,7 @@ int remove_connection(int fd) {
     return close(fd);
 }
 
-void receive_messages(int new_socket) {
+void receiveMessages(int new_socket) {
     content_t content;
     content.new_socket_fd = new_socket;
 
@@ -174,31 +174,31 @@ void receive_messages(int new_socket) {
     content.buf[content.bytes_read] = 0;
     std::cout << "client #" << get_connection(content.new_socket_fd) << ": "
               << content.buf << std::endl;
-	
-	/*--- PARSIND START ---*/
+
+    /*--- PARSIND START ---*/
     /*
         create a vector(list) of all the possible messages;
         every message is seperated by "\r\n" and gets their own Message obj
-        every Message obj gets redirected to the commandCheck() function of the server
+        every Message obj gets redirected to the commandCheck() function of the
+       server
     */
     Server testserver(6969, "dings");
     std::vector<Message> v_message;
-    
+
     std::string buf_string(content.buf);
-    while (buf_string.find("\r\n") != buf_string.npos)
-    {
+    while (buf_string.find("\r\n") != buf_string.npos) {
         Message msg(buf_string.substr(0, buf_string.find("\r\n")));
         v_message.push_back(msg);
-        buf_string = buf_string.substr(buf_string.find("\r\n") + 2, (size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
+        buf_string = buf_string.substr(
+            buf_string.find("\r\n") + 2,
+            (size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
     }
     std::vector<Message>::iterator it = v_message.begin();
-    while (it != v_message.end())
-    {
+    while (it != v_message.end()) {
         testserver.checkCommands(*it);
         it++;
     }
     /*--- PARSING END ---*/
-
 }
 // data_t *data = (data_t *)data_void;
 
@@ -208,9 +208,10 @@ int create_socket_and_listen(void) {
     int err_code_getaddrinfo;
     struct addrinfo *addr;
 
-    //1)firstly we prepare socket addr structs for further usage to make connection.
-    // hints -->points to addrinfo_struct that specifies criteria for selectin
-    // socket addr struct returned in list pointed to by [addr]
+    // 1)firstly we prepare socket addr structs for further usage to make
+    // connection.
+    //  hints -->points to addrinfo_struct that specifies criteria for selectin
+    //  socket addr struct returned in list pointed to by [addr]
 
     // filling up address structs with getddrinfo()
     memset(&content.hints, 0, sizeof content.hints);
@@ -221,8 +222,9 @@ int create_socket_and_listen(void) {
     content.hints.ai_socktype = SOCK_STREAM;  // chooses preferred socket type
     content.hints.ai_flags = AI_PASSIVE;      // fill in my Ip for me
 
-    //2)after filling struct we call getaddrinfo(). It gives a pointer to list of structs loaded up
-    // getaddrinfo() returns 0 if success, otherwise returns error code
+    // 2)after filling struct we call getaddrinfo(). It gives a pointer to list
+    // of structs loaded up
+    //  getaddrinfo() returns 0 if success, otherwise returns error code
     if (err_code_getaddrinfo ==
         getaddrinfo(NULL, SERVERPORT, &content.hints, &addr)) {
         std::cerr << gai_strerror(err_code_getaddrinfo) << std::endl;
@@ -249,7 +251,6 @@ int create_socket_and_listen(void) {
     return content.listener;
 }
 
-
 // There are predefined system filters(EVFILT_READ), and are triggered when
 // content exists
 void run_event_loop(int kq, int listener) {
@@ -257,7 +258,8 @@ void run_event_loop(int kq, int listener) {
     content_t content;
     content.socket_length = sizeof(content.addr);
     // we handle incoming connection pending
-    // we create a loop where we call kevent() to receive incoming events and process them
+    // we create a loop where we call kevent() to receive incoming events and
+    // process them
     while (1) {
         // any returned events are places in evList[i]
         // NULL will block until event is ready
@@ -283,7 +285,7 @@ void run_event_loop(int kq, int listener) {
                                                &content.socket_length);
                 if (content.new_socket_fd == ERROR)
                     error_message("accept() issue");
-                if (add_connection(content.new_socket_fd) == 0) {
+                if (addConnection(content.new_socket_fd) == 0) {
                     // notification there is data available for reading a socket
                     // , so we specify a kevent
                     EV_SET(&content.evSet, content.new_socket_fd, EVFILT_READ,
@@ -302,7 +304,8 @@ void run_event_loop(int kq, int listener) {
             }  // client disconnected
             // when client disconnects , we receive an event where EOF flag is
             // set on the socket.
-            ////We would like to check whether a flag is set in kevent() and we do it by ANDing EOF
+            ////We would like to check whether a flag is set in kevent() and we
+            /// do it by ANDing EOF
             else if (content.evList[i].flags & EV_EOF) {
                 content.new_socket_fd = content.evList[i].ident;
                 // printf("client #%d disconnected.\n",
@@ -318,33 +321,29 @@ void run_event_loop(int kq, int listener) {
             }  // read message from client
             // handling incoming content from clients and receive message
             else if (content.evList[i].filter == EVFILT_READ) {
-                receive_messages(content.evList[i].ident);
+                receiveMessages(content.evList[i].ident);
             }
         }
     }
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3)
-    {
+    if (argc != 3) {
         std::cerr << "bad input" << std::endl;
         return (1);
     }
-    for (size_t i = 0; argv[1][i]; i++)
-	{
-		if (!std::isdigit(argv[1][i]))
-		{
-			std::cerr << "bad port" << std::endl;
-			return (1);
-		}
-	}
-	int port = std::atoi(argv[1]);
+    for (size_t i = 0; argv[1][i]; i++) {
+        if (!std::isdigit(argv[1][i])) {
+            std::cerr << "bad port" << std::endl;
+            return (1);
+        }
+    }
+    int port = std::atoi(argv[1]);
     // highest TCP port for 16 bits or 65535
-	if (port < 1 || port > 65535)
-	{
-		std::cerr << "bad port" << std::endl;
-		return (1);
-	}
+    if (port < 1 || port > 65535) {
+        std::cerr << "bad port" << std::endl;
+        return (1);
+    }
     content_t content;
     content.listener = create_socket_and_listen();
 
