@@ -3,16 +3,16 @@
 #include "Message.hpp"
 #include "Server.hpp"
 
-void Server::checkCommands(const Message &obj)
+void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
-	if (obj.getCommand() == "USER")
-		this->USER(obj);
-	else if (obj.getCommand() == "NICK")
-		this->NICK(obj);
-	else if (obj.getCommand() == "PASS")
-		this->PASS(obj);
-	else if (obj.getCommand() == "JOIN")
-		this->JOIN(obj);
+	if (msgObj.getCommand() == "USER")
+		this->USER(msgObj, clientObj);
+	else if (msgObj.getCommand() == "NICK")
+		this->NICK(msgObj, clientObj);
+	else if (msgObj.getCommand() == "PASS")
+		this->PASS(msgObj);
+	else if (msgObj.getCommand() == "JOIN")
+		this->JOIN(msgObj);
 
 	//call channel commands
 
@@ -82,35 +82,57 @@ Parameters:
         [2]     localhost
         [3]     Jorit
 */
-void Server::USER(const Message &obj)
+void Server::USER(const Message &obj, Client &clientObj)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERED" << std::endl;
 	std::vector<std::string> vec = obj.getParameters();
-
-	// if (vec.size() < 4)
-	// 	return ; //send error message to client
-	std::map<int, Client>::iterator it = this->_conClients.begin();
-	while (it != this->_conClients.end())
+	if (vec.size() < 4)
 	{
+		std::string msg = ERR_NEEDMOREPARAMS(&clientObj, "USER");
+		sendMessage(&clientObj, msg);
+		if (M_DEBUG)
+			std::cout << msg << std::endl;
+		return;
+	}
+	std::map<int, Client>::iterator it = this->_regClients.begin();
+	while (it != this->_regClients.end())
+	{
+		Client tmpClientReg = it->second;
+		if (clientObj.getNickname() == tmpClientReg.getNickname())
+		{
+			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
+			sendMessage(&clientObj, msg);
+			if (M_DEBUG)
+				std::cout << msg << std::endl;
+			return;
+		}
 		if (this->_fd_client == it->first)
 		{
 			std::string msg = ERR_ALREADYREGISTERED(&it->second);
-			send(this->_fd_client, msg.c_str(), msg.size(), 0);
+			sendMessage(&clientObj, msg);
+			if (M_DEBUG)
+				std::cout << msg << std::endl;
 			return;
 		}
 		it++;
 	}
-	
-	Client *client_obj = new Client("", vec[1], vec[3], vec[0], this->_fd_client);
-
-	//create a pair of client and the socket(fd) as key and insert it into the map of the Server
-	this->_conClients.insert(std::make_pair(client_obj->getSocket(), *client_obj));
-
-	if (M_DEBUG)
+	/*FUNCTINALITY*/
+	clientObj.setHostname(vec[1]);
+	clientObj.setRealname(vec[3]);
+	clientObj.setUsername(vec[0]);
+	//check if the nickname is already set
+	if (clientObj.getRegFlag() == 1 && clientObj.getNickname() != "")
 	{
-		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERT" << std::endl;
-		client_obj->printAttributes();
-		std::cout << std::endl;
+
+		this->_regClients.insert(std::make_pair(clientObj.getSocket(), clientObj));
+		if (M_DEBUG)
+			std::cout << "Client successfully registered!" << std::endl;
 	}
+	else
+		clientObj.setRegFlag(1);
+	if (M_DEBUG)
+		clientObj.printAttributes();
 }
 
 /*
@@ -121,44 +143,51 @@ Command:        NICK
 Parameters:
         [0]     second
 */
-void Server::NICK(const Message &obj)
+void Server::NICK(const Message &obj, Client &clientObj)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
+	if (obj.getParameters().empty())
+	{
+		std::string msg = ERR_NONICKNAMEGIVEN(&clientObj);
+		sendMessage(&clientObj, msg);
+		if (M_DEBUG)
+			std::cout << msg << std::endl;
+		return;
+	}
 	std::vector<std::string> vec = obj.getParameters();
-
+	if (vec[0].size() > 9 || !isalpha(vec[0][0]))
+	{
+		std::string msg = ERR_ERRONEUSNICKNAME(&clientObj);
+		sendMessage(&clientObj, msg);
+		if (M_DEBUG)
+			std::cout << msg << std::endl;
+		return;
+	}
 	std::map<int, Client>::iterator itReg = this->_regClients.begin();
 	while (itReg != this->_regClients.end())
 	{
 		Client tmpClientReg = itReg->second;
 		if (tmpClientReg.getNickname() == vec[0])
 		{
-			if (M_DEBUG)
-			{
-				std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
-				std::cout << "Nickname already registered!" << std::endl;
-			}
 			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
-			sendMessage(&tmpClientReg, msg);
+			sendMessage(&clientObj, msg);
+			if (M_DEBUG)
+				std::cout << msg << std::endl;
 			return;
 		}
 		itReg++;
 	}
-	std::map<int, Client>::iterator itCon = this->_conClients.begin();
-	while (itCon != this->_conClients.end())
+	/*FUNCTINALITY*/
+	clientObj.setNickname(vec[0]);
+	if (M_DEBUG)
+		clientObj.printAttributes();
+	if (clientObj.getRegFlag() == 1 && clientObj.getUsername() != "")
 	{
-		if (this->_fd_client == itCon->first)
-		{
-			Client tmpClientCon = itCon->second;
-			tmpClientCon.setNickname(vec[0]);
-			this->_regClients.insert(std::make_pair(tmpClientCon.getSocket(), tmpClientCon));
-			if (M_DEBUG)
-			{
-				std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
-				std::cout << "Client successfully registered!" << std::endl;
-				tmpClientCon.printAttributes();
-				std::cout << std::endl;
-			}
-			break;
-		}
-		itCon++;
+		this->_regClients.insert(std::make_pair(clientObj.getSocket(), clientObj));
+		if (M_DEBUG)
+			std::cout << "Client successfully registered!" << std::endl;
 	}
+	else
+		clientObj.setRegFlag(1);
 }

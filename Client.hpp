@@ -26,6 +26,7 @@ class Client
 		std::string _hostname;
 		std::string	_realname;
 		std::string	_username;
+		int			_regFlag;
 		std::map<std::string, Channel *> _channels;
 
 	public:
@@ -48,6 +49,8 @@ class Client
 		void setUsername(std::string username);
 		std::string getHostname(void);
 		void setHostname(std::string hostname);
+		int getRegFlag(void);
+		void setRegFlag(int regFlag);
 		std::map<std::string, Channel *> getChannels(void);
 		void setChannels(std::map<std::string, Channel *> channels);
 

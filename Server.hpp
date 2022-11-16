@@ -106,9 +106,9 @@ std::string server_ipaddr);
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
-    void checkCommands(const Message &obj);
-    void USER(const Message &obj);
-    void NICK(const Message &obj);
+    void checkCommands(const Message &msgObj, Client &clientObj);
+    void USER(const Message &obj, Client &clientObj);
+    void NICK(const Message &obj, Client &clientObj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
 
