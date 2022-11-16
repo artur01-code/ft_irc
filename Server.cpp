@@ -164,11 +164,20 @@ int Server::parsingMessages(std::string read) {
             buf_string.find("\r\n") + 2,
             (size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
     }
-    std::vector<Message>::iterator it = v_message.begin();
-    while (it != v_message.end()) {
+    std::vector<Message>::iterator itMsg = v_message.begin();
+
+    std::map<int, Client>::iterator itCli = this->_conClients.begin();
+    while (itCli != this->_conClients.end())
+    {
+        if (itCli->first == this->_fd_client)
+            break;
+        itCli++;
+    }
+
+    while (itMsg != v_message.end()) {
         if (M_DEBUG) std::cout << "Enters anyways" << std::endl;
-        this->checkCommands(*it);
-        it++;
+        this->checkCommands(*itMsg, itCli->second);
+        itMsg++;
     }
     return (1);
     /*--- PARSING END ---*/
