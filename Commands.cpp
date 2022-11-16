@@ -90,20 +90,29 @@ void Server::USER(const Message &obj, Client &clientObj)
 	if (vec.size() < 4)
 	{
 		std::string msg = ERR_NEEDMOREPARAMS(&clientObj, "USER");
+		sendMessage(&clientObj, msg);
 		if (M_DEBUG)
 			std::cout << msg << std::endl;
-		send(clientObj.getSocket(), msg.c_str(), msg.size(), 0);
 		return;
 	}
 	std::map<int, Client>::iterator it = this->_regClients.begin();
 	while (it != this->_regClients.end())
 	{
+		Client tmpClientReg = it->second;
+		if (clientObj.getNickname() == tmpClientReg.getNickname())
+		{
+			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
+			sendMessage(&clientObj, msg);
+			if (M_DEBUG)
+				std::cout << msg << std::endl;
+			return;
+		}
 		if (this->_fd_client == it->first)
 		{
 			std::string msg = ERR_ALREADYREGISTERED(&it->second);
+			sendMessage(&clientObj, msg);
 			if (M_DEBUG)
 				std::cout << msg << std::endl;
-			send(clientObj.getSocket(), msg.c_str(), msg.size(), 0);
 			return;
 		}
 		it++;
@@ -112,8 +121,10 @@ void Server::USER(const Message &obj, Client &clientObj)
 	clientObj.setHostname(vec[1]);
 	clientObj.setRealname(vec[3]);
 	clientObj.setUsername(vec[0]);
-	if (clientObj.getRegFlag() == 1)
+	//check if the nickname is already set
+	if (clientObj.getRegFlag() == 1 && clientObj.getNickname() != "")
 	{
+
 		this->_regClients.insert(std::make_pair(clientObj.getSocket(), clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
@@ -160,7 +171,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 		if (tmpClientReg.getNickname() == vec[0])
 		{
 			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
-			sendMessage(&clientObj, msg); //I think we need to pass the nickname as well cause atm it's not stored in the clientObj
+			sendMessage(&clientObj, msg);
 			if (M_DEBUG)
 				std::cout << msg << std::endl;
 			return;
@@ -171,7 +182,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	clientObj.setNickname(vec[0]);
 	if (M_DEBUG)
 		clientObj.printAttributes();
-	if (clientObj.getRegFlag() == 1)
+	if (clientObj.getRegFlag() == 1 && clientObj.getUsername() != "")
 	{
 		this->_regClients.insert(std::make_pair(clientObj.getSocket(), clientObj));
 		if (M_DEBUG)
