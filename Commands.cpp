@@ -144,7 +144,7 @@ void Server::NICK(const Message &obj)
 				std::cout << "Nickname already registered!" << std::endl;
 			}
 			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
-			send(this->_fd_client, msg.c_str(), msg.size(), 0);
+			sendMessage(&tmpClientReg, msg);
 			return;
 		}
 		itReg++;
@@ -176,35 +176,32 @@ void	Server::TOPIC(Client *cl, const Message &msg)
 	std::string	tmpMsg;
 	if (!msg.getParameters().size())
 	{
-		tmpMsg = ERR_NEEDMOREPARAMS(cl, "TOPIC");
-		send(cl->getSocket(), msg.c_str(), msg.size(), 0);
+		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, "TOPIC"));
 		return ;
 	}
 	if (!this->_channels.count(msg.getParameters().front()))
 	{
-		tmpMsg = ERR_NOSUCHCHANNEL(cl, msg.getParameters().front());
-		send(cl->getSocket(), msg.c_str(), msg.size(), 0);
+		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters().front())));
 		return ;
 	}
 	Channel *ch = &this->_channels.at(msg.getParameters().front());
-	if (!ch->_clients.count(cl->getNickname()))
+	if (!) // make member function of this
 	{
-		tmpMsg = ERR_NOTONCHANNEL(cl, msg.getParameters().front());
-		send(cl->getSocket(), msg.c_str(), msg.size(), 0);
+		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters().front()));
 		return ;
 	}
 	if (msg.getParameters().size() == 1)
 	{
-		if (ch->_topic == "")
-			// RPL_NOTOPIC
+		if (ch->getTopic() == "")
+			this->sendMessage(cl, RPL_NOTOPIC(cl, ch));
 		else
-			// RPL_TOPIC
+			this->sendMessage(cl, RPL_TOPIC(cl, ch));
 	}
 	else
 	{
 		if (/*not operator*/)
-			// ERR_CHANOPRIVSNEEDED
+			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
 		else
-			// 
+			ch->setTopic(msg.getParameters()[1]);
 	}
 }

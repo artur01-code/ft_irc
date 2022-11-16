@@ -29,6 +29,8 @@ class Channel
 		std::vector<std::string>		_listBannedClients;
 		std::vector<std::string>		_listInvitedClients;
 
+	public:
+		int	hasClient(Client *client);
 };
 
 #endif

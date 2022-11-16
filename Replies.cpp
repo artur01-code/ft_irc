@@ -36,5 +36,30 @@ std::string	Server::RPL_NOWAWAY(Client *client)
 	return (msg);
 }
 
+std::string	Server::RPL_NOTOPIC(Client *client, Channel *channel)
+{
+	std::string msg;
 
+	msg += ":" + this->getServerName();
+	msg += " 331 ";
+	msg += client->getNickname() + " ";
+	msg += channel->getName();
+	msg += " :No topic is set";
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_TOPIC(Client *client, Channel *channel)
+{
+	std::string msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 332 ";
+	msg += client->getNickname() + " ";
+	msg += channel->getName();
+	msg += " :";
+	msg += channel->getTopic();
+	msg += "\r\n";
+	return (msg);
+}
 
