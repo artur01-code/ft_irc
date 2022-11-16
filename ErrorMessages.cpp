@@ -54,6 +54,8 @@ std::string	Server::ERR_CANNOTSENDTOCHAN(Client *client, std::string channel)
 
 std::string	Server::ERR_TOOMANYCHANNELS(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 405 ";
 	msg += client->getNickname() + " ";
@@ -91,6 +93,8 @@ std::string	Server::ERR_NORECIPIENT(Client *client, std::string command)
 
 std::string	Server::ERR_NOTEXTTOSEND(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 412 ";
 	msg += client->getNickname() + " ";
@@ -107,13 +111,15 @@ std::string	Server::ERR_NOTOPLEVEL(Client *client, std::string mask)
 	msg += " 413 ";
 	msg += client->getNickname() + " ";
 	msg += mask;
-	msg += " :No toplevel domain specified"
+	msg += " :No toplevel domain specified";
 	msg += "\r\n";
 	return (msg);
 }
 
 std::string	Server::ERR_WILDTOPLEVEL(Client *client, std::string mask)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 414 ";
 	msg += client->getNickname() + " ";
@@ -155,17 +161,19 @@ std::string	Server::ERR_ERRONEUSNICKNAME(Client *client)
 	msg += ":" + this->getServerName();
 	msg += " 432 ";
 	msg += client->getNickname() + " ";
-	msg += " :Erroneus nickname"
+	msg += " :Erroneus nickname";
 	msg += "\r\n";
 	return (msg);
 }
 
 std::string	Server::ERR_NICKNAMEINUSE(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 433 ";
 	msg += client->getNickname() + " ";
-	msg += client->getNickname;
+	msg += client->getNickname();
 	msg += " :Nickname is already in use";
 	msg += "\r\n";
 	return (msg);
@@ -236,6 +244,8 @@ std::string	Server::ERR_ALREADYREGISTERED(Client *client)
 
 std::string	Server::ERR_PASSWDMISMATCH(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 464 ";
 	msg += client->getNickname() + " ";
