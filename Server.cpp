@@ -27,7 +27,20 @@ Server::Server(int port, std::string ip_address) {
 
 //--------------DESTRUCTOR-------------//
 Server::~Server() {
-    
+
+}
+
+std::string	Server::getServerName();
+{
+	return (this->_servername);
+}
+std::string	Server::getHost();
+{
+	return (this->_host);
+}
+std::string	Server::getMotd();
+{
+	return (this->_motd);
 }
 
 
@@ -97,7 +110,7 @@ int Server::set_accept() {
     client_fd = accept(this->_server_fd, (struct sockaddr *)&client_address, (socklen_t *)&socket_length);
     if (client_fd == ERROR)
         throw Server::AcceptException();
-    
+
     ////////////ADD CLIENT////////////
     // AddClient(client_fd, client_address, _ip_address);
     // add_connection(client_fd);
@@ -137,7 +150,7 @@ int Server::parsing_messages(std::string read)
         every Message obj gets redirected to the commandCheck() function of the server
     */
     std::vector<Message> v_message;
-    
+
     std::string buf_string(read);
     while (buf_string.find("\r\n") != buf_string.npos)
     {
@@ -177,7 +190,7 @@ void Server::set_kqueue() {
     if (num_pending_events == ERROR)
         throw Server::KeventsException();
     // std::cout << this->_kq_fd << std::endl;
-    memset(&_change_list, 0, sizeof(_change_list));    
+    memset(&_change_list, 0, sizeof(_change_list));
 }
 
 //-*-*-*-*-*-*-*-*-*-*SET_ADD_KQUEUE//-*-*-*-*-*-*-*-*-*-*
@@ -187,7 +200,7 @@ void Server::set_add_kqueue(int fd) {
     if (kevent(_kq_fd, &kev, 1, NULL, 0, NULL) == ERROR)
         throw Server::KeventAddException();
     // std::cout << fd << std::endl;
-    
+
 }
 //-*-*-*-*-*-*-*-*-*-*SET_DELETE_KQUEUE//-*-*-*-*-*-*-*-*-*-*
 void Server::set_delete_kqueue(int fd) {
@@ -256,13 +269,13 @@ void Server::kqueue_engine() {
 //         throw Server::ConnectionRefusedException();
 //         return -1;
 //     }
-    
+
 //     clients[i].fd = fd;
 //     return 0;
 // }
 
 // int Server::remove_connection(int fd) {
-    
+
 //     if (fd < 1) {
 //         throw Server::RemoveException();
 //         return -1;
