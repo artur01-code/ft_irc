@@ -132,18 +132,33 @@ void Server::NICK(const Message &obj)
 {
 	std::vector<std::string> vec = obj.getParameters();
 
+	Client tmpClient = Client(vec[0]);
+	if (vec[0].size() > 9 || !isalpha(vec[0][0]))
+	{
+		std::string msg = ERR_ERRONEUSNICKNAME(&tmpClient);
+		if (M_DEBUG)
+		{
+			std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
+			std::cout << msg << std::endl;
+		}
+		send(this->_fd_client, msg.c_str(), msg.size(), 0);
+		return;
+	}
+
 	std::map<int, Client>::iterator itReg = this->_regClients.begin();
 	while (itReg != this->_regClients.end())
 	{
 		Client tmpClientReg = itReg->second;
 		if (tmpClientReg.getNickname() == vec[0])
 		{
+			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
 			if (M_DEBUG)
 			{
 				std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
-				std::cout << "Nickname already registered!" << std::endl;
+				std::cout << msg << std::endl;
 			}
-			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
+			//kick both clients from the server
+			//call kill command
 			send(this->_fd_client, msg.c_str(), msg.size(), 0);
 			return;
 		}
@@ -153,9 +168,9 @@ void Server::NICK(const Message &obj)
 	std::map<int, Client>::iterator itCon = this->_conClients.begin();
 	while (itCon != this->_conClients.end())
 	{
+		Client tmpClientCon = itCon->second;
 		if (this->_fd_client == itCon->first)
 		{
-			Client tmpClientCon = itCon->second;
 			tmpClientCon.setNickname(vec[0]);
 			this->_regClients.insert(std::make_pair(tmpClientCon.getSocket(), tmpClientCon));
 			if (M_DEBUG)
