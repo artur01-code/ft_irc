@@ -102,6 +102,9 @@ int Server::setAccept() {
     ////////////ADD CLIENT////////////
     // AddClient(client_fd, client_address, _ip_address);
     // addConnection(client_fd);
+    Client *new_client = new Client(client_fd);
+    this->_conClients.insert(std::make_pair(client_fd, *new_client));
+    std::cout << "new client : " << client_fd << " was accepted\n";
     inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
               sizeof(client_address));
     inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
@@ -276,7 +279,7 @@ void Server::kqueueEngine() {
 //     return close(fd);
 // }
 
-// void 	Server::AddClient(int fd_client, sockaddr_in addrinfo_client,
+// void 	Server::addClient(int fd_client, sockaddr_in addrinfo_client,
 // std::string server_ipaddr)
 // {
 // 	Client *new_client =  new Client (fd_client, addrinfo_client,

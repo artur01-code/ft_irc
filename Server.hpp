@@ -51,19 +51,18 @@ class Server {
     std::map<int, Channel> _channels;
     std::map<int, Client> _bots;
 
-
     std::string _ip_address;
     int _new_events;
     int _fd_client;
     int _kq_fd;
     int _port;
     int _server_fd;
-	    // kevent data struct info
+    // kevent data struct info
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
     // returned events are places in event_list
     struct kevent _event_list[20];
-	struct sockaddr_in _server_address;
+    struct sockaddr_in _server_address;
 
    public:
     Server();
@@ -88,8 +87,10 @@ class Server {
     int examineAndRead();
     int addConnection(int fd);
     void sendMessage(Client *client, std::string message);
+	void addClient(int fd_client, sockaddr_in addrinfo_client,
+std::string server_ipaddr);
 
-    Client *getClientFd(int fd);
+    // Client *getClientFd(int fd);
 
     // getter
     std::string getPassword(void) const;
@@ -101,9 +102,7 @@ class Server {
     void setKEvent();
 
 
-
-    std::vector<Client *> client_vector;
-	std::vector<Client *> _Client;
+    std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
@@ -215,7 +214,6 @@ class Server {
 
     // Server(const Server &rhs);
     // Server &operator=(const Server &rhs);
-
 };
 
 #endif
