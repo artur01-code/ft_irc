@@ -15,7 +15,7 @@ void Server::checkCommands(const Message &obj)
 		this->JOIN(obj);
 
 	//call channel commands
-	
+
 }
 
 /*
@@ -167,9 +167,7 @@ void Server::NICK(const Message &obj)
 				std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
 				std::cout << msg << std::endl;
 			}
-			//kick both clients from the server
-			//call kill command
-			send(this->_fd_client, msg.c_str(), msg.size(), 0);
+			sendMessage(&tmpClientReg, msg);
 			return;
 		}
 		itReg++;
