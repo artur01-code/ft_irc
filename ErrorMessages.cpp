@@ -15,6 +15,8 @@ std::string	Server::ERR_NOSUCHNICK(Client *client, std::string nick)
 
 std::string	Server::ERR_NOSUCHSERVER(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 402 ";
 	msg += client->getNickname() + " ";
@@ -26,6 +28,8 @@ std::string	Server::ERR_NOSUCHSERVER(Client *client)
 
 std::string	Server::ERR_NOSUCHCHANNEL(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 403 ";
 	msg += client->getNickname() + " ";
@@ -37,6 +41,8 @@ std::string	Server::ERR_NOSUCHCHANNEL(Client *client, std::string channel)
 
 std::string	Server::ERR_CANNOTSENDTOCHAN(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 404 ";
 	msg += client->getNickname() + " ";
@@ -59,6 +65,8 @@ std::string	Server::ERR_TOOMANYCHANNELS(Client *client, std::string channel)
 
 std::string	Server::ERR_TOOMANYTARGETS(Client *client, std::string target)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 407 ";
 	msg += client->getNickname() + " ";
@@ -70,6 +78,8 @@ std::string	Server::ERR_TOOMANYTARGETS(Client *client, std::string target)
 
 std::string	Server::ERR_NORECIPIENT(Client *client, std::string command)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 411 ";
 	msg += client->getNickname() + " ";
@@ -91,6 +101,8 @@ std::string	Server::ERR_NOTEXTTOSEND(Client *client)
 
 std::string	Server::ERR_NOTOPLEVEL(Client *client, std::string mask)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 413 ";
 	msg += client->getNickname() + " ";
@@ -113,6 +125,8 @@ std::string	Server::ERR_WILDTOPLEVEL(Client *client, std::string mask)
 
 std::string	Server::ERR_UKNOWNCOMMAND(Client *client, std::string command)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 421 ";
 	msg += client->getNickname() + " ";
@@ -124,6 +138,8 @@ std::string	Server::ERR_UKNOWNCOMMAND(Client *client, std::string command)
 
 std::string	Server::ERR_NONICKNAMEGIVEN(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 431 ";
 	msg += client->getNickname() + " ";
@@ -134,6 +150,8 @@ std::string	Server::ERR_NONICKNAMEGIVEN(Client *client)
 
 std::string	Server::ERR_ERRONEUSNICKNAME(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 432 ";
 	msg += client->getNickname() + " ";
@@ -155,6 +173,8 @@ std::string	Server::ERR_NICKNAMEINUSE(Client *client)
 
 std::string	Server::ERR_USERNOTINCHANNEL(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 441 ";
 	msg += client->getNickname() + " ";
@@ -166,6 +186,8 @@ std::string	Server::ERR_USERNOTINCHANNEL(Client *client, std::string channel)
 
 std::string	Server::ERR_NOTONCHANNEL(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 442 ";
 	msg += client->getNickname() + " ";
@@ -176,6 +198,8 @@ std::string	Server::ERR_NOTONCHANNEL(Client *client, std::string channel)
 }
 std::string	Server::ERR_USERONCHANNEL(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 443 ";
 	msg += client->getNickname() + " ";
@@ -187,6 +211,8 @@ std::string	Server::ERR_USERONCHANNEL(Client *client, std::string channel)
 
 std::string	Server::ERR_NEEDMOREPARAMS(Client *client, std::string command)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 461 ";
 	msg += client->getNickname() + " ";
@@ -198,6 +224,8 @@ std::string	Server::ERR_NEEDMOREPARAMS(Client *client, std::string command)
 
 std::string	Server::ERR_ALREADYREGISTERED(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 462 ";
 	msg += client->getNickname() + " ";
@@ -218,6 +246,8 @@ std::string	Server::ERR_PASSWDMISMATCH(Client *client)
 
 std::string	Server::ERR_YOUREBANNEDCREEP(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 465 ";
 	msg += client->getNickname() + " ";
@@ -228,6 +258,8 @@ std::string	Server::ERR_YOUREBANNEDCREEP(Client *client)
 
 std::string	Server::ERR_CHANNELISFULL(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 471 ";
 	msg += client->getNickname() + " ";
@@ -239,6 +271,8 @@ std::string	Server::ERR_CHANNELISFULL(Client *client, std::string channel)
 
 std::string	Server::ERR_UNKNOWNMODE(Client *client, char c)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 472 ";
 	msg += client->getNickname() + " ";
@@ -250,6 +284,8 @@ std::string	Server::ERR_UNKNOWNMODE(Client *client, char c)
 
 std::string	Server::ERR_INVITEONLYCHAN(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 473 ";
 	msg += client->getNickname() + " ";
@@ -261,6 +297,8 @@ std::string	Server::ERR_INVITEONLYCHAN(Client *client, std::string channel)
 
 std::string	Server::ERR_BANNEDFROMCHAN(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 474 ";
 	msg += client->getNickname() + " ";
@@ -272,6 +310,8 @@ std::string	Server::ERR_BANNEDFROMCHAN(Client *client, std::string channel)
 
 std::string	Server::ERR_BADCHANNELKEY(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 475 ";
 	msg += client->getNickname() + " ";
@@ -283,6 +323,8 @@ std::string	Server::ERR_BADCHANNELKEY(Client *client, std::string channel)
 
 std::string	Server::ERR_NOPRIVILEGES(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 481 ";
 	msg += client->getNickname() + " ";
@@ -293,6 +335,8 @@ std::string	Server::ERR_NOPRIVILEGES(Client *client)
 
 std::string	Server::ERR_CHANOPRIVSNEEDED(Client *client, std::string channel)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 482 ";
 	msg += client->getNickname() + " ";
@@ -304,6 +348,8 @@ std::string	Server::ERR_CHANOPRIVSNEEDED(Client *client, std::string channel)
 
 std::string	Server::ERR_UMODEUNKNOWNFLAG(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 501 ";
 	msg += client->getNickname() + " ";
@@ -314,6 +360,8 @@ std::string	Server::ERR_UMODEUNKNOWNFLAG(Client *client)
 
 std::string	Server::ERR_USERSDONTMATCH(Client *client)
 {
+	std::string msg;
+
 	msg += ":" + this->getServerName();
 	msg += " 502 ";
 	msg += client->getNickname() + " ";
@@ -321,4 +369,3 @@ std::string	Server::ERR_USERSDONTMATCH(Client *client)
 	msg += "\r\n";
 	return (msg);
 }
-
