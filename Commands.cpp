@@ -31,7 +31,7 @@ void Server::PASS(const Message &obj)
 	std::map<int, Client>::iterator it = this->_clients.begin();
 	while (it != this->_clients.end())
 	{
-		if (0 /*SOCKETADDRESS*/ == it->first)
+		if (this->_fd_client == it->first)
 		{
 			if (M_DEBUG)
 			{
