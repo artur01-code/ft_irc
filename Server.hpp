@@ -178,9 +178,9 @@ class Server {
 	std::string	ERR_USERSDONTMATCH(Client *client);
 
 	/*---REPLIES---*/
-std::string	RPL_AWAY(Client *client, std::string message);
-std::string	RPL_UNAWAY(Client *client);
-std::string	RPL_NOWAWAY(Client *client);
+	std::string	RPL_AWAY(Client *client, std::string message);
+	std::string	RPL_UNAWAY(Client *client);
+	std::string	RPL_NOWAWAY(Client *client);
 
 	//--------------Exceptions-------------//
 	class SendException : public std::exception {
