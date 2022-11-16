@@ -30,15 +30,15 @@ Server::~Server() {
 
 }
 
-std::string	Server::getServerName();
+std::string	Server::getServerName()
 {
 	return (this->_servername);
 }
-std::string	Server::getHost();
+std::string	Server::getHost()
 {
 	return (this->_host);
 }
-std::string	Server::getMotd();
+std::string	Server::getMotd()
 {
 	return (this->_motd);
 }
