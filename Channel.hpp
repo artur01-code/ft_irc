@@ -29,7 +29,6 @@ class Channel
 		bool							_has_pwd;
 		bool							_invite_only;
 
-		std::vector<std::string>		_listBannedClients;
 		std::vector<std::string>		_listInvitedClients;
 	public:
 		std::vector<Client *>			_clients;
@@ -54,9 +53,7 @@ class Channel
 		bool	getInvite_only() const;
 		void	setInvite_only(bool newIO);
 		const std::vector<std::string>	&getInvitedClients() const;
-		const std::vector<std::string>	&getBannedClients() const;
 		void	addInvitedClients(std::string newInvite);
-		void	addBannedClients(std::string newBan);
 		bool	InviteContains(const Client &obj);
 
 		void add_client(Client &obj);

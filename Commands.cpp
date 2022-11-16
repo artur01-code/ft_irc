@@ -2,6 +2,7 @@
 #include "Channel.hpp"
 #include "Message.hpp"
 #include "Server.hpp"
+#include <set>
 
 void Server::checkCommands(const Message &obj)
 {
@@ -15,6 +16,8 @@ void Server::checkCommands(const Message &obj)
 		this->JOIN(obj);
 	else if (obj.getCommand() == "PART")
 		this->PART(obj);
+	else if (obj.getCommand() == "MODE")
+		this->MODE(obj);
 	//call channel commands
 	
 }
@@ -107,7 +110,105 @@ void	Server::PART(const Message &obj)
 	}
 }
 
+void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign)
+{
+	std::vector<Channel>::iterator	first_channel;
+	for (std::vector<Channel>::iterator channel_end; first_channel < channel_end; first_channel++)
+	{
+		if ( (*first_channel).getName() == tree[0][0].substr(1))
+		{
+			std::string::iterator	flags(tree[1][0].begin() + 1);
+			for (std::string::iterator	end(tree[1][0].end()); flags < end; flags++)
+				(*first_channel).setChannelRule(*flags, sign);
+			return ;
+		}
+	}
+	throw Server::NoSuchChannelException(); 
+}
 
+void	Server::MODE(const Message &obj)
+{
+	if (M_DEBUG)
+		std::cout << "TRIGGERED JOIN" << std::endl;
+
+	std::vector<std::vector<std::string> >	tree = getTree(obj);
+
+	std::cout << "First param: " << tree[0].data() << std::endl;
+
+	// Change v to client
+	std::string	channel("opsitnmlk");
+	std::string	client("biswov");
+
+	std::set<char>	channel_set;
+	channel_set.insert(channel.begin(), channel.end());
+	std::set<char>	client_set;
+	client_set.insert(client.begin(), client.end());
+
+	try
+	{
+		if (tree.at(1).at(0).at(0) != '-' && tree.at(1).at(0).at(0) != '+')
+		{
+			send(_fd_client, "Mode flag needs to be signed\n", 30, 0);
+			return ;
+		}
+		if (tree.at(1).at(0).at(1) == '\0')
+		{
+			send(_fd_client, "Flag not given\n", 16, 0);
+			return ;
+		}
+		if (tree.at(0).at(0).at(0) == '&' || tree.at(0).at(0).at(0) == '#')
+		{
+			if (tree.at(0).at(0).at(1) == '\0')
+			{
+				send(_fd_client, "Servername not given\n", 22, 0);
+				return ;
+			}
+		}
+	}
+	catch (std::out_of_range &e)
+	{
+		send(_fd_client, "Insufficent arguments to MODE\n", 31, 0);
+	}
+
+	bool is_channel = true;
+	{
+		if (tree[0][0][0] != '&' && tree[0][0][0] != '#')
+			is_channel = false;
+	}
+
+	bool sign = true;
+	{
+		if (tree[1][0][0] == '-')
+			sign = false;
+	}
+	// Setting the appropriate flags on the channel
+	if (is_channel)
+	{
+		try
+		{
+			ChannelFlags(obj, tree, sign);
+		}
+		catch (NoSuchChannelException	&e)
+		{
+			send(_fd_client, "Can not set the modes of nonexistant channel\n", 46, 0);
+			return ;
+		}
+		// std::vector<Channel>::iterator	first_channel;
+		// for (std::vector<Channel>::iterator channel_end; first_channel < channel_end; first_channel++)
+		// {
+		// 	if ( (*first_channel).getName() == tree[0][0].substr(1))
+		// 	{
+		// 		std::string::iterator	flags(tree[1][0].begin() + 1);
+		// 		for (std::string::iterator	end(tree[1][0].end()); flags < end; flags++)
+		// 			(*first_channel).setChannelRule(*flags, sign);
+		// 	}
+		// }
+	}
+	else
+	{
+
+	}
+}
 
 void	Server::JOIN(const Message &obj)
 {

@@ -334,6 +334,9 @@ void Server::kqueue_engine() {
 // RemoveException();
 
 //--------------Exceptions-------------//
+const char *Server::NoSuchChannelException::what() const throw() {
+	return ("CHANNEL ACCESS ERROR: ");
+}
 const char *Server::SendException::what() const throw() {
 	return ("SEND ERROR: ");
 }

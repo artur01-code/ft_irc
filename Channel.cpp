@@ -84,20 +84,11 @@ const std::vector<std::string>	&Channel::getInvitedClients() const
 {
 	return (_listInvitedClients);
 }
-const std::vector<std::string>	&Channel::getBannedClients() const
-{
-	return (_listBannedClients);
-}
 
 void	Channel::addInvitedClients(std::string newInvite)
 {
 	_invite_only = true;
 	_listInvitedClients.push_back(newInvite);
-}
-
-void	Channel::addBannedClients(std::string newBan)
-{
-	_listBannedClients.push_back(newBan);
 }
 
 void Channel::rm_client(const Client &obj)
@@ -124,9 +115,9 @@ int	Channel::getChannelRules() // tested
 
 int	Channel::isChannelRule(char rule) // tested
 {
-	char arr[11] = "opsitnmlvk";
+	char arr[10] = "opsitnmlk";
 
-	for (size_t i = 0; i < 11; i++)
+	for (size_t i = 0; i < 10; i++)
 	{
 		if (arr[i] == rule)
 			return (_channel_rules & (1 << i));
@@ -137,9 +128,9 @@ int	Channel::isChannelRule(char rule) // tested
 
 void	Channel::setChannelRule(char toAdd, bool active)
 {
-	char arr[11] = "opsitnmlvk";
+	char arr[10] = "opsitnmlk";
 
-	for (size_t i = 0; i < 11; i++)
+	for (size_t i = 0; i < 10; i++)
 	{
 		if (arr[i] == toAdd)
 		{
@@ -160,9 +151,9 @@ void	Channel::setChannelRule(char toAdd, bool active)
 // b/i/s/w/o
 void	Channel::setClientRight( std::string username, char toAdd, bool active)
 {
-	char arr[6] = "biswo";
+	char arr[7] = "biswov";
 
-	for (size_t i = 0; i < 6; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		if (arr[i] == toAdd)
 		{
@@ -184,9 +175,9 @@ void	Channel::setClientRight( std::string username, char toAdd, bool active)
 
 bool	Channel::isClientRight( std::string username, char right )
 {
-	char arr[6] = "biswo";
+	char arr[7] = "biswov";
 
-	for (size_t i = 0; i < 6; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		if (arr[i] == right)
 			return (client_rights[username] & (1 << i));

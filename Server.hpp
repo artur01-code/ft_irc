@@ -144,8 +144,13 @@ class Server {
         void    PASS(const Message &obj);
 		void	JOIN(const Message &obj);
 		void	PART(const Message &obj);
+		void	MODE(const Message &obj);
+			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
 
     //--------------Exceptions-------------//
+	class NoSuchChannelException : public std::exception{
+		virtual const char *what() const throw();
+	};
     class SendException : public std::exception {
         virtual const char *what() const throw();
     };
