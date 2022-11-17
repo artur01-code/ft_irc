@@ -26,6 +26,7 @@ class Client
 		std::string _hostname;
 		std::string	_realname;
 		std::string	_username;
+		int			_regFlag;
 		std::map<std::string, Channel *> _channels;
 
 	public:
@@ -38,18 +39,22 @@ class Client
 		Client &operator=(const Client &rhs);
 
 		/*---GETTER AND SETTER---*/
-		int getSocket(void) const;
-		void setSocket(int socket);
-		std::string getNickname(void) const;
-		void setNickname(std::string nickname);
-		std::string getRealname(void);
-		void setRealname(std::string realname);
-		std::string getUsername(void) const;
-		void setUsername(std::string username);
-		std::string getHostname(void);
-		void setHostname(std::string hostname);
-		std::map<std::string, Channel *> getChannels(void);
-		void setChannels(std::map<std::string, Channel *> channels);
+		int			getSocket(void);
+		void		setSocket(int socket);
+		std::string	getNickname(void);
+		void		setNickname(std::string nickname);
+		std::string	getRealname(void);
+		void		setRealname(std::string realname);
+		std::string	getUsername(void);
+		void		setUsername(std::string username);
+		std::string	getHostname(void);
+		void		setHostname(std::string hostname);
+		int			getRegFlag(void);
+		void		setRegFlag(int regFlag);
+
+
+		std::map<std::string, Channel *>	getChannels(void);
+		void								setChannels(std::map<std::string, Channel *> channels);
 
 		void printAttributes(void);
 		bool	operator==(const Client &obj) const

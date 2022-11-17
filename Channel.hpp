@@ -41,7 +41,7 @@ class Channel
 
 		void	setClientRight( std::string username, char toAdd, bool active);
 		bool	isClientRight( std::string username, char right );
-	
+
 		int	getChannelRules();
 		void	setChannelRule(char toAdd, bool active);
 		int	isChannelRule(char rule);
@@ -61,6 +61,7 @@ class Channel
 
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);
+		int	hasClient(Client *client);
 };
 
 std::ostream	&operator<<(std::ostream &os, Channel &channy);

@@ -1,18 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/11/07 16:07:52 by ljahn             #+#    #+#             */
+/*          										  ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Client.hpp"
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username("")
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname) : _nickname(nickname)
+Client::Client(std::string nickname) : _nickname(nickname), _regFlag(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client nickname Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket) : _socket(socket), _nickname(nickname), _hostname(hostname), _realname(realname), _username(username)
+Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket) : _socket(socket), _nickname(nickname), _hostname(hostname), _realname(realname), _username(username), _regFlag(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client params Constructor" << END << std::endl;
@@ -23,7 +35,7 @@ Client::Client(const Client &rhs)
 	*this = rhs;
 }
 
-Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username("")
+Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
 {
 
 }
@@ -41,6 +53,7 @@ Client &Client::operator=(const Client &rhs)
 	this->_hostname = rhs._hostname;
 	this->_realname = rhs._realname;
 	this->_username = rhs._username;
+	this->_regFlag = rhs._regFlag;
 	this->_channels = rhs._channels;
 	return (*this);
 }
@@ -97,6 +110,16 @@ void Client::setHostname(std::string hostname)
 	this->_hostname = hostname;
 }
 
+int Client::getRegFlag(void)
+{
+	return (this->_regFlag);
+}
+
+void Client::setRegFlag(int regFlag)
+{
+	this->_regFlag = regFlag;
+}
+
 std::map<std::string, Channel *> Client::getChannels(void)
 {
 	return (this->_channels);
@@ -119,6 +142,7 @@ void Client::printAttributes(void)
 		std::cout << "Realname: " << this->getRealname() << std::endl;
 	if (this->getUsername() != "")
 		std::cout << "Username: " << this->getUsername() << std::endl;
+	std::cout << std::endl;
 }
 
 std::ostream	&operator<<(std::ostream &os, Client &obj)
@@ -126,3 +150,4 @@ std::ostream	&operator<<(std::ostream &os, Client &obj)
 	os << obj.getSocket();
 	return (os);
 }
+

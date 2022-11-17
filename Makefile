@@ -2,27 +2,37 @@ NAME	= ircserv
 
 CC		=	c++
 FLAGS	=	-Wall -Wextra -Werror -std=c++98 -pedantic
-SRCS	=	main.cpp \
-			Channel.cpp \
+MAIN	=	main.cpp
+SRCS	=	Channel.cpp \
 			Client.cpp \
 			Commands.cpp \
 			Message.cpp \
 			Server.cpp \
+			ErrorMessages.cpp \
+			#Replies.cpp \
 
 DFLAGS	=	-g -D M_DEBUG=1
+
 all:	${NAME}
 
 ${NAME}:
-	${CC} ${SRCS} -o ${NAME}
+	${CC} ${MAIN} ${SRCS} -o ${NAME}
 
 docker:
 	docker run -ti -v $(PWD):/test memory-test:0.1 bash -c "cd /test/; make re && valgrind --leak-check=full ./${NAME}"
 
 debug:
-	${CC} ${SRCS} ${FLAGS} ${DFLAGS} -o ${NAME}
+	${CC} ${MAIN} ${SRCS} ${FLAGS} ${DFLAGS} -o ${NAME}
+
+test_messages:
+	${CC} ${SRCS} tests/test_messages.cpp -o messages.test
+
+test_errors:
+	${CC} ${SRCS} tests/test_errors.cpp -o errors.test
 
 fclean:
 	rm -f ${NAME}
+	rm -f *.test
 
 re: fclean all
 
