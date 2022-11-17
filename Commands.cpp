@@ -95,7 +95,7 @@ void Server::USER(const Message &obj, Client &clientObj)
 			std::cout << msg << std::endl;
 		return;
 	}
-	if (this->regClients.count(clientObj.getNickname()))
+	if (this->_regClients.count(clientObj.getNickname()))
 	{
 		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
 		if (M_DEBUG)
@@ -103,8 +103,8 @@ void Server::USER(const Message &obj, Client &clientObj)
 		return ;
 	}
 
-	std::map<std::string, Client *>::iterator itReg = this->regClients.begin();
-	while (itReg != this->regClients.end())
+	std::map<std::string, Client *>::iterator itReg = this->_regClients.begin();
+	while (itReg != this->_regClients.end())
 	{
 		if (this->_fd_client == itReg->second->getSocket())
 		{
@@ -124,7 +124,7 @@ void Server::USER(const Message &obj, Client &clientObj)
 	if (clientObj.getRegFlag() == 1 && clientObj.getNickname() != "")
 	{
 
-		this->regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
+		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
@@ -210,7 +210,7 @@ void Server::USER(const Message &obj, Client &clientObj)
 // 		{
 // 			// target is a user
 // 			text = msg.getParameters().back();
-// 			if (!this->_regClients.count(target))
+// 			if (!this->__regClients.count(target))
 // 			{
 // 				sendMessage(cl, ERR_NOSUCHNICK(cl, target));
 // 				continue ;
@@ -251,8 +251,8 @@ void Server::NICK(const Message &obj, Client &clientObj)
 			std::cout << msg << std::endl;
 		return;
 	}
-	// see if new nickname is already in regClients map
-	if (this->regClients.count(vec[0]))
+	// see if new nickname is already in _regClients map
+	if (this->_regClients.count(vec[0]))
 	{
 		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
 		if (M_DEBUG)
@@ -261,11 +261,11 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	}
 	/*FUNCTINALITY*/
 	// delete old nickname
-	if (clientObj.getNickname() != "" && clientObj.getUsername() != "" && this->regClients.count(clientObj.getNickname()))
+	if (clientObj.getNickname() != "" && clientObj.getUsername() != "" && this->_regClients.count(clientObj.getNickname()))
 	{
 		if (M_DEBUG)
 			std::cout << "Erase map element with key [" << clientObj.getNickname() << "]" << std::endl;
-		this->regClients.erase(clientObj.getNickname());
+		this->_regClients.erase(clientObj.getNickname());
 	}
 	clientObj.setNickname(vec[0]);
 	if (M_DEBUG)
@@ -273,7 +273,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	// if Username already set, register client by making pair and putting it in regClient map
 	if (clientObj.getRegFlag() == 1 && clientObj.getUsername() != "")
 	{
-		this->regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
+		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
