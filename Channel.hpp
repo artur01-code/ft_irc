@@ -35,6 +35,7 @@ class Channel
 		// are members of the server!
 		std::map<std::string, char>		client_rights; // nick in call
 
+		int	flag_val(std::string alphabet, char flag);
 	// Getters and setters:
 		std::string	getName() const;
 		Channel(std::string name);

@@ -105,6 +105,20 @@ void Channel::rm_client(const Client &obj)
 	}
 }
 
+int	Channel::flag_val(std::string alphabet, char flag)
+{
+	std::string::iterator	end(alphabet.end());
+	size_t count = 0;
+	for (std::string::iterator begin(alphabet.begin()); begin < end; begin++)
+	{
+		if (*begin == flag)
+			return (1 << count);
+		count++;
+	}
+	std::cerr << "flag_val(): no such flag" << std::endl;
+	return (-1);
+}
+
 // </ SETTERS AND GETTERS>
 
 // o/p/s/i/t/n/m/l/v/k
@@ -115,73 +129,41 @@ int	Channel::getChannelRules() // tested
 
 int	Channel::isChannelRule(char rule) // tested
 {
-	char arr[10] = "opsitnmlk";
-
-	for (size_t i = 0; i < 10; i++)
-	{
-		if (arr[i] == rule)
-			return (_channel_rules & (1 << i));
-	}
-	std::cerr << "No such channel rule exists" << std::endl;
-	return (0);
+	return (_channel_rules & flag_val("opsitnmlk", rule));
 }
 
 void	Channel::setChannelRule(char toAdd, bool active)
 {
-	char arr[10] = "opsitnmlk";
-
-	for (size_t i = 0; i < 10; i++)
-	{
-		if (arr[i] == toAdd)
-		{
-			if (active)
-			{
-				_channel_rules = _channel_rules | (1 << i);
-				return ;
-			}
-			else
-			{
-				_channel_rules = _channel_rules & ~(1 << i);
-				return ;
-			}
-		}
-	}
+	int	flag_value = flag_val("opsitnmlk", toAdd);
+	if (active)
+		_channel_rules |= flag_value;
+	else
+		_channel_rules &= ~flag_value;
 }
 
-// b/i/s/w/o
+// b/i/s/w/o/v
 void	Channel::setClientRight( std::string nickname, char toAdd, bool active)
 {
-	char arr[7] = "biswov";
+	int	flag = flag_val("biswov", toAdd);
 
-	for (size_t i = 0; i < 7; i++)
+	try
 	{
-		if (arr[i] == toAdd)
-		{
-			try
-			{
-				client_rights.at(nickname);
-			}
-			catch (std::out_of_range &e)
-			{
-				client_rights.insert(std::pair<std::string, char>(nickname, '\0'));
-			}
-			if (active)
-				client_rights[nickname]  = client_rights[nickname] | (1 << i);
-			else
-				client_rights[nickname]  = client_rights[nickname] & ~(1 << i);
-		}
+		client_rights.at(nickname);
 	}
+	catch (std::out_of_range &e)
+	{
+		client_rights.insert(std::pair<std::string, char>(nickname, '\0'));
+	}
+
+	if (active)
+		client_rights[nickname]  |= flag;
+	else
+		client_rights[nickname]  &= ~flag;
 }
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
-	char arr[7] = "biswov";
+	int	flag = flag_val("biswov", right);
 
-	for (size_t i = 0; i < 7; i++)
-	{
-		if (arr[i] == right)
-			return (client_rights[nickname] & (1 << i));
-	}
-	std::cerr << "There is no such client right" << std::endl;
-	return (false);
+	return (client_rights[nickname] & flag);
 }
