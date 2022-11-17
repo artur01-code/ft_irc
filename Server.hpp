@@ -43,6 +43,7 @@ class Server {
     std::string _password;
     struct sockaddr_in _address;
     std::map<int, Client> _regClients;
+    std::map<std::string, Client *> _regClients2;
     std::map<int, Client> _conClients;
     std::string _host;
     std::string _servername;
