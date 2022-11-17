@@ -9,6 +9,7 @@ SRCS	=	Channel.cpp \
 			Message.cpp \
 			Server.cpp \
 			ErrorMessages.cpp \
+			#Replies.cpp \
 
 DFLAGS	=	-g -D M_DEBUG=1
 
@@ -31,7 +32,7 @@ test_errors:
 
 fclean:
 	rm -f ${NAME}
-	# rm *.test
+	rm -f *.test
 
 re: fclean all
 

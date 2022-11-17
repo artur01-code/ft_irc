@@ -42,7 +42,7 @@ class Server {
    private:
     std::string _password;
     struct sockaddr_in _address;
-    std::map<int, Client> _regClients;
+    std::map<std::string, Client *> _regClients;
     std::map<int, Client> _conClients;
     std::string _host;
     std::string _servername;
@@ -111,7 +111,8 @@ std::string server_ipaddr);
     void NICK(const Message &obj, Client &clientObj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
-
+	void TOPIC(Client *cl, Message msg);
+	void PRIVMSG(Client *cl, const Message &msg);
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
     std::string ERR_NOSUCHSERVER(Client *client);
@@ -145,9 +146,11 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
-    std::string RPL_AWAY(Client *client, std::string message);
-    std::string RPL_UNAWAY(Client *client);
-    std::string RPL_NOWAWAY(Client *client);
+	std::string	RPL_AWAY(Client *client, std::string message);
+	std::string	RPL_UNAWAY(Client *client);
+	std::string	RPL_NOWAWAY(Client *client);
+	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
+	std::string	RPL_TOPIC(Client *client, Channel *channel);
 
     //--------------Exceptions-------------//
     class SendException : public std::exception {

@@ -39,7 +39,7 @@ void Server::PASS(const Message &obj)
 				std::cout << std::endl;
 			}
 			Client obj = it->second;
-			
+
 			//the password belongs to the server so check if there is a password set (!"")
 			//and then check if correct or not
 			if (this->_password != "" && this->_password == vec[0])
@@ -49,7 +49,7 @@ void Server::PASS(const Message &obj)
 			else
 			{
 				std::cout << "bad password!" << std::endl;
-			}	
+			}
 			break;
 		}
 		it++;
@@ -95,27 +95,26 @@ void Server::USER(const Message &obj, Client &clientObj)
 			std::cout << msg << std::endl;
 		return;
 	}
-	std::map<int, Client>::iterator it = this->_regClients.begin();
-	while (it != this->_regClients.end())
+	if (this->_regClients.count(clientObj.getNickname()))
 	{
-		Client tmpClientReg = it->second;
-		if (clientObj.getNickname() == tmpClientReg.getNickname())
+		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
+		if (M_DEBUG)
+			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
+		return ;
+	}
+
+	std::map<std::string, Client *>::iterator itReg = this->_regClients.begin();
+	while (itReg != this->_regClients.end())
+	{
+		if (this->_fd_client == itReg->second->getSocket())
 		{
-			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
+			std::string msg = ERR_ALREADYREGISTERED(itReg->second);
 			sendMessage(&clientObj, msg);
 			if (M_DEBUG)
 				std::cout << msg << std::endl;
 			return;
 		}
-		if (this->_fd_client == it->first)
-		{
-			std::string msg = ERR_ALREADYREGISTERED(&it->second);
-			sendMessage(&clientObj, msg);
-			if (M_DEBUG)
-				std::cout << msg << std::endl;
-			return;
-		}
-		it++;
+		itReg++;
 	}
 	/*FUNCTINALITY*/
 	clientObj.setHostname(vec[1]);
@@ -125,7 +124,7 @@ void Server::USER(const Message &obj, Client &clientObj)
 	if (clientObj.getRegFlag() == 1 && clientObj.getNickname() != "")
 	{
 
-		this->_regClients.insert(std::make_pair(clientObj.getSocket(), clientObj));
+		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
@@ -135,6 +134,93 @@ void Server::USER(const Message &obj, Client &clientObj)
 		clientObj.printAttributes();
 }
 
+
+// void	Server::TOPIC(Client *cl, Message msg)
+// {
+// 	if (msg.getParameters().empty())
+// 	{
+// 		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, "TOPIC"));
+// 		return ;
+// 	}
+// 	if (!this->_channels.count(msg.getParameters()[0]))
+// 	{
+// 		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters()[0])));
+// 		return ;
+// 	}
+// 	Channel *ch = &this->_channels.at(msg.getParameters()[0]);
+// 	if (!) // make member function of this
+// 	{
+// 		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters()[0]));
+// 		return ;
+// 	}
+// 	if (msg.getParameters().size() == 1)
+// 	{
+// 		if (ch->getTopic() == "")
+// 			this->sendMessage(cl, RPL_NOTOPIC(cl, ch));
+// 		else
+// 			this->sendMessage(cl, RPL_TOPIC(cl, ch));
+// 	}
+// 	else
+// 	{
+// 		if (/*not operator*/)
+// 			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
+// 		else
+// 			ch->setTopic(msg.getParameters()[1]);
+// 	}
+// }
+
+// void	Server::PRIVMSG(Client *cl, const Message &msg)
+// {
+// 	std::vector<std::string>	recipients;
+// 	std::string					target;
+// 	std::string					text;
+// 	Client *					toClient;
+// 	if (msg.getParameters().empty())
+// 	{
+// 		this->sendMessage(cl, ERR_NORECIPIENT(cl, "PRIVMSG"));
+// 		return ;
+// 	}
+// 	if (msg.getParameters().size() < 2)
+// 	{
+// 		this->sendMessage(cl, ERR_NOTEXTTOSEND(cl));
+// 		return ;
+// 	}
+// 	// possibly split first parameter into recipients separated by commas
+// 	std::string tmp = msg.getParameters()[0];
+// 	size_t		comma;
+// 	while ((comma = tmp.find(',')) != tmp.npos)
+// 	{
+// 		std::cout << tmp << std::endl;
+// 		std::cout << comma << std::endl;
+// 		recipients.push_back(tmp.substr(0, comma));
+// 		tmp.erase(0, comma + 1);
+// 	}
+// 	recipients.push_back(tmp.substr(0, tmp.npos));
+// 	// iterate over all recipients and send messages accordingly
+// 	// - if channel, distribute message to all users in that channel
+// 	// - if user, send privmsg to that user
+// 	for (size_t i = 0; i < recipients.size(); i++)
+// 	{
+// 		target = recipients[i];
+// 		if (target[0] == '#')
+// 		{
+// 			// target is a channel
+// 		}
+// 		else
+// 		{
+// 			// target is a user
+// 			text = msg.getParameters().back();
+// 			if (!this->__regClients.count(target))
+// 			{
+// 				sendMessage(cl, ERR_NOSUCHNICK(cl, target));
+// 				continue ;
+// 			}
+
+// 			// send message to client
+// 		}
+// 	}
+// }
+
 /*
 take the socket adress and look it up in the map of the server
 then set the username of the client
@@ -143,6 +229,7 @@ Command:        NICK
 Parameters:
         [0]     second
 */
+
 void Server::NICK(const Message &obj, Client &clientObj)
 {
 	if (M_DEBUG)
@@ -164,27 +251,29 @@ void Server::NICK(const Message &obj, Client &clientObj)
 			std::cout << msg << std::endl;
 		return;
 	}
-	std::map<int, Client>::iterator itReg = this->_regClients.begin();
-	while (itReg != this->_regClients.end())
+	// see if new nickname is already in _regClients map
+	if (this->_regClients.count(vec[0]))
 	{
-		Client tmpClientReg = itReg->second;
-		if (tmpClientReg.getNickname() == vec[0])
-		{
-			std::string msg = ERR_NICKNAMEINUSE(&tmpClientReg);
-			sendMessage(&clientObj, msg);
-			if (M_DEBUG)
-				std::cout << msg << std::endl;
-			return;
-		}
-		itReg++;
+		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
+		if (M_DEBUG)
+			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
+		return ;
 	}
 	/*FUNCTINALITY*/
+	// delete old nickname
+	if (clientObj.getNickname() != "" && clientObj.getUsername() != "" && this->_regClients.count(clientObj.getNickname()))
+	{
+		if (M_DEBUG)
+			std::cout << "Erase map element with key [" << clientObj.getNickname() << "]" << std::endl;
+		this->_regClients.erase(clientObj.getNickname());
+	}
 	clientObj.setNickname(vec[0]);
 	if (M_DEBUG)
 		clientObj.printAttributes();
+	// if Username already set, register client by making pair and putting it in regClient map
 	if (clientObj.getRegFlag() == 1 && clientObj.getUsername() != "")
 	{
-		this->_regClients.insert(std::make_pair(clientObj.getSocket(), clientObj));
+		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
