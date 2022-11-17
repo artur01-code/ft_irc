@@ -114,18 +114,18 @@ void	Server::PART(const Message &obj)
 void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign)
 {
 	(void)obj;
-	std::vector<Channel>::iterator	first_channel;
-	for (std::vector<Channel>::iterator channel_end; first_channel < channel_end; first_channel++)
+	// can be abstracted to save channel access!
+
+	try
 	{
-		if ( (*first_channel).getName() == tree[0][0].substr(1))
-		{
-			std::string::iterator	flags(tree[1][0].begin() + 1);
-			for (std::string::iterator	end(tree[1][0].end()); flags < end; flags++)
-				(*first_channel).setChannelRule(*flags, sign);
-			return ;
-		}
+		std::string::iterator	flags(tree[1][0].begin() + 1);
+		for (std::string::iterator	end(tree[1][0].end()); flags < end; flags++)
+			_m_channels.at(tree[0][0])->setChannelRule(*flags, sign);
 	}
-	throw Server::NoSuchChannelException();
+	catch (std::out_of_range &e)
+	{
+		sendMessage(&_conClients[_fd_client], ERR_NOSUCHCHANNEL(&_conClients[_fd_client], tree[0][0]));
+	}
 }
 
 // not working yet
@@ -135,8 +135,6 @@ void	Server::MODE(const Message &obj)
 		std::cout << "TRIGGERED MODE" << std::endl;
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
-
-	std::cout << "First param: " << tree[0].data() << std::endl;
 
 	// Change v to client
 	std::string	channel("opsitnmlk");
@@ -188,6 +186,7 @@ void	Server::MODE(const Message &obj)
 	// Setting the appropriate flags on the channel
 	if (is_channel)
 	{
+		std::cout << "IT GETS TILL HERE 1" << std::endl;
 		try
 		{
 			ChannelFlags(obj, tree, sign);
@@ -197,6 +196,8 @@ void	Server::MODE(const Message &obj)
 			send(_fd_client, "Can not set the modes of nonexistant channel\n", 46, 0);
 			return ;
 		}
+		if (M_DEBUG)
+			std::cout << *_m_channels[tree[0][0]] << std::endl;
 		// std::vector<Channel>::iterator	first_channel;
 		// for (std::vector<Channel>::iterator channel_end; first_channel < channel_end; first_channel++)
 		// {
@@ -277,9 +278,8 @@ void	Server::JOIN(const Message &obj)
 		else
 		{
 			_v_channels.push_back(Channel(*chanelname1));
+			_m_channels.insert(std::pair<std::string, Channel *>(*chanelname1, &_v_channels[_v_channels.size() - 1]));
 			_v_channels[_v_channels.size() - 1].add_client(_conClients[_fd_client]);
-			_v_channels[_v_channels.size() - 1].setChannelRule('i', true);
-			std::cout << _v_channels[_v_channels.size() - 1] << std::endl;
 		}
 		key++;
 	}

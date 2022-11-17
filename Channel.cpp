@@ -16,7 +16,8 @@ Channel::Channel(std::string name) : _name(name),  _channel_rules(0), _has_pwd(f
 
 void Channel::add_client(Client &obj)
 {
-	std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
+	if (M_DEBUG)
+		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
 	_clients.push_back(&obj);
 	client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
 }

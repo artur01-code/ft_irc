@@ -50,6 +50,7 @@ class Server {
     std::string _password_operator;
 	// For iteration purposes
 	std::vector<Channel>	_v_channels;
+	std::map<std::string, Channel *>	_m_channels;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
