@@ -21,6 +21,9 @@ class Client;
 class Channel
 {
 	private:
+		const static std::string		_alphabet;
+		const static std::string		_clientAlphabet;
+
 		std::string						_name;
 		std::string						_topic;
 		std::string						_pwd;
@@ -40,8 +43,8 @@ class Channel
 		std::string	getName() const;
 		Channel(std::string name);
 
-		void	setClientRight( std::string username, char toAdd, bool active);
-		bool	isClientRight( std::string username, char right );
+		void	setClientRight( std::string nickname, char toAdd, bool active);
+		bool	isClientRight( std::string nickname, char right );
 
 		int	getChannelRules();
 		void	setChannelRule(char toAdd, bool active);
@@ -63,8 +66,8 @@ class Channel
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);
 		int	hasClient(Client *client);
+		friend std::ostream	&operator<<(std::ostream &os, Channel &channy);
 };
 
-std::ostream	&operator<<(std::ostream &os, Channel &channy);
 
 #endif

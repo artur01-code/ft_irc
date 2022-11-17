@@ -132,7 +132,7 @@ void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::strin
 void	Server::MODE(const Message &obj)
 {
 	if (M_DEBUG)
-		std::cout << "TRIGGERED JOIN" << std::endl;
+		std::cout << "TRIGGERED MODE" << std::endl;
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
 
@@ -147,6 +147,7 @@ void	Server::MODE(const Message &obj)
 	std::set<char>	client_set;
 	client_set.insert(client.begin(), client.end());
 
+	// Error in the formatting.
 	try
 	{
 		if (tree.at(1).at(0).at(0) != '-' && tree.at(1).at(0).at(0) != '+')
@@ -277,6 +278,8 @@ void	Server::JOIN(const Message &obj)
 		{
 			_v_channels.push_back(Channel(*chanelname1));
 			_v_channels[_v_channels.size() - 1].add_client(_conClients[_fd_client]);
+			_v_channels[_v_channels.size() - 1].setChannelRule('i', true);
+			std::cout << _v_channels[_v_channels.size() - 1] << std::endl;
 		}
 		key++;
 	}

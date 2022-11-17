@@ -1,4 +1,8 @@
 #include "Channel.hpp"
+#include <cmath>
+
+const std::string Channel::_alphabet = "opsitnmlk";
+const std::string Channel::_clientAlphabet = "biswov";
 
 std::string	Channel::getName() const
 {
@@ -27,6 +31,13 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 	{
 		os << **clients_begin << std::endl;
 	}
+	os << "Rules" << std::endl;
+	for (size_t i = 1; i <= 256; i <<= 1)
+	{
+		if (channy._channel_rules & i)
+			os << channy._alphabet[log2(i)];
+	}
+	os << std::endl;
 	return (os);
 }
 
@@ -134,22 +145,34 @@ int	Channel::getChannelRules() // tested
 
 int	Channel::isChannelRule(char rule) // tested
 {
-	return (_channel_rules & flag_val("opsitnmlk", rule));
+	return (_channel_rules & flag_val(_alphabet, rule));
 }
 
+/**
+ * @brief
+ * 
+ * @param toAdd Alphabet: opsitnmlk
+ * @param active adding(true), deleting(false)
+ */
 void	Channel::setChannelRule(char toAdd, bool active)
 {
-	int	flag_value = flag_val("opsitnmlk", toAdd);
+	int	flag_value = flag_val(_alphabet, toAdd);
 	if (active)
 		_channel_rules |= flag_value;
 	else
 		_channel_rules &= ~flag_value;
 }
 
-// b/i/s/w/o/v
+/**
+ * @brief 
+ * 
+ * @param nickname 
+ * @param toAdd alphabet: biswov
+ * @param active 
+ */
 void	Channel::setClientRight( std::string nickname, char toAdd, bool active)
 {
-	int	flag = flag_val("biswov", toAdd);
+	int	flag = flag_val(_clientAlphabet, toAdd);
 
 	try
 	{
@@ -168,7 +191,7 @@ void	Channel::setClientRight( std::string nickname, char toAdd, bool active)
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
-	int	flag = flag_val("biswov", right);
+	int	flag = flag_val(_clientAlphabet, right);
 
 	return (client_rights[nickname] & flag);
 }
