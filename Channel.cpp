@@ -12,8 +12,9 @@ Channel::Channel(std::string name) : _name(name),  _channel_rules(0), _has_pwd(f
 
 void Channel::add_client(Client &obj)
 {
+	std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
 	_clients.push_back(&obj);
-	client_rights.insert(std::pair<std::string, char>(obj.getUsername(), '\0'));
+	client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
 }
 
 std::ostream	&operator<<(std::ostream &os, Channel &channy)
@@ -95,14 +96,18 @@ void Channel::rm_client(const Client &obj)
 {
 	std::vector<Client *>::iterator	begin(_clients.begin());
 
-	for (std::vector<Client *>::iterator	end(_clients.begin()); begin < end; begin++)
+	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
-		if ( (**begin).getUsername() == obj.getUsername())
+		std::cout << "Should be triggered exactly twice" << std::endl;
+		if ( (**begin).getNickname() == obj.getNickname())
 		{
+			std::cout << "The state was sucessfully altered" << std::endl;
 			_clients.erase(begin);
 			return ;
 		}
 	}
+	if (M_DEBUG)
+		std::cout << "_clients doesn't hold the nickname: " << obj.getNickname() << std::endl;
 }
 
 int	Channel::flag_val(std::string alphabet, char flag)
