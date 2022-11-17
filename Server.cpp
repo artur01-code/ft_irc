@@ -139,8 +139,6 @@ int Server::parsing_messages(std::string read)
     std::vector<Message> v_message;
     
     std::string buf_string(read);
-	buf_string = buf_string.substr(0, buf_string.length() - 1);
-	buf_string += "\r\n";
 
     while (buf_string.find("\r\n") != buf_string.npos)
     {
