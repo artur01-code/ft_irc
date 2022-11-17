@@ -42,13 +42,14 @@ class Server {
    private:
     std::string _password;
     struct sockaddr_in _address;
-    std::map<int, Client> _regClients;
+    std::map<std::string, Client *> _regClients;
     std::map<int, Client> _conClients;
     std::string _host;
     std::string _servername;
     std::string _motd;
     std::string _password_operator;
-    std::map<int, Channel> _channels;
+	// For iteration purposes
+	std::vector<Channel>	_v_channels;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
@@ -112,7 +113,11 @@ std::string server_ipaddr);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
     void QUIT(const Message &obj, Client &clientObj);
-
+			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
+    void PART(const Message &obj);
+    void MODE(const Message &obj);
+	void TOPIC(Client *cl, Message msg);
+	void PRIVMSG(Client *cl, const Message &msg);
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
     std::string ERR_NOSUCHSERVER(Client *client);
@@ -146,11 +151,16 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
-    std::string RPL_AWAY(Client *client, std::string message);
-    std::string RPL_UNAWAY(Client *client);
-    std::string RPL_NOWAWAY(Client *client);
+	std::string	RPL_AWAY(Client *client, std::string message);
+	std::string	RPL_UNAWAY(Client *client);
+	std::string	RPL_NOWAWAY(Client *client);
+	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
+	std::string	RPL_TOPIC(Client *client, Channel *channel);
 
     //--------------Exceptions-------------//
+	class NoSuchChannelException : public std::exception{
+		virtual const char *what() const throw();
+	};
     class SendException : public std::exception {
         virtual const char *what() const throw();
     };
