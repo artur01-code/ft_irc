@@ -48,7 +48,8 @@ class Server {
     std::string _servername;
     std::string _motd;
     std::string _password_operator;
-    std::map<int, Channel> _channels;
+	// For iteration purposes
+	std::vector<Channel>	_v_channels;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
@@ -111,6 +112,9 @@ std::string server_ipaddr);
     void NICK(const Message &obj, Client &clientObj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
+			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
+    void PART(const Message &obj);
+    void MODE(const Message &obj);
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
     /*---ERRORS---*/
@@ -153,6 +157,9 @@ std::string server_ipaddr);
 	std::string	RPL_TOPIC(Client *client, Channel *channel);
 
     //--------------Exceptions-------------//
+	class NoSuchChannelException : public std::exception{
+		virtual const char *what() const throw();
+	};
     class SendException : public std::exception {
         virtual const char *what() const throw();
     };
