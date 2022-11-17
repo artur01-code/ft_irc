@@ -10,14 +10,8 @@ Server::Server() : _v_channels()
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-<<<<<<< HEAD
 Server::Server(int port) : _v_channels()
 {
-
-=======
-Server::Server(int port)
-{
->>>>>>> main
 	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
 	setupConnection(tmp, port);
@@ -27,8 +21,8 @@ Server::Server(int port)
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
 Server::Server(int port, std::string ip_address) : _v_channels()
 {
-	setup_connection(ip_address, port);
-	set_kqueue();
+	setupConnection(ip_address, port);
+	setKqueue();
 }
 
 //--------------DESTRUCTOR-------------//
@@ -182,14 +176,9 @@ int Server::parsingMessages(std::string read)
 	std::vector<Message> v_message;
 
 	std::string buf_string(read);
-<<<<<<< HEAD
 
 	while (buf_string.find("\r\n") != buf_string.npos)
 	{
-=======
-	while (buf_string.find("\r\n") != buf_string.npos)
-	{
->>>>>>> main
 		Message msg(buf_string.substr(0, buf_string.find("\r\n")));
 		v_message.push_back(msg);
 		buf_string = buf_string.substr(

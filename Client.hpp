@@ -39,21 +39,21 @@ class Client
 		Client &operator=(const Client &rhs);
 
 		/*---GETTER AND SETTER---*/
-		int			getSocket(void);
+		int			getSocket(void) const;
 		void		setSocket(int socket);
-		std::string	getNickname(void);
+		std::string	getNickname(void) const;
 		void		setNickname(std::string nickname);
-		std::string	getRealname(void);
+		std::string	getRealname(void) const;
 		void		setRealname(std::string realname);
-		std::string	getUsername(void);
+		std::string	getUsername(void) const;
 		void		setUsername(std::string username);
-		std::string	getHostname(void);
+		std::string	getHostname(void) const;
 		void		setHostname(std::string hostname);
-		int			getRegFlag(void);
+		int			getRegFlag(void) const;
 		void		setRegFlag(int regFlag);
 
 
-		std::map<std::string, Channel *>	getChannels(void);
+		std::map<std::string, Channel *>	getChannels(void) const;
 		void								setChannels(std::map<std::string, Channel *> channels);
 
 		void printAttributes(void);

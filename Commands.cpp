@@ -15,9 +15,9 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->PASS(msgObj);
 	else if (msgObj.getCommand() == "JOIN")
 		this->JOIN(msgObj);
-	else if (obj.getCommand() == "PART")
+	else if (msgObj.getCommand() == "PART")
 		this->PART(msgObj);
-	else if (obj.getCommand() == "MODE")
+	else if (msgObj.getCommand() == "MODE")
 		this->MODE(msgObj);
 	//call channel commands
 
@@ -64,7 +64,7 @@ void Server::PASS(const Message &obj)
 std::vector<std::vector<std::string> >	getTree(const Message &obj)
 {
 	typedef std::vector<std::string>::iterator	viterator;
-	typedef std::vector<std::vector<std::string> >::iterator	vmeta_iterator;
+	// typedef std::vector<std::vector<std::string> >::iterator	vmeta_iterator;
 	std::vector<std::string>	ret = obj.getParameters();
 
 	std::vector<std::vector<std::string> >	tree;
@@ -106,13 +106,14 @@ void	Server::PART(const Message &obj)
 		for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
 		{
 			if ( (*begin).getName() == *param_begin)
-				(*begin).rm_client(_clients[_fd_client]);
+				(*begin).rm_client(_conClients[_fd_client]);
 		}
 	}
 }
 
 void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign)
 {
+	(void)obj;
 	std::vector<Channel>::iterator	first_channel;
 	for (std::vector<Channel>::iterator channel_end; first_channel < channel_end; first_channel++)
 	{
@@ -254,34 +255,36 @@ void	Server::JOIN(const Message &obj)
 			}
 			if (chany->getInvite_only())
 			{
-				if (!chany->InviteContains(_clients[_fd_client]))
+				if (!chany->InviteContains(_conClients[_fd_client]))
 				{
 					send(_fd_client, "Server requires invite\n", 24, 0);
 					return ;
 				}
 			}
 			// check if banned
-			if (chany->isClientRight(_clients[_fd_client].getUsername(), 'b'))
+			if (chany->isClientRight(_conClients[_fd_client].getUsername(), 'b'))
 			{
 				send(_fd_client, "You are banned from this server\n", 33, 0);
 				return ;
 			}
 			// </Selection criteria>
-			if (!chany->contains(_clients[_fd_client]))
-				chany->add_client(_clients[_fd_client]);
+			if (!chany->contains(_conClients[_fd_client]))
+				chany->add_client(_conClients[_fd_client]);
 			else
 				send(_fd_client, "You are allready member of this server\n", 40, 0);
 		}
 		else
 		{
 			_v_channels.push_back(Channel(*chanelname1));
-			_v_channels[_v_channels.size() - 1].add_client(_clients[_fd_client]);
+			_v_channels[_v_channels.size() - 1].add_client(_conClients[_fd_client]);
 		}
 		key++;
 	}
-
-	std::cout << "The socketid of the caller: " << _fd_client << std::endl;
-	std::cout << "Through the map: " << _clients[_fd_client].getSocket() << std::endl;
+	if (M_DEBUG)
+	{
+		std::cout << "The socketid of the caller: " << _fd_client << std::endl;
+		std::cout << "Through the map: " << _conClients[_fd_client].getSocket() << std::endl;
+	}
 
 	std::vector<Channel>::iterator	end(_v_channels.end());
 	for (std::vector<Channel>::iterator begin(_v_channels.begin()); begin < end; begin++)

@@ -6,7 +6,7 @@ std::string	Channel::getName() const
 }
 
 // NAME CONSTRUCTOR
-Channel::Channel(std::string name) : _name(name), _has_pwd(false), _invite_only(false), _channel_rules(0)
+Channel::Channel(std::string name) : _name(name),  _channel_rules(0), _has_pwd(false), _invite_only(false)
 {
 }
 

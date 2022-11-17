@@ -80,7 +80,7 @@ void Client::setNickname(std::string nickname)
 	this->_nickname = nickname;
 }
 
-std::string Client::getRealname(void)
+std::string Client::getRealname(void) const
 {
 	return (this->_realname);
 }
@@ -100,7 +100,7 @@ void Client::setUsername(std::string username)
 	this->_username = username;
 }
 
-std::string Client::getHostname(void)
+std::string Client::getHostname(void) const
 {
 	return (this->_hostname);
 }
@@ -110,7 +110,7 @@ void Client::setHostname(std::string hostname)
 	this->_hostname = hostname;
 }
 
-int Client::getRegFlag(void)
+int Client::getRegFlag(void) const
 {
 	return (this->_regFlag);
 }
@@ -120,7 +120,7 @@ void Client::setRegFlag(int regFlag)
 	this->_regFlag = regFlag;
 }
 
-std::map<std::string, Channel *> Client::getChannels(void)
+std::map<std::string, Channel *> Client::getChannels(void) const
 {
 	return (this->_channels);
 }
