@@ -23,7 +23,6 @@ class Channel
 	private:
 		std::string						_name;
 		std::string						_topic;
-		std::map <std::string, int>		_clientRights;
 		std::string						_pwd;
 		int								_channel_rules;
 		bool							_has_pwd;
@@ -34,7 +33,7 @@ class Channel
 		std::vector<Client *>			_clients;
 		// The clients for whom rights are set are a superset of the clients that
 		// are members of the server!
-		std::map<std::string, char>		client_rights;
+		std::map<std::string, char>		client_rights; // nick in call
 
 	// Getters and setters:
 		std::string	getName() const;
@@ -52,6 +51,7 @@ class Channel
 		void	setPwd(const std::string &newPwd);
 		bool	getInvite_only() const;
 		void	setInvite_only(bool newIO);
+
 		const std::vector<std::string>	&getInvitedClients() const;
 		void	addInvitedClients(std::string newInvite);
 		bool	InviteContains(const Client &obj);

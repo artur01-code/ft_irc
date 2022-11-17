@@ -57,7 +57,7 @@ void Client::setSocket(int socket)
 	this->_socket = socket;
 }
 
-std::string Client::getNickname(void)
+std::string Client::getNickname(void) const
 {
 	return (this->_nickname);
 }

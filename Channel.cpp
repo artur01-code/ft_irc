@@ -45,7 +45,7 @@ bool	Channel::InviteContains(const Client &obj)
 	std::vector<std::string>::iterator	end(_listInvitedClients.end());
 	for (std::vector<std::string>::iterator	begin(_listInvitedClients.begin()); begin < end; begin++)
 	{
-		if (*begin == obj.getUsername())
+		if (*begin == obj.getNickname())
 			return (true);
 	}
 	return (false);
@@ -149,7 +149,7 @@ void	Channel::setChannelRule(char toAdd, bool active)
 }
 
 // b/i/s/w/o
-void	Channel::setClientRight( std::string username, char toAdd, bool active)
+void	Channel::setClientRight( std::string nickname, char toAdd, bool active)
 {
 	char arr[7] = "biswov";
 
@@ -159,28 +159,28 @@ void	Channel::setClientRight( std::string username, char toAdd, bool active)
 		{
 			try
 			{
-				client_rights.at(username);
+				client_rights.at(nickname);
 			}
 			catch (std::out_of_range &e)
 			{
-				client_rights.insert(std::pair<std::string, char>(username, '\0'));
+				client_rights.insert(std::pair<std::string, char>(nickname, '\0'));
 			}
 			if (active)
-				client_rights[username]  = client_rights[username] | (1 << i);
+				client_rights[nickname]  = client_rights[nickname] | (1 << i);
 			else
-				client_rights[username]  = client_rights[username] & ~(1 << i);
+				client_rights[nickname]  = client_rights[nickname] & ~(1 << i);
 		}
 	}
 }
 
-bool	Channel::isClientRight( std::string username, char right )
+bool	Channel::isClientRight( std::string nickname, char right )
 {
 	char arr[7] = "biswov";
 
 	for (size_t i = 0; i < 7; i++)
 	{
 		if (arr[i] == right)
-			return (client_rights[username] & (1 << i));
+			return (client_rights[nickname] & (1 << i));
 	}
 	std::cerr << "There is no such client right" << std::endl;
 	return (false);

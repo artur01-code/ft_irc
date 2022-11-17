@@ -40,7 +40,7 @@ class Client
 		/*---GETTER AND SETTER---*/
 		int getSocket(void) const;
 		void setSocket(int socket);
-		std::string getNickname(void);
+		std::string getNickname(void) const;
 		void setNickname(std::string nickname);
 		std::string getRealname(void);
 		void setRealname(std::string realname);

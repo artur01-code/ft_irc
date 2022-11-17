@@ -126,6 +126,7 @@ void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::strin
 	throw Server::NoSuchChannelException(); 
 }
 
+// not working yet
 void	Server::MODE(const Message &obj)
 {
 	if (M_DEBUG)
@@ -274,9 +275,6 @@ void	Server::JOIN(const Message &obj)
 		{
 			_v_channels.push_back(Channel(*chanelname1));
 			_v_channels[_v_channels.size() - 1].add_client(_clients[_fd_client]);
-			_v_channels[_v_channels.size() - 1].setClientRight("Herbert", 'b', true);
-			std::cout << ((_v_channels[_v_channels.size() - 1].isClientRight("Herbert", 'b')) ? ("True") : ("False")) << std::endl;
-			std::cout << ((_v_channels[_v_channels.size() - 1].isClientRight("Herbert", 'i')) ? ("True") : ("False")) << std::endl;
 		}
 		key++;
 	}
