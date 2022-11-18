@@ -24,6 +24,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include "Channel.hpp"
 #include "Client.hpp"
@@ -102,7 +103,7 @@ std::string server_ipaddr);
     void setPassword(std::string param_password);
     void setKEvent();
 
-
+    std::string makeNickMask(Server server, Client *client);
     std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/

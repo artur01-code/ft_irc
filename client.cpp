@@ -151,3 +151,11 @@ std::ostream	&operator<<(std::ostream &os, Client &obj)
 	return (os);
 }
 
+std::string	Channel::getTopic() const
+{
+	return (this->_topic);
+}
+void		Channel::setTopic(std::string topic)
+{
+	this->_topic = topic;
+}

@@ -39,6 +39,9 @@ class Channel
 		std::string	getName() const;
 		Channel(std::string name);
 
+		std::string	getTopic() const;
+		void		setTopic(std::string topic);
+
 		void	setClientRight( std::string username, char toAdd, bool active);
 		bool	isClientRight( std::string username, char right );
 

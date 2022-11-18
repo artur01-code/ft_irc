@@ -19,6 +19,8 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->PART(msgObj);
 	else if (msgObj.getCommand() == "MODE")
 		this->MODE(msgObj);
+	else if (msgObj.getCommand() == "TOPIC")
+		this->TOPIC(&clientObj, msgObj);
 	//call channel commands
 
 }
@@ -363,15 +365,17 @@ void	Server::TOPIC(Client *cl, Message msg)
 		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, "TOPIC"));
 		return ;
 	}
-	if (!this->_channels.count(msg.getParameters()[0]))
+	std::string channelName = msg.getParameters()[0];
+	std::string channelTopic = msg.getParameters()[1];
+	if (std::find(this->_v_channels.begin(), this->_v_channels.end(), /*need to find a way do find correct channel, map?*/) != this->_v_channels.end())
 	{
-		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters()[0])));
+		this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, channelName));
 		return ;
 	}
-	Channel *ch = &this->_channels.at(msg.getParameters()[0]);
-	if (!) // make member function of this
+	Channel *ch = &(*(std::find(this->_v_channels.begin(), this->_v_channels.end(), channelName)));
+	if (!ch->hasClient(cl))
 	{
-		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters()[0]));
+		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, channelName));
 		return ;
 	}
 	if (msg.getParameters().size() == 1)
@@ -383,64 +387,69 @@ void	Server::TOPIC(Client *cl, Message msg)
 	}
 	else
 	{
-		if (/*not operator*/) // isClientRight(username, char right)
+		if (ch->isChannelRule('t') && !(ch->isClientRight(cl->getNickname(), 'o'))) // isClientRight(username, char right)
 			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
 		else
-			ch->setTopic(msg.getParameters()[1]);
+			ch->setTopic(channelTopic);
 	}
 }
 
-// void	Server::PRIVMSG(Client *cl, const Message &msg)
-// {
-// 	std::vector<std::string>	recipients;
-// 	std::string					target;
-// 	std::string					text;
-// 	Client *					toClient;
-// 	if (msg.getParameters().empty())
-// 	{
-// 		this->sendMessage(cl, ERR_NORECIPIENT(cl, "PRIVMSG"));
-// 		return ;
-// 	}
-// 	if (msg.getParameters().size() < 2)
-// 	{
-// 		this->sendMessage(cl, ERR_NOTEXTTOSEND(cl));
-// 		return ;
-// 	}
-// 	// possibly split first parameter into recipients separated by commas
-// 	std::string tmp = msg.getParameters()[0];
-// 	size_t		comma;
-// 	while ((comma = tmp.find(',')) != tmp.npos)
-// 	{
-// 		std::cout << tmp << std::endl;
-// 		std::cout << comma << std::endl;
-// 		recipients.push_back(tmp.substr(0, comma));
-// 		tmp.erase(0, comma + 1);
-// 	}
-// 	recipients.push_back(tmp.substr(0, tmp.npos));
-// 	// iterate over all recipients and send messages accordingly
-// 	// - if channel, distribute message to all users in that channel
-// 	// - if user, send privmsg to that user
-// 	for (size_t i = 0; i < recipients.size(); i++)
-// 	{
-// 		target = recipients[i];
-// 		if (target[0] == '#')
-// 		{
-// 			// target is a channel
-// 		}
-// 		else
-// 		{
-// 			// target is a user
-// 			text = msg.getParameters().back();
-// 			if (!this->__regClients.count(target))
-// 			{
-// 				sendMessage(cl, ERR_NOSUCHNICK(cl, target));
-// 				continue ;
-// 			}
+void	Server::PRIVMSG(Client *cl, const Message &msg)
+{
+	std::vector<std::string>	recipients;
+	std::string					target;
+	std::string					text;
+	Client *					toClient;
 
-// 			// send message to client
-// 		}
-// 	}
-// }
+	if (msg.getParameters().empty())
+	{
+		this->sendMessage(cl, ERR_NORECIPIENT(cl, "PRIVMSG"));
+		return ;
+	}
+	if (msg.getParameters().size() < 2)
+	{
+		this->sendMessage(cl, ERR_NOTEXTTOSEND(cl));
+		return ;
+	}
+	// possibly split first parameter into recipients separated by commas
+	std::string tmp = msg.getParameters()[0];
+	size_t		comma;
+	while ((comma = tmp.find(',')) != tmp.npos)
+	{
+		std::cout << tmp << std::endl;
+		std::cout << comma << std::endl;
+		recipients.push_back(tmp.substr(0, comma));
+		tmp.erase(0, comma + 1);
+	}
+	recipients.push_back(tmp.substr(0, tmp.npos));
+	// iterate over all recipients and send messages accordingly
+	// - if channel, distribute message to all users in that channel
+	// - if user, send privmsg to that user
+	for (size_t i = 0; i < recipients.size(); i++)
+	{
+		target = recipients[i];
+		if (target[0] == '#')
+		{
+			// target is a channel
+		}
+		else
+		{
+			// target is a user
+			text = msg.getParameters().back();
+			if (!this->_regClients.count(target))
+			{
+				sendMessage(cl, ERR_NOSUCHNICK(cl, target));
+				continue ;
+			}
+			else
+			{
+			// send message to client
+				std::string message;
+				message += this->makeNickMask(*this, *cl);
+			}
+		}
+	}
+}
 
 /*
 take the socket adress and look it up in the map of the server

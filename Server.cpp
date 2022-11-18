@@ -285,6 +285,13 @@ void Server::kqueueEngine()
 	}
 }
 
+std::string Server::makeNickMask(Server server, Client client)
+{
+	std::string mask;
+	mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
+	return (mask);
+}
+
 // int Server::get_connection(int fd) {
 //     for (int i = 0; i < NUM_CLIENTS; i++) {
 //         // std::cout << clients[i].fd << std::endl;
