@@ -113,9 +113,87 @@ std::string server_ipaddr);
     void NICK(const Message &obj, Client &clientObj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
+			static std::vector<std::vector<std::string> >	getTree(const Message &obj);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj);
-    void MODE(const Message &obj);
+	// ------------ MODE MEMBER CLASS ------------------- //
+
+	friend class MODE_CLASS;
+	class MODE_CLASS
+	{
+		private:
+			bool									_sign;
+
+			std::vector<std::string >				_reduced_tree;
+			typedef	std::vector<std::string>::iterator	_tree_iterator;
+
+			std::string								_flags;
+			std::string								_subject_str;
+			Noun*									_subject;
+			std::string								_object_str;
+			Noun*									_object;
+			bool									_is_channel;
+			Server&									_server;
+		public:
+			MODE_CLASS(Server &server) : _sign(true), _reduced_tree(), _is_channel(true), _flags(), _subject(), _object(), _server(server) {}
+			void	operator()(const Message &obj, Client &caller)
+			{
+				_reduced_tree = reduce(getTree(obj));
+				if (M_DEBUG)
+				{
+					_tree_iterator	end(_reduced_tree.end());
+					for (_tree_iterator	begin(_reduced_tree.begin()); begin < end; begin++)
+						std::cout << "Tree contents: " << *begin << std::endl;
+				}
+				internal_state(obj, caller);
+				if (M_DEBUG)
+					std::cout << _subject->greet() << std::endl;
+				//Iterate through all flags
+				std::string::iterator	end(_flags.end());
+				for (std::string::iterator	flag(_flags.begin()); flag < end; flag++)
+				{
+					_subject->setFlag(*flag, _object, _sign);
+				}
+			}
+			void	internal_state(const Message &obj, Client &caller)
+			{
+				_subject_str = _reduced_tree[0];
+				_flags = _reduced_tree[1];
+				_object_str = _reduced_tree[2];
+
+				if (!(_subject_str[0] == '#') && !(_subject_str[0] == '&'))
+					_is_channel = false;
+				if (_flags[0] == '-')
+					_sign = false;
+				_flags.erase(_flags.begin());
+
+				if (_is_channel)
+				{
+					try
+					{
+						_subject = reinterpret_cast<Noun *>(_server._m_channels.at(_subject_str));
+					}
+					catch (std::out_of_range &e)
+					{
+						_server.sendMessage(&caller, _server.ERR_NOSUCHCHANNEL(&caller, _subject_str));
+					}
+				}
+			}
+			template <class Data>
+			std::vector<Data> reduce(std::vector<std::vector<Data> > vector) const
+			{
+				typedef	typename std::vector<std::vector<Data> >::iterator	iterator;
+				std::vector<Data>	ret;
+
+				iterator	end(vector.end());
+				for (iterator	begin(vector.begin()); begin < end; begin++)
+					ret.push_back( (*begin)[0]);
+				return (ret);
+			}
+	};
+	// ------------ </MODE MEMBER CLASS> ------------------- //
+    MODE_CLASS MODE;
+		bool	zero_param();
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
     /*---ERRORS---*/

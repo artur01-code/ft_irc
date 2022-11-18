@@ -18,7 +18,7 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	else if (msgObj.getCommand() == "PART")
 		this->PART(msgObj);
 	else if (msgObj.getCommand() == "MODE")
-		this->MODE(msgObj);
+		this->MODE(msgObj, clientObj);
 	//call channel commands
 
 }
@@ -61,7 +61,7 @@ void Server::PASS(const Message &obj)
 	}
 }
 
-std::vector<std::vector<std::string> >	getTree(const Message &obj)
+std::vector<std::vector<std::string> >	Server::getTree(const Message &obj)
 {
 	typedef std::vector<std::string>::iterator	viterator;
 	// typedef std::vector<std::vector<std::string> >::iterator	vmeta_iterator;
@@ -129,91 +129,84 @@ void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::strin
 }
 
 // not working yet
-void	Server::MODE(const Message &obj)
-{
-	if (M_DEBUG)
-		std::cout << "TRIGGERED MODE" << std::endl;
+// void	Server::MODE(const Message &obj)
+// {
+// 	if (M_DEBUG)
+// 		std::cout << "TRIGGERED MODE" << std::endl;
 
-	std::vector<std::vector<std::string> >	tree = getTree(obj);
+// 	std::vector<std::vector<std::string> >	tree = getTree(obj);
 
-	// Change v to client
-	std::string	channel("opsitnmlk");
-	std::string	client("biswov");
+// 	// Change v to client
+// 	std::string	channel("opsitnmlk");
+// 		// std::string user_param("ov");
+// 		// std::string limit_param("l");
 
-	std::set<char>	channel_set;
-	channel_set.insert(channel.begin(), channel.end());
-	std::set<char>	client_set;
-	client_set.insert(client.begin(), client.end());
+// 	std::string	client("biswo");
 
-	// Error in the formatting.
-	try
-	{
-		if (tree.at(1).at(0).at(0) != '-' && tree.at(1).at(0).at(0) != '+')
-		{
-			send(_fd_client, "Mode flag needs to be signed\n", 30, 0);
-			return ;
-		}
-		if (tree.at(1).at(0).at(1) == '\0')
-		{
-			send(_fd_client, "Flag not given\n", 16, 0);
-			return ;
-		}
-		if (tree.at(0).at(0).at(0) == '&' || tree.at(0).at(0).at(0) == '#')
-		{
-			if (tree.at(0).at(0).at(1) == '\0')
-			{
-				send(_fd_client, "Servername not given\n", 22, 0);
-				return ;
-			}
-		}
-	}
-	catch (std::out_of_range &e)
-	{
-		send(_fd_client, "Insufficent arguments to MODE\n", 31, 0);
-	}
+// 	std::set<char>	channel_set;
+// 	channel_set.insert(channel.begin(), channel.end());
+// 		// std::set<char>	userParamSet;
+// 		// userParamSet.insert(user_param.begin(), user_param.end());
+// 		// std::set<char>	limitParamSet;
+// 		// limitParamSet.insert(limit_param.begin(), limit_param.end());
 
-	bool is_channel = true;
-	{
-		if (tree[0][0][0] != '&' && tree[0][0][0] != '#')
-			is_channel = false;
-	}
+// 	std::set<char>	client_set;
+// 	client_set.insert(client.begin(), client.end());
 
-	bool sign = true;
-	{
-		if (tree[1][0][0] == '-')
-			sign = false;
-	}
-	// Setting the appropriate flags on the channel
-	if (is_channel)
-	{
-		std::cout << "IT GETS TILL HERE 1" << std::endl;
-		try
-		{
-			ChannelFlags(obj, tree, sign);
-		}
-		catch (NoSuchChannelException	&e)
-		{
-			send(_fd_client, "Can not set the modes of nonexistant channel\n", 46, 0);
-			return ;
-		}
-		if (M_DEBUG)
-			std::cout << *_m_channels[tree[0][0]] << std::endl;
-		// std::vector<Channel>::iterator	first_channel;
-		// for (std::vector<Channel>::iterator channel_end; first_channel < channel_end; first_channel++)
-		// {
-		// 	if ( (*first_channel).getName() == tree[0][0].substr(1))
-		// 	{
-		// 		std::string::iterator	flags(tree[1][0].begin() + 1);
-		// 		for (std::string::iterator	end(tree[1][0].end()); flags < end; flags++)
-		// 			(*first_channel).setChannelRule(*flags, sign);
-		// 	}
-		// }
-	}
-	else
-	{
+// 	// Error in the formatting.
+// 	try
+// 	{
+// 		if (tree.at(1).at(0).at(0) != '-' && tree.at(1).at(0).at(0) != '+')
+// 		{
+// 			send(_fd_client, "Mode flag needs to be signed\n", 30, 0);
+// 			return ;
+// 		}
+// 		if (tree.at(1).at(0).at(1) == '\0')
+// 		{
+// 			send(_fd_client, "Flag not given\n", 16, 0);
+// 			return ;
+// 		}
+// 		if (tree.at(0).at(0).at(0) == '&' || tree.at(0).at(0).at(0) == '#')
+// 		{
+// 			if (tree.at(0).at(0).at(1) == '\0')
+// 			{
+// 				send(_fd_client, "Servername not given\n", 22, 0);
+// 				return ;
+// 			}
+// 		}
+// 	}
+// 	catch (std::out_of_range &e)
+// 	{
+// 		send(_fd_client, "Insufficent arguments to MODE\n", 31, 0);
+// 	}
 
-	}
-}
+// 	bool is_channel = true;
+// 	{
+// 		if (tree[0][0][0] != '&' && tree[0][0][0] != '#')
+// 			is_channel = false;
+// 	}
+
+// 	bool sign = true;
+// 	{
+// 		if (tree[1][0][0] == '-')
+// 			sign = false;
+// 	}
+// 	// Setting the appropriate flags on the channel
+// 	//---------------------------------------------
+// 	// can be abstracted!
+// 	// if (!zero_param(1))
+// 	// {
+// 	// 	if (!one_param(1))
+// 	// 	{
+// 	// 		if (!user_param(1))
+// 	// 		{
+// 	// 			limit_param(1);
+// 	// 		}
+// 	// 	}
+// 	// }
+
+// 	//---------------------------------------------
+// }
 
 void	Server::JOIN(const Message &obj)
 {

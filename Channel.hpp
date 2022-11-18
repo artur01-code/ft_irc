@@ -18,7 +18,9 @@
 
 class Client;
 
-class Channel
+
+
+class Channel : public Noun
 {
 	private:
 		const static std::string		_alphabet;
@@ -33,6 +35,8 @@ class Channel
 
 		std::vector<std::string>		_listInvitedClients;
 	public:
+			virtual void setFlag(char flag, Noun *obj, bool active) {(void)obj; (void)flag; (void)active;}
+			virtual std::string greet() {return("Hello channel");}
 		std::vector<Client *>			_clients;
 		// The clients for whom rights are set are a superset of the clients that
 		// are members of the server!
@@ -42,6 +46,7 @@ class Channel
 	// Getters and setters:
 		std::string	getName() const;
 		Channel(std::string name);
+		virtual ~Channel() {}
 
 		void	setClientRight( std::string nickname, char toAdd, bool active);
 		bool	isClientRight( std::string nickname, char right );
