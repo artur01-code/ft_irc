@@ -135,39 +135,39 @@ void Server::USER(const Message &obj, Client &clientObj)
 }
 
 
-// void	Server::TOPIC(Client *cl, Message msg)
-// {
-// 	if (msg.getParameters().empty())
-// 	{
-// 		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, "TOPIC"));
-// 		return ;
-// 	}
-// 	if (!this->_channels.count(msg.getParameters()[0]))
-// 	{
-// 		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters()[0])));
-// 		return ;
-// 	}
-// 	Channel *ch = &this->_channels.at(msg.getParameters()[0]);
-// 	if (!) // make member function of this
-// 	{
-// 		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters()[0]));
-// 		return ;
-// 	}
-// 	if (msg.getParameters().size() == 1)
-// 	{
-// 		if (ch->getTopic() == "")
-// 			this->sendMessage(cl, RPL_NOTOPIC(cl, ch));
-// 		else
-// 			this->sendMessage(cl, RPL_TOPIC(cl, ch));
-// 	}
-// 	else
-// 	{
-// 		if (/*not operator*/)
-// 			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
-// 		else
-// 			ch->setTopic(msg.getParameters()[1]);
-// 	}
-// }
+void	Server::TOPIC(Client *cl, Message msg)
+{
+	if (msg.getParameters().empty())
+	{
+		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, "TOPIC"));
+		return ;
+	}
+	if (!this->_channels.count(msg.getParameters()[0]))
+	{
+		this->sendMessage(cl, ERR_NEEDMOREPARAMS(cl, ERR_NOSUCHCHANNEL(cl, msg.getParameters()[0])));
+		return ;
+	}
+	Channel *ch = &this->_channels.at(msg.getParameters()[0]);
+	if (!) // make member function of this
+	{
+		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, msg.getParameters()[0]));
+		return ;
+	}
+	if (msg.getParameters().size() == 1)
+	{
+		if (ch->getTopic() == "")
+			this->sendMessage(cl, RPL_NOTOPIC(cl, ch));
+		else
+			this->sendMessage(cl, RPL_TOPIC(cl, ch));
+	}
+	else
+	{
+		if (/*not operator*/) // isClientRight(username, char right)
+			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
+		else
+			ch->setTopic(msg.getParameters()[1]);
+	}
+}
 
 // void	Server::PRIVMSG(Client *cl, const Message &msg)
 // {
