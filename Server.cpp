@@ -114,6 +114,7 @@ int Server::setAccept()
 	// AddClient(client_fd, client_address, _ip_address);
 	// addConnection(client_fd);
 	Client *new_client = new Client(client_fd);
+	new_client->setPwdFlag(1);
 	this->_conClients.insert(std::make_pair(client_fd, *new_client));
 	std::cout << "new client : " << client_fd << " was accepted\n";
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
@@ -376,6 +377,17 @@ void Server::kqueueEngine()
 // #define RemoveException() throw new runtime_error("REMOVE ERROR")
 
 // RemoveException();
+
+
+int Server::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Server::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
+}
 
 //--------------Exceptions-------------//
 const char *Server::NoSuchChannelException::what() const throw()

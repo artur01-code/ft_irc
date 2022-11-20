@@ -120,6 +120,16 @@ void Client::setRegFlag(int regFlag)
 	this->_regFlag = regFlag;
 }
 
+int Client::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Client::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
+}
+
 std::map<std::string, Channel *> Client::getChannels(void) const
 {
 	return (this->_channels);

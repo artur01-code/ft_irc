@@ -6,18 +6,28 @@
 
 void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
+	//when the server needs a pwd the flag is 1
+	//when the user has typed in the correct pwd or it's not needed the flag is 0
+	if (msgObj.getCommand() == "PASS" && server.getPwdFlag() && clientObj.getPwdFlag())
+		clientObj.setPwdFlag(this->PASS(msgObj, clientObj));
+	else
+	{
+		clientObj.setPwdFlag(0);
+		sendMessage(&clientObj, ERR_ALREADYREGISTERED(clientObj));
+		if (M_DEBUG)
+			std::cout << msg << std::endl;
+		return;
+	}
 
-	if (msgObj.getCommand() == "USER")
+	if (msgObj.getCommand() == "USER" && !clientObj.getPwdFlag())
 		this->USER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NICK")
+	else if (msgObj.getCommand() == "NICK" && !clientObj.getPwdFlag())
 		this->NICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "PASS")
-		this->PASS(msgObj);
-	else if (msgObj.getCommand() == "JOIN")
+	else if (msgObj.getCommand() == "JOIN" && !clientObj.getPwdFlag())
 		this->JOIN(msgObj);
-	else if (msgObj.getCommand() == "PART")
+	else if (msgObj.getCommand() == "PART" && !clientObj.getPwdFlag())
 		this->PART(msgObj);
-	else if (msgObj.getCommand() == "MODE")
+	else if (msgObj.getCommand() == "MODE" && !clientObj.getPwdFlag())
 		this->MODE(msgObj);
 	//call channel commands
 
@@ -29,36 +39,30 @@ can be sent multiple times, but only last one is used for verification
 can NOT be changed once registered
 must be sent before any attempt to register the connection
 */
-void Server::PASS(const Message &obj)
+int PASS(const Message &msgObj, Client &clientObj);
 {
+	//first check if there is a pwd passed
+	//check if the pwd fits to the pwd stored on the server
+	if (M_DEBUG)
+		std::cout << "COMMAND: *PASS* FUNCTION GOT TRIGGERT" << std::endl << std::endl;
+
 	std::vector<std::string> vec = obj.getParameters();
-
-	std::map<int, Client>::iterator it = this->_conClients.begin();
-	while (it != this->_conClients.end())
+	if (!vec[0])
 	{
-		if (this->_fd_client == it->first)
-		{
-			if (M_DEBUG)
-			{
-				std::cout << "COMMAND: *PASS* FUNCTION GOT TRIGGERT" << std::endl;
-				std::cout << std::endl;
-			}
-			Client obj = it->second;
-
-			//the password belongs to the server so check if there is a password set (!"")
-			//and then check if correct or not
-			if (this->_password != "" && this->_password == vec[0])
-			{
-				std::cout << "good password!" << std::endl;
-			}
-			else
-			{
-				std::cout << "bad password!" << std::endl;
-			}
-			break;
-		}
-		it++;
+		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "PASS"));
+		if (M_DEBUG)
+			std::cout << msg << std::endl;
+		return;
 	}
+	if (vec[0] == this->_password)
+	{
+		clientObj.setPwdFlag = 0;
+		if (M_DEBUG)
+			std::cout << "Password accepted!" << std::endl;
+	}
+	else
+		if (M_DEBUG)
+			std::cout << "Password denied!" << std::endl;
 }
 
 std::vector<std::vector<std::string> >	getTree(const Message &obj)
@@ -310,8 +314,7 @@ void Server::USER(const Message &obj, Client &clientObj)
 	std::vector<std::string> vec = obj.getParameters();
 	if (vec.size() < 4)
 	{
-		std::string msg = ERR_NEEDMOREPARAMS(&clientObj, "USER");
-		sendMessage(&clientObj, msg);
+		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "USER"));
 		if (M_DEBUG)
 			std::cout << msg << std::endl;
 		return;
