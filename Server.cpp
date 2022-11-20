@@ -114,7 +114,10 @@ int Server::setAccept()
 	// AddClient(client_fd, client_address, _ip_address);
 	// addConnection(client_fd);
 	Client *new_client = new Client(client_fd);
-	new_client->setPwdFlag(1);
+	if (server.getPwdFlag())
+		new_client->setPwdFlag(1);
+	else
+		new_client->setPwdFlag(0);
 	this->_conClients.insert(std::make_pair(client_fd, *new_client));
 	std::cout << "new client : " << client_fd << " was accepted\n";
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,

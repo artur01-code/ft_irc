@@ -8,18 +8,9 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
 	//when the server needs a pwd the flag is 1
 	//when the user has typed in the correct pwd or it's not needed the flag is 0
-	if (msgObj.getCommand() == "PASS" && server.getPwdFlag() && clientObj.getPwdFlag())
-		clientObj.setPwdFlag(this->PASS(msgObj, clientObj));
-	else
-	{
-		clientObj.setPwdFlag(0);
-		sendMessage(&clientObj, ERR_ALREADYREGISTERED(clientObj));
-		if (M_DEBUG)
-			std::cout << msg << std::endl;
-		return;
-	}
-
-	if (msgObj.getCommand() == "USER" && !clientObj.getPwdFlag())
+	if (msgObj.getCommand() == "PASS")
+		this->PASS(msgObj, clientObj);
+	else if (msgObj.getCommand() == "USER" && !clientObj.getPwdFlag())
 		this->USER(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NICK" && !clientObj.getPwdFlag())
 		this->NICK(msgObj, clientObj);
@@ -46,6 +37,15 @@ int PASS(const Message &msgObj, Client &clientObj);
 	if (M_DEBUG)
 		std::cout << "COMMAND: *PASS* FUNCTION GOT TRIGGERT" << std::endl << std::endl;
 
+	//when there is no server pwd or the user has already passed this step return;
+	if (server.getPwdFlag() == 0 || clientObj.getPwdFlag() == 0)
+	{
+		sendMessage(&clientObj, ERR_ALREADYREGISTERED(clientObj));
+		if (M_DEBUG)
+			std::cout << msg << std::endl;
+		return ;
+	}
+
 	std::vector<std::string> vec = obj.getParameters();
 	if (!vec[0])
 	{
@@ -54,9 +54,10 @@ int PASS(const Message &msgObj, Client &clientObj);
 			std::cout << msg << std::endl;
 		return;
 	}
+
 	if (vec[0] == this->_password)
 	{
-		clientObj.setPwdFlag = 0;
+		clientObj.setPwdFlag(0);
 		if (M_DEBUG)
 			std::cout << "Password accepted!" << std::endl;
 	}
