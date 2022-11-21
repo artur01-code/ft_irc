@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jtomala <jtomala@students.42wolfsburg.de>  +#+  +:+       +#+        */
+/*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 02:51:29 by rkultaev          #+#    #+#             */
-/*   Updated: 2022/11/20 11:54:09 by jtomala          ###   ########.fr       */
+/*   Updated: 2022/11/21 15:39:36 by jtomala          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,10 @@ int main(int argc, char **argv) {
     if (argc < 2 || argc > 3)
         return (-1);
     else if (argc == 3)
+    {
         server.setPwdFlag(1);
+        server.setPassword(argv[2]);
+    }
     else
         server.setPwdFlag(0);
     server.kqueueEngine();

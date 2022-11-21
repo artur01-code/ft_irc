@@ -101,7 +101,7 @@ std::string server_ipaddr);
     std::string getMotd();
     int getPwdFlag(void);
     // setter
-    void setPassword(std::string param_password);
+    void setPassword(std::string password);
     void setKEvent();
     void setPwdFlag(int n);
 
@@ -119,7 +119,7 @@ std::string server_ipaddr);
     void MODE(const Message &obj);
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
-    int PASS(const Message &msgObj, Client &clientObj);
+    void PASS(const Message &msgObj, Client &clientObj);
 
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);

@@ -10,18 +10,17 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	//when the user has typed in the correct pwd or it's not needed the flag is 0
 	if (msgObj.getCommand() == "PASS")
 		this->PASS(msgObj, clientObj);
-	else if (msgObj.getCommand() == "USER" && !clientObj.getPwdFlag())
+	else if (msgObj.getCommand() == "USER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->USER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NICK" && !clientObj.getPwdFlag())
+	else if (msgObj.getCommand() == "NICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "JOIN" && !clientObj.getPwdFlag())
+	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->JOIN(msgObj);
-	else if (msgObj.getCommand() == "PART" && !clientObj.getPwdFlag())
+	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->PART(msgObj);
-	else if (msgObj.getCommand() == "MODE" && !clientObj.getPwdFlag())
+	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->MODE(msgObj);
 	//call channel commands
-
 }
 
 /*
@@ -30,7 +29,7 @@ can be sent multiple times, but only last one is used for verification
 can NOT be changed once registered
 must be sent before any attempt to register the connection
 */
-int PASS(const Message &msgObj, Client &clientObj);
+void Server::PASS(const Message &msgObj, Client &clientObj)
 {
 	//first check if there is a pwd passed
 	//check if the pwd fits to the pwd stored on the server
@@ -38,32 +37,32 @@ int PASS(const Message &msgObj, Client &clientObj);
 		std::cout << "COMMAND: *PASS* FUNCTION GOT TRIGGERT" << std::endl << std::endl;
 
 	//when there is no server pwd or the user has already passed this step return;
-	if (server.getPwdFlag() == 0 || clientObj.getPwdFlag() == 0)
+	if ((this->getPwdFlag() == 0) || (this->getPwdFlag() == 1 && clientObj.getPwdFlag() == 1))
 	{
-		sendMessage(&clientObj, ERR_ALREADYREGISTERED(clientObj));
+		sendMessage(&clientObj, ERR_ALREADYREGISTERED(&clientObj));
 		if (M_DEBUG)
-			std::cout << msg << std::endl;
+			std::cout << ERR_ALREADYREGISTERED(&clientObj) << std::endl;
 		return ;
 	}
 
-	std::vector<std::string> vec = obj.getParameters();
-	if (!vec[0])
+	if (msgObj.getParameters().empty())
 	{
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "PASS"));
 		if (M_DEBUG)
-			std::cout << msg << std::endl;
+			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "PASS") << std::endl;
 		return;
 	}
+	std::vector<std::string> vec = msgObj.getParameters();
 
 	if (vec[0] == this->_password)
 	{
-		clientObj.setPwdFlag(0);
+		clientObj.setPwdFlag(1);
 		if (M_DEBUG)
 			std::cout << "Password accepted!" << std::endl;
 	}
 	else
 		if (M_DEBUG)
-			std::cout << "Password denied!" << std::endl;
+			std::cout << "Password denied! " <<  std::endl;
 }
 
 std::vector<std::vector<std::string> >	getTree(const Message &obj)
@@ -317,7 +316,7 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "USER"));
 		if (M_DEBUG)
-			std::cout << msg << std::endl;
+			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "USER") << std::endl;
 		return;
 	}
 	if (this->_regClients.count(clientObj.getNickname()))
@@ -333,10 +332,9 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 		if (this->_fd_client == itReg->second->getSocket())
 		{
-			std::string msg = ERR_ALREADYREGISTERED(itReg->second);
-			sendMessage(&clientObj, msg);
+			sendMessage(&clientObj, ERR_ALREADYREGISTERED(itReg->second));
 			if (M_DEBUG)
-				std::cout << msg << std::endl;
+				std::cout << ERR_ALREADYREGISTERED(itReg->second) << std::endl;
 			return;
 		}
 		itReg++;
@@ -506,12 +504,12 @@ void Server::NICK(const Message &obj, Client &clientObj)
 		clientObj.setRegFlag(1);
 }
 
-void Server::QUIT(const Message& obj, Client &clientObj)
-{
-	if (M_DEBUG)
-		std::cout << "COMMAND: *QUIT* FUNCTION GOT TRIGGERED" << std::endl;
-	//If there is a quit message, send it, if not, default
-	//close the connection to the server
-	//if the client connection is closed without the Quit command
-	// it need to display a message reflecting on what happen
-}
+// void Server::QUIT(const Message& obj, Client &clientObj)
+// {
+// 	if (M_DEBUG)
+// 		std::cout << "COMMAND: *QUIT* FUNCTION GOT TRIGGERED" << std::endl;
+// 	//If there is a quit message, send it, if not, default
+// 	//close the connection to the server
+// 	//if the client connection is closed without the Quit command
+// 	// it need to display a message reflecting on what happen
+// }

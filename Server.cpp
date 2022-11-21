@@ -114,10 +114,6 @@ int Server::setAccept()
 	// AddClient(client_fd, client_address, _ip_address);
 	// addConnection(client_fd);
 	Client *new_client = new Client(client_fd);
-	if (server.getPwdFlag())
-		new_client->setPwdFlag(1);
-	else
-		new_client->setPwdFlag(0);
 	this->_conClients.insert(std::make_pair(client_fd, *new_client));
 	std::cout << "new client : " << client_fd << " was accepted\n";
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
@@ -201,8 +197,6 @@ int Server::parsingMessages(std::string read)
 
 	while (itMsg != v_message.end())
 	{
-		if (M_DEBUG)
-			std::cout << "Enters anyways" << std::endl;
 		this->checkCommands(*itMsg, itCli->second);
 		itMsg++;
 	}
@@ -390,6 +384,11 @@ int Server::getPwdFlag(void)
 void Server::setPwdFlag(int n)
 {
 	this->_pwdFlag = n;
+}
+
+void Server::setPassword(std::string password)
+{
+	this->_password = password;
 }
 
 //--------------Exceptions-------------//

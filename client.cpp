@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
@@ -35,7 +35,7 @@ Client::Client(const Client &rhs)
 	*this = rhs;
 }
 
-Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
+Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
 
 }
