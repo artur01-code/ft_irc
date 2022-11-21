@@ -21,6 +21,8 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->MODE(msgObj);
 	else if (msgObj.getCommand() == "TOPIC")
 		this->TOPIC(&clientObj, msgObj);
+	else if (msgObj.getCommand() == "PRIVMSG")
+		this->PRIVMSG(&clientObj, msgObj);
 	//call channel commands
 
 }
@@ -367,30 +369,44 @@ void	Server::TOPIC(Client *cl, Message msg)
 	}
 	std::string channelName = msg.getParameters()[0];
 	std::string channelTopic = msg.getParameters()[1];
-	if (std::find(this->_v_channels.begin(), this->_v_channels.end(), /*need to find a way do find correct channel, map?*/) != this->_v_channels.end())
+	std::vector<Channel>::iterator itCh = this->_v_channels.begin();
+	bool	tmpChannelFlag = false;
+	while (itCh != this->_v_channels.end())
+	{
+		if (itCh->getName() == channelName)
+		{
+			tmpChannelFlag = true;
+			break ;
+		}
+		itCh++;
+	}
+
+//	when we finally change channels to work with a map
+//	if (!this->_mapChannels.count(channelName)))
+	if (!tmpChannelFlag)
 	{
 		this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, channelName));
 		return ;
 	}
-	Channel *ch = &(*(std::find(this->_v_channels.begin(), this->_v_channels.end(), channelName)));
-	if (!ch->hasClient(cl))
+	Channel ch = *itCh;
+	if (!ch.contains(*cl))
 	{
 		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, channelName));
 		return ;
 	}
 	if (msg.getParameters().size() == 1)
 	{
-		if (ch->getTopic() == "")
-			this->sendMessage(cl, RPL_NOTOPIC(cl, ch));
+		if (ch.getTopic() == "")
+			this->sendMessage(cl, RPL_NOTOPIC(cl, &ch));
 		else
-			this->sendMessage(cl, RPL_TOPIC(cl, ch));
+			this->sendMessage(cl, RPL_TOPIC(cl, &ch));
 	}
 	else
 	{
-		if (ch->isChannelRule('t') && !(ch->isClientRight(cl->getNickname(), 'o'))) // isClientRight(username, char right)
-			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch->getName()));
+		if (ch.isChannelRule('t') && !(ch.isClientRight(cl->getNickname(), 'o'))) // isClientRight(username, char right)
+			this->sendMessage(cl, ERR_CHANOPRIVSNEEDED(cl, ch.getName()));
 		else
-			ch->setTopic(channelTopic);
+			ch.setTopic(channelTopic);
 	}
 }
 
@@ -445,7 +461,13 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			{
 			// send message to client
 				std::string message;
-				message += this->makeNickMask(*this, *cl);
+				toClient = this->_regClients[target];
+				// set prefix to include full client identifier
+				message += ":" + this->makeNickMask(*this, *cl);
+				// append target nickname to PRIVMSG cmd
+				message += " PRIVMSG " + toClient->getNickname();
+				message += ":" + text + "\r\n";
+				this->sendMessage(toClient, message);
 			}
 		}
 	}
