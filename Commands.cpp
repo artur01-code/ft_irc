@@ -462,6 +462,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			// send message to client
 				std::string message;
 				toClient = this->_regClients[target];
+				if (toClient->checkMode('a'))
 				// set prefix to include full client identifier
 				message += ":" + this->makeNickMask(*this, *cl);
 				// append target nickname to PRIVMSG cmd

@@ -13,8 +13,14 @@
 #include <map>
 #include <vector>
 
-#include "Channel.hpp"
-#include "Colors.hpp"
+#include	"Channel.hpp"
+#include	"Colors.hpp"
+
+#define USERMODE_AWAY		1
+#define USERMODE_INVIS		2
+#define USERMODE_NOTICE		4
+#define USERMODE_WALLOPS	8
+#define USERMODE_OP			16
 
 class Channel;
 
@@ -28,7 +34,7 @@ class Client
 		std::string	_username;
 		int			_regFlag;
 		std::map<std::string, Channel *> _channels;
-
+		id_t		_modes;
 	public:
 		Client();
 		Client(std::string nickname);
