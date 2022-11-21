@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.ruslan.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
+/*   By: qduong <qduong@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/16 13:49:42 by rkultaev         ###   ########.fr       */
+/*   Updated: 2022/11/21 14:03:31 by qduong           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -328,22 +328,6 @@ void run_event_loop(int kq, int listener) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        std::cerr << "bad input" << std::endl;
-        return (1);
-    }
-    for (size_t i = 0; argv[1][i]; i++) {
-        if (!std::isdigit(argv[1][i])) {
-            std::cerr << "bad port" << std::endl;
-            return (1);
-        }
-    }
-    int port = std::atoi(argv[1]);
-    // highest TCP port for 16 bits or 65535
-    if (port < 1 || port > 65535) {
-        std::cerr << "bad port" << std::endl;
-        return (1);
-    }
     content_t content;
     content.listener = create_socket_and_listen();
 
