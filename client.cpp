@@ -12,6 +12,18 @@
 
 #include "Client.hpp"
 
+const std::string Client::_alphabet = "abcd";
+RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
+
+void Client::setFlag(char flag, Noun *obj, bool active)
+{
+	std::cout << "SetFlag obj: " << (uintptr_t)this << std::endl;
+	(void)obj;
+	std::cout << "In settt Flag: " << flag << std::endl;
+	_charRuleSetter(_globalClientMode, flag, active);
+	std::cout << *this << std::endl;
+}
+
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
 {
 	if (M_DEBUG)
@@ -37,7 +49,8 @@ Client::Client(const Client &rhs)
 
 Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
 {
-
+	if (M_DEBUG)
+		std::cout << COLOR_GREEN << " Client socket Constructor" << END << std::endl;
 }
 
 Client::~Client()
@@ -147,7 +160,8 @@ void Client::printAttributes(void)
 
 std::ostream	&operator<<(std::ostream &os, Client &obj)
 {
-	os << obj.getSocket();
+	os << "socket id: " << obj.getSocket() << std::endl;
+	os << "global rights: " << (int)obj._globalClientMode << std::endl;
 	return (os);
 }
 

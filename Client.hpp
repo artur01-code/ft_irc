@@ -13,23 +13,19 @@
 #include <map>
 #include <vector>
 
-// Used in the MODE_CLASS member class
-struct Noun
-{
-	virtual std::string greet() = 0;
-	virtual void setFlag(char flag, Noun *obj, bool active) = 0;
-	virtual ~Noun() {}
-};
 #include "Channel.hpp"
 #include "Colors.hpp"
 
 class Channel;
 
 
-class Client : public Noun
+class Client
 {
 	private:
-		char		_globalClientMode;
+		const static std::string		_alphabet;
+		static RuleSetter<char>	_charRuleSetter;
+		char				_globalClientMode;
+
 		int			_socket;
 		std::string	_nickname;
 		std::string _hostname;
@@ -39,7 +35,7 @@ class Client : public Noun
 		std::map<std::string, Channel *> _channels;
 
 	public:
-			virtual void setFlag(char flag, Noun *obj, bool active) {(void)obj; (void)flag; (void)active;}
+			virtual void setFlag(char  flag, Noun *obj, bool active);
 			virtual std::string greet() {return("Hello client");}
 		Client();
 		Client(std::string nickname);
@@ -72,6 +68,7 @@ class Client : public Noun
 		{
 			return (_socket == obj.getSocket());
 		}
+		friend std::ostream	&operator<<(std::ostream &os, Client &obj);
 };
 
 std::ostream	&operator<<(std::ostream &os, Client &obj);

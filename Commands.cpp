@@ -18,7 +18,10 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	else if (msgObj.getCommand() == "PART")
 		this->PART(msgObj);
 	else if (msgObj.getCommand() == "MODE")
-		this->MODE(msgObj, clientObj);
+	{
+		makeCall(clientObj);
+		// this->MODE(msgObj, clientObj);
+	}
 	//call channel commands
 
 }
@@ -114,13 +117,15 @@ void	Server::PART(const Message &obj)
 void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign)
 {
 	(void)obj;
+	(void)sign;
 	// can be abstracted to save channel access!
 
 	try
 	{
 		std::string::iterator	flags(tree[1][0].begin() + 1);
 		for (std::string::iterator	end(tree[1][0].end()); flags < end; flags++)
-			_m_channels.at(tree[0][0])->setChannelRule(*flags, sign);
+				;
+			// _m_channels.at(tree[0][0])->setChannelRule(*flags, sign);
 	}
 	catch (std::out_of_range &e)
 	{

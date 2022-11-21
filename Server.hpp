@@ -118,6 +118,8 @@ std::string server_ipaddr);
     void PART(const Message &obj);
 	// ------------ MODE MEMBER CLASS ------------------- //
 
+	void	makeCall(Client &clientObj);
+
 	friend class MODE_CLASS;
 	class MODE_CLASS
 	{
@@ -132,53 +134,12 @@ std::string server_ipaddr);
 			Noun*									_subject;
 			std::string								_object_str;
 			Noun*									_object;
-			bool									_is_channel;
+			StrNoun									_strArg;
 			Server&									_server;
 		public:
-			MODE_CLASS(Server &server) : _sign(true), _reduced_tree(), _is_channel(true), _flags(), _subject(), _object(), _server(server) {}
-			void	operator()(const Message &obj, Client &caller)
-			{
-				_reduced_tree = reduce(getTree(obj));
-				if (M_DEBUG)
-				{
-					_tree_iterator	end(_reduced_tree.end());
-					for (_tree_iterator	begin(_reduced_tree.begin()); begin < end; begin++)
-						std::cout << "Tree contents: " << *begin << std::endl;
-				}
-				internal_state(obj, caller);
-				if (M_DEBUG)
-					std::cout << _subject->greet() << std::endl;
-				//Iterate through all flags
-				std::string::iterator	end(_flags.end());
-				for (std::string::iterator	flag(_flags.begin()); flag < end; flag++)
-				{
-					_subject->setFlag(*flag, _object, _sign);
-				}
-			}
-			void	internal_state(const Message &obj, Client &caller)
-			{
-				_subject_str = _reduced_tree[0];
-				_flags = _reduced_tree[1];
-				_object_str = _reduced_tree[2];
-
-				if (!(_subject_str[0] == '#') && !(_subject_str[0] == '&'))
-					_is_channel = false;
-				if (_flags[0] == '-')
-					_sign = false;
-				_flags.erase(_flags.begin());
-
-				if (_is_channel)
-				{
-					try
-					{
-						_subject = reinterpret_cast<Noun *>(_server._m_channels.at(_subject_str));
-					}
-					catch (std::out_of_range &e)
-					{
-						_server.sendMessage(&caller, _server.ERR_NOSUCHCHANNEL(&caller, _subject_str));
-					}
-				}
-			}
+			MODE_CLASS(Server &server);
+			void	operator()(const Message &obj, Client &caller);
+			void	internal_state(Client &caller);
 			template <class Data>
 			std::vector<Data> reduce(std::vector<std::vector<Data> > vector) const
 			{

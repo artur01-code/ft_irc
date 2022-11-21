@@ -4,14 +4,72 @@
 const std::string Channel::_alphabet = "opsitnmlk";
 const std::string Channel::_clientAlphabet = "biswov";
 
+void	Channel::BanLst::add(std::string newPattern, bool active)
+{
+	if (active)
+		_patterns.insert(newPattern);
+	else
+		_patterns.erase(newPattern);
+}
+
+bool	isNum(std::string str)
+{
+	std::string::iterator	begin(str.begin());
+	for (std::string::iterator end(str.end()); begin < end; begin++)
+	{
+		if (!std::isdigit(*begin))
+			return (false);
+	}
+	return (true);
+}
+
+void Channel::setFlag(char flag, Noun *obj, bool active)
+{
+	Client *cobj = dynamic_cast<Client *>(obj);
+	if (cobj)
+		charRuleSetter(client_rights[cobj->getNickname()], flag, active);
+	// else it is either a ban mask or a numeric argument.
+	StrNoun *str = dynamic_cast<StrNoun *>(obj);
+	if ( str->content == "")
+	{
+		intRuleSetter(_channel_rules, flag, active);
+	}
+	else
+	{
+		if (flag == 'b')
+			_banLst.add(str->content, active);
+		else if (flag == 'l')
+		{
+			if (isNum(str->content))
+				_limit = std::atoi(str->content.c_str());
+		}
+	}
+	std::cout << *this << std::endl;
+}
+
 std::string	Channel::getName() const
 {
 	return (_name);
 }
 
 // NAME CONSTRUCTOR
-Channel::Channel(std::string name) : _name(name),  _channel_rules(0), _has_pwd(false), _invite_only(false)
+Channel::Channel(std::string name) : _name(name),  _channel_rules(0), intRuleSetter(_alphabet), charRuleSetter(_clientAlphabet), _has_pwd(false), _invite_only(false), _limit(69)
 {
+}
+
+int	flag_val(std::string alphabet, char flag)
+{
+	std::cout << "this is the alphabet: " << alphabet << std::endl;
+	std::string::iterator	end(alphabet.end());
+	size_t count = 0;
+	for (std::string::iterator begin(alphabet.begin()); begin < end; begin++)
+	{
+		if (*begin == flag)
+			return (1 << count);
+		count++;
+	}
+	std::cerr << "flag_val(): no such flag: " << flag << std::endl;
+	return (-1);
 }
 
 void Channel::add_client(Client &obj)
@@ -25,12 +83,14 @@ void Channel::add_client(Client &obj)
 std::ostream	&operator<<(std::ostream &os, Channel &channy)
 {
 	os << "Channel Name: " << channy.getName() << std::endl;
+	os << "Rules" << channy._channel_rules << std::endl;
 
 	os << "Apartisans" << std::endl;
 	std::vector<Client *>::iterator	clients_end(channy._clients.end());
 	for (std::vector<Client *>::iterator	clients_begin(channy._clients.begin()); clients_begin < clients_end; clients_begin++)
 	{
 		os << **clients_begin << std::endl;
+		os << "Rights: " << channy.client_rights[ (*clients_begin)->getNickname()] << std::endl;
 	}
 	os << "Rules" << std::endl;
 	for (size_t i = 1; i <= 256; i <<= 1)
@@ -122,20 +182,6 @@ void Channel::rm_client(const Client &obj)
 		std::cout << "_clients doesn't hold the nickname: " << obj.getNickname() << std::endl;
 }
 
-int	Channel::flag_val(std::string alphabet, char flag)
-{
-	std::string::iterator	end(alphabet.end());
-	size_t count = 0;
-	for (std::string::iterator begin(alphabet.begin()); begin < end; begin++)
-	{
-		if (*begin == flag)
-			return (1 << count);
-		count++;
-	}
-	std::cerr << "flag_val(): no such flag" << std::endl;
-	return (-1);
-}
-
 // </ SETTERS AND GETTERS>
 
 // o/p/s/i/t/n/m/l/v/k
@@ -146,22 +192,9 @@ int	Channel::getChannelRules() // tested
 
 int	Channel::isChannelRule(char rule) // tested
 {
-	return (_channel_rules & flag_val(_alphabet, rule));
-}
-
-/**
- * @brief
- * 
- * @param toAdd Alphabet: opsitnmlk
- * @param active adding(true), deleting(false)
- */
-void	Channel::setChannelRule(char toAdd, bool active)
-{
-	int	flag_value = flag_val(_alphabet, toAdd);
-	if (active)
-		_channel_rules |= flag_value;
-	else
-		_channel_rules &= ~flag_value;
+	(void)rule;
+	// return (_channel_rules & flag_val(_alphabet, rule));
+	return (false);
 }
 
 /**
@@ -173,26 +206,28 @@ void	Channel::setChannelRule(char toAdd, bool active)
  */
 void	Channel::setClientRight( std::string nickname, char toAdd, bool active)
 {
-	int	flag = flag_val(_clientAlphabet, toAdd);
+	(void)nickname;
+	(void)toAdd;
+	(void)active;
+	// int	flag = flag_val(_clientAlphabet, toAdd);
 
-	try
-	{
-		client_rights.at(nickname);
-	}
-	catch (std::out_of_range &e)
-	{
-		client_rights.insert(std::pair<std::string, char>(nickname, '\0'));
-	}
+	// try
+	// {
+	// 	client_rights.at(nickname);
+	// }
+	// catch (std::out_of_range &e)
+	// {
+	// 	client_rights.insert(std::pair<std::string, char>(nickname, '\0'));
+	// }
 
-	if (active)
-		client_rights[nickname]  |= flag;
-	else
-		client_rights[nickname]  &= ~flag;
+	// setRule(client_rights[nickname], toAdd, active);
 }
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
-	int	flag = flag_val(_clientAlphabet, right);
+	(void)nickname, (void)right;
+	// int	flag = flag_val(_clientAlphabet, right);
 
-	return (client_rights[nickname] & flag);
+	// return (client_rights[nickname] & flag);
+	return (false);
 }
