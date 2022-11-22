@@ -35,8 +35,8 @@ bool	isNum(std::string str)
 
 int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
-	if (!isClientRight(caller.getNickname(), 'o'))
-		return (3);
+	// if (!isClientRight(caller.getNickname(), 'o'))
+	// 	return (3);
 	Client *cobj = dynamic_cast<Client *>(obj);
 	if (cobj) // works
 	{
@@ -68,6 +68,8 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 		{
 			if (flag == 'b')
 				_banLst.add(str->content, active);
+			if (flag == 'k')
+				setPwd(str->content);
 			else if (flag == 'l')
 			{
 				if (isNum(str->content))

@@ -243,6 +243,11 @@ void	Server::JOIN(const Message &obj)
 				try
 				{
 					tree.at(1).at(key);
+					if (!(tree[1][key] == chany->getPwd()))
+					{
+						sendMessage(&_conClients[_fd_client], ERR_PASSWDMISMATCH(&_conClients[_fd_client]));
+						return ;
+					}
 				}
 				catch (std::out_of_range &e)
 				{
