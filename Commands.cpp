@@ -319,13 +319,6 @@ void Server::USER(const Message &obj, Client &clientObj)
 			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "USER") << std::endl;
 		return;
 	}
-	if (this->_regClients.count(clientObj.getNickname()))
-	{
-		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
-		if (M_DEBUG)
-			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
-		return ;
-	}
 
 	std::map<std::string, Client *>::iterator itReg = this->_regClients.begin();
 	while (itReg != this->_regClients.end())
@@ -338,6 +331,14 @@ void Server::USER(const Message &obj, Client &clientObj)
 			return;
 		}
 		itReg++;
+	}
+
+	if (this->_regClients.count(clientObj.getNickname()))
+	{
+		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
+		if (M_DEBUG)
+			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
+		return ;
 	}
 	/*FUNCTINALITY*/
 	clientObj.setHostname(vec[1]);
