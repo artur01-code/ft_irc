@@ -35,8 +35,8 @@ bool	isNum(std::string str)
 
 int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
-	// if (!isClientRight(caller.getNickname(), 'o'))
-	// 	return (3);
+	if (!isClientRight(caller.getNickname(), 'o'))
+		return (3);
 	Client *cobj = dynamic_cast<Client *>(obj);
 	if (cobj) // works
 	{
