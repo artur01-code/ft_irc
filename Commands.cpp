@@ -24,6 +24,42 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 }
 
 /*
+lists all nicknames visible to the user on any channel they can see
+-> non private, non secret servers they are on
+if channels are specified, only return names of users on these channels
+* RPL_NAMREPLY
+* RPL_ENDOFNAMES
+*/
+void Server::NAMES(const Message &msgObj, Client &clientObj)
+{
+	//replies needs to get implemented -> check in the documentation
+
+	if (M_DEBUG)
+		std::cout << "COMMAND: *NAMES* FUNCTION GOT TRIGGERT" << std::endl << std::endl;
+	std::vector<std::string> vec = msgObj.getParameters();
+	if (msgObj.getParameters().empty())
+	{
+		//go through each channel and in each Channel through each clients list and print all the names
+		std::vector<Channel>::iterator itChannel = this->_v_channels.begin()
+		while (itChannel != this->_v_channels.end())
+		{
+			std::vector<Client *> itClient = itChannel->_clients.begin();
+			while (itClient != itChannel->_clients.end())
+			{
+				std::cout << itClient->getNickname();
+				itClient++;
+			}
+			itChannel++;
+		}
+	}
+	else
+	{
+		//loop through the channels that are specified and list all the nicknames
+	}
+}
+
+
+/*
 used as connection password
 can be sent multiple times, but only last one is used for verification
 can NOT be changed once registered

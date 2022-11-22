@@ -120,6 +120,7 @@ std::string server_ipaddr);
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
     void PASS(const Message &msgObj, Client &clientObj);
+    void NAMES(const Message &msgObj, Client &clientObj);
 
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
