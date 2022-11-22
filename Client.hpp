@@ -19,7 +19,7 @@
 class Channel;
 
 
-class Client
+class Client : public Noun
 {
 	private:
 		const static std::string		_alphabet;
@@ -35,8 +35,8 @@ class Client
 		std::map<std::string, Channel *> _channels;
 
 	public:
-			virtual void setFlag(char  flag, Noun *obj, bool active);
-			virtual std::string greet() {return("Hello client");}
+			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
+			virtual std::string greet();
 		Client();
 		Client(std::string nickname);
 		Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket);

@@ -118,9 +118,8 @@ std::string server_ipaddr);
     void PART(const Message &obj);
 	// ------------ MODE MEMBER CLASS ------------------- //
 
-	void	makeCall(Client &clientObj);
-
-	friend class MODE_CLASS;
+	// Implementation in: Mode.cpp
+	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
 	class MODE_CLASS
 	{
 		private:
@@ -137,11 +136,12 @@ std::string server_ipaddr);
 			StrNoun									_strArg;
 			Server&									_server;
 		public:
-			MODE_CLASS(Server &server);
+			MODE_CLASS(Server &server); // Instance of server, whose Modes are altered
+			void	recursive_part(std::vector<std::string> &remainder, Client &caller); // Handling multiple objects
 			void	operator()(const Message &obj, Client &caller);
-			void	internal_state(Client &caller);
+			bool	internal_state(Client &caller, std::vector<std::string> &remainder);
 			template <class Data>
-			std::vector<Data> reduce(std::vector<std::vector<Data> > vector) const
+			std::vector<Data> reduce(std::vector<std::vector<Data> > vector) const // Fields are not comma separated, therefore we can reduce them
 			{
 				typedef	typename std::vector<std::vector<Data> >::iterator	iterator;
 				std::vector<Data>	ret;

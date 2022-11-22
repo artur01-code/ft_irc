@@ -13,14 +13,14 @@
 #include <map>
 #include <vector>
 #include <set>
+class Client;
 
 // Used in the MODE_CLASS member class
 struct Noun
 {
 	virtual std::string greet() = 0;
 
-	virtual void setFlag(char flag, Noun *obj, bool active) = 0;
-	virtual ~Noun() {}
+	virtual int setFlag(char flag, Noun *obj, bool active, Client &caller) = 0;
 };
 
 struct StrNoun : public Noun
@@ -34,7 +34,7 @@ struct StrNoun : public Noun
 	std::string	content;
 
 	virtual std::string greet();
-	virtual void setFlag(char flag, Noun *obj, bool active);
+	virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
 };
 
 int	flag_val(std::string alphabet, char flag);
@@ -67,8 +67,6 @@ class RuleSetter
 #include "Server.hpp"
 #include "Client.hpp"
 
-class Client;
-
 class Channel : public Noun
 {
 	private:
@@ -87,15 +85,19 @@ class Channel : public Noun
 		int								_limit;
 		class BanLst
 		{
+			friend std::ostream	&operator<<(std::ostream &os, BanLst &banLst);
 			private:
 				std::set<std::string>		_patterns;
 			public:
 				BanLst() {}
 				void add(std::string newPattern, bool active);
+
+				std::set<std::string>		getPatterns()
+				{return (_patterns);}
 		};
 		BanLst							_banLst;
 	public:
-			virtual void setFlag(char flag, Noun *obj, bool active);
+			virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
 			virtual std::string greet() {return("Hello channel");}
 		std::vector<Client *>			_clients;
 		// The clients for whom rights are set are a superset of the clients that
@@ -107,10 +109,8 @@ class Channel : public Noun
 		Channel(std::string name);
 		virtual ~Channel() {}
 
-		void	setClientRight( std::string nickname, char toAdd, bool active);
 		bool	isClientRight( std::string nickname, char right );
 
-		int	getChannelRules();
 		// void	setChannelRule(char toAdd, bool active);
 		int	isChannelRule(char rule);
 

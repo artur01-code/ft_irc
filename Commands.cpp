@@ -17,11 +17,8 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->JOIN(msgObj);
 	else if (msgObj.getCommand() == "PART")
 		this->PART(msgObj);
-	else if (msgObj.getCommand() == "MODE")
-	{
-		makeCall(clientObj);
-		// this->MODE(msgObj, clientObj);
-	}
+	else if (msgObj.getCommand() == "MODE") // Calls the callable Mode object instance of Mode member class
+		this->MODE(msgObj, clientObj);
 	//call channel commands
 
 }

@@ -15,13 +15,20 @@
 const std::string Client::_alphabet = "abcd";
 RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
 
-void Client::setFlag(char flag, Noun *obj, bool active)
+std::string	Client::greet()
 {
-	std::cout << "SetFlag obj: " << (uintptr_t)this << std::endl;
+	return ("Hello from client");
+}
+
+int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
+{
+	(void)caller;
 	(void)obj;
-	std::cout << "In settt Flag: " << flag << std::endl;
+	if (_alphabet.find(flag) == std::string::npos)
+		return (1);
 	_charRuleSetter(_globalClientMode, flag, active);
 	std::cout << *this << std::endl;
+	return (0);
 }
 
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
