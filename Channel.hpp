@@ -116,7 +116,7 @@ class Channel : public Noun
 
 		std::string getPwd() const;
 		bool getHas_pwd() const;
-		void	setPwd(const std::string &newPwd);
+		void	setPwd(const std::string &newPwd, bool active = true);
 		bool	getInvite_only() const;
 		void	setInvite_only(bool newIO);
 

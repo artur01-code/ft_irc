@@ -69,7 +69,7 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 			if (flag == 'b')
 				_banLst.add(str->content, active);
 			if (flag == 'k')
-				setPwd(str->content);
+				setPwd(str->content, active);
 			else if (flag == 'l')
 			{
 				if (isNum(str->content))
@@ -175,8 +175,14 @@ bool Channel::getHas_pwd() const
 	return (_has_pwd);
 }
 
-void	Channel::setPwd(const std::string &newPwd)
+void	Channel::setPwd(const std::string &newPwd, bool active)
 {
+	if (!active)
+	{
+		_has_pwd = false;
+		_pwd = "";
+		return ;
+	}
 	_has_pwd  = true;
 	_pwd = newPwd;
 }
