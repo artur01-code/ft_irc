@@ -20,6 +20,8 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->PART(msgObj);
 	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->MODE(msgObj);
+	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->NAMES(msgObj, clientObj);
 	//call channel commands
 }
 
@@ -33,20 +35,24 @@ if channels are specified, only return names of users on these channels
 void Server::NAMES(const Message &msgObj, Client &clientObj)
 {
 	//replies needs to get implemented -> check in the documentation
-
+	(void) clientObj;
 	if (M_DEBUG)
 		std::cout << "COMMAND: *NAMES* FUNCTION GOT TRIGGERT" << std::endl << std::endl;
 	std::vector<std::string> vec = msgObj.getParameters();
+	std::string names;
 	if (msgObj.getParameters().empty())
 	{
+		if (M_DEBUG)
+			std::cout << "No parameters got passed" << std::endl;
 		//go through each channel and in each Channel through each clients list and print all the names
-		std::vector<Channel>::iterator itChannel = this->_v_channels.begin()
+		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
 		while (itChannel != this->_v_channels.end())
 		{
-			std::vector<Client *> itClient = itChannel->_clients.begin();
+			std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
 			while (itClient != itChannel->_clients.end())
 			{
-				std::cout << itClient->getNickname();
+				// std::cout << (*itClient)->getNickname() << std::endl;
+				names = names + " " + (*itClient)->getNickname();
 				itClient++;
 			}
 			itChannel++;
@@ -54,8 +60,14 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 	}
 	else
 	{
+		if (M_DEBUG)
+			std::cout << "Parameters got passed" << std::endl;
 		//loop through the channels that are specified and list all the nicknames
 	}
+	//send a priv message to ClientObj with all the names stored in *itClient
+	// this->PRIVMSG()
+	if (M_DEBUG)
+		std::cout << names << std::endl;
 }
 
 
