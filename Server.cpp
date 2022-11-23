@@ -197,8 +197,6 @@ int Server::parsingMessages(std::string read)
 
 	while (itMsg != v_message.end())
 	{
-		if (M_DEBUG)
-			std::cout << "Enters anyways" << std::endl;
 		this->checkCommands(*itMsg, itCli->second);
 		itMsg++;
 	}
@@ -376,6 +374,22 @@ void Server::kqueueEngine()
 // #define RemoveException() throw new runtime_error("REMOVE ERROR")
 
 // RemoveException();
+
+
+int Server::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Server::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
+}
+
+void Server::setPassword(std::string password)
+{
+	this->_password = password;
+}
 
 //--------------Exceptions-------------//
 const char *Server::NoSuchChannelException::what() const throw()

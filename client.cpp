@@ -31,7 +31,7 @@ int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
 	return (0);
 }
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
@@ -54,7 +54,7 @@ Client::Client(const Client &rhs)
 	*this = rhs;
 }
 
-Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
+Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client socket Constructor" << END << std::endl;
@@ -138,6 +138,16 @@ int Client::getRegFlag(void) const
 void Client::setRegFlag(int regFlag)
 {
 	this->_regFlag = regFlag;
+}
+
+int Client::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Client::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
 }
 
 std::map<std::string, Channel *> Client::getChannels(void) const

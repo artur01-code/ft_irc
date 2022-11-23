@@ -6,22 +6,91 @@
 
 void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
-
-	if (msgObj.getCommand() == "USER")
+	//when the server needs a pwd the flag is 1
+	//when the user has typed in the correct pwd or it's not needed the flag is 0
+	if (msgObj.getCommand() == "PASS")
+		this->PASS(msgObj, clientObj);
+	else if (msgObj.getCommand() == "USER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->USER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NICK")
+	else if (msgObj.getCommand() == "NICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "PASS")
-		this->PASS(msgObj);
-	else if (msgObj.getCommand() == "JOIN")
+	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->JOIN(msgObj);
-	else if (msgObj.getCommand() == "PART")
+	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->PART(msgObj);
-	else if (msgObj.getCommand() == "MODE") // Calls the callable Mode object instance of Mode member class
+	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->MODE(msgObj, clientObj);
+	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->NAMES(msgObj, clientObj);
 	//call channel commands
-
 }
+
+/*
+lists all nicknames visible to the user on any channel they can see
+-> non private, non secret servers they are on
+if channels are specified, only return names of users on these channels
+* RPL_NAMREPLY
+* RPL_ENDOFNAMES
+*/
+void Server::NAMES(const Message &msgObj, Client &clientObj)
+{
+	//replies needs to get implemented -> check in the documentation
+	(void) clientObj;
+	if (M_DEBUG)
+		std::cout << "COMMAND: *NAMES* FUNCTION GOT TRIGGERT" << std::endl;
+	std::vector<std::string> vec = msgObj.getParameters();
+	std::string names;
+	if (msgObj.getParameters().empty())
+	{
+		if (M_DEBUG)
+			std::cout << "No parameters got passed" << std::endl << std::endl;
+		//go through each channel and in each Channel through each clients list and print all the names
+		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
+		while (itChannel != this->_v_channels.end())
+		{
+			std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
+			while (itClient != itChannel->_clients.end())
+			{
+				// std::cout << (*itClient)->getNickname() << std::endl;
+				names = names + " " + (*itClient)->getNickname();
+				itClient++;
+			}
+			itChannel++;
+		}
+	}
+	else
+	{
+		if (M_DEBUG)
+			std::cout << "Parameters got passed" << std::endl << std::endl;
+		//loop through the channels that are specified and list all the nicknames
+		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
+		int i = 0;
+		while (itChannel != this->_v_channels.end())
+		{
+			i = 0;
+			while (!vec[i].empty())
+			{
+				if (itChannel->getName() == vec[i])
+				{
+					std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
+					while (itClient != itChannel->_clients.end())
+					{
+						// std::cout << (*itClient)->getNickname() << std::endl;
+						names = names + " " + (*itClient)->getNickname();
+						itClient++;
+					}
+				}
+				i++;
+			}
+			itChannel++;
+		}
+	}
+	//send a priv message to ClientObj with all the names stored in *itClient
+	// this->PRIVMSG()
+	if (M_DEBUG)
+		std::cout << names << std::endl;
+}
+
 
 /*
 used as connection password
@@ -29,36 +98,40 @@ can be sent multiple times, but only last one is used for verification
 can NOT be changed once registered
 must be sent before any attempt to register the connection
 */
-void Server::PASS(const Message &obj)
+void Server::PASS(const Message &msgObj, Client &clientObj)
 {
-	std::vector<std::string> vec = obj.getParameters();
+	//first check if there is a pwd passed
+	//check if the pwd fits to the pwd stored on the server
+	if (M_DEBUG)
+		std::cout << "COMMAND: *PASS* FUNCTION GOT TRIGGERT" << std::endl << std::endl;
 
-	std::map<int, Client>::iterator it = this->_conClients.begin();
-	while (it != this->_conClients.end())
+	//when there is no server pwd or the user has already passed this step return;
+	if ((this->getPwdFlag() == 0) || (this->getPwdFlag() == 1 && clientObj.getPwdFlag() == 1))
 	{
-		if (this->_fd_client == it->first)
-		{
-			if (M_DEBUG)
-			{
-				std::cout << "COMMAND: *PASS* FUNCTION GOT TRIGGERT" << std::endl;
-				std::cout << std::endl;
-			}
-			Client obj = it->second;
-
-			//the password belongs to the server so check if there is a password set (!"")
-			//and then check if correct or not
-			if (this->_password != "" && this->_password == vec[0])
-			{
-				std::cout << "good password!" << std::endl;
-			}
-			else
-			{
-				std::cout << "bad password!" << std::endl;
-			}
-			break;
-		}
-		it++;
+		sendMessage(&clientObj, ERR_ALREADYREGISTERED(&clientObj));
+		if (M_DEBUG)
+			std::cout << ERR_ALREADYREGISTERED(&clientObj) << std::endl;
+		return ;
 	}
+
+	if (msgObj.getParameters().empty())
+	{
+		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "PASS"));
+		if (M_DEBUG)
+			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "PASS") << std::endl;
+		return;
+	}
+	std::vector<std::string> vec = msgObj.getParameters();
+
+	if (vec[0] == this->_password)
+	{
+		clientObj.setPwdFlag(1);
+		if (M_DEBUG)
+			std::cout << "Password accepted!" << std::endl;
+	}
+	else
+		if (M_DEBUG)
+			std::cout << "Password denied! " <<  std::endl;
 }
 
 std::vector<std::vector<std::string> >	Server::getTree(const Message &obj)
@@ -236,18 +309,10 @@ void Server::USER(const Message &obj, Client &clientObj)
 	std::vector<std::string> vec = obj.getParameters();
 	if (vec.size() < 4)
 	{
-		std::string msg = ERR_NEEDMOREPARAMS(&clientObj, "USER");
-		sendMessage(&clientObj, msg);
+		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "USER"));
 		if (M_DEBUG)
-			std::cout << msg << std::endl;
+			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "USER") << std::endl;
 		return;
-	}
-	if (this->_regClients.count(clientObj.getNickname()))
-	{
-		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
-		if (M_DEBUG)
-			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
-		return ;
 	}
 
 	std::map<std::string, Client *>::iterator itReg = this->_regClients.begin();
@@ -255,13 +320,20 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 		if (this->_fd_client == itReg->second->getSocket())
 		{
-			std::string msg = ERR_ALREADYREGISTERED(itReg->second);
-			sendMessage(&clientObj, msg);
+			sendMessage(&clientObj, ERR_ALREADYREGISTERED(itReg->second));
 			if (M_DEBUG)
-				std::cout << msg << std::endl;
+				std::cout << ERR_ALREADYREGISTERED(itReg->second) << std::endl;
 			return;
 		}
 		itReg++;
+	}
+
+	if (this->_regClients.count(clientObj.getNickname()))
+	{
+		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
+		if (M_DEBUG)
+			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
+		return ;
 	}
 	/*FUNCTINALITY*/
 	clientObj.setHostname(vec[1]);
@@ -427,3 +499,13 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	else
 		clientObj.setRegFlag(1);
 }
+
+// void Server::QUIT(const Message& obj, Client &clientObj)
+// {
+// 	if (M_DEBUG)
+// 		std::cout << "COMMAND: *QUIT* FUNCTION GOT TRIGGERED" << std::endl;
+// 	//If there is a quit message, send it, if not, default
+// 	//close the connection to the server
+// 	//if the client connection is closed without the Quit command
+// 	// it need to display a message reflecting on what happen
+// }

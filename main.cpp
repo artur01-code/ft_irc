@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: qduong <qduong@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 02:51:29 by rkultaev          #+#    #+#             */
-/*   Updated: 2022/11/21 14:03:37 by qduong           ###   ########.fr       */
+/*   Updated: 2022/11/22 10:13:33 by jtomala          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     //     // events.
 
     //     // run_event_loop(content.new_kqueue, content.listener);
-    if (argc != 3) {
+    if (argc < 2 || argc > 3) {
         std::cerr << "bad input" << std::endl;
         return (1);
     }
@@ -44,7 +44,14 @@ int main(int argc, char **argv) {
         return (1);
     }
     Server server;
-
+    //check that we have 2 or 3 args
+    //when we have 3 args there is a password
+    if (argc == 3)
+    {
+        server.setPwdFlag(1);
+        server.setPassword(argv[2]);
+    }
+    else
+        server.setPwdFlag(0);
     server.kqueueEngine();
-    std::cout << "hey" << std::endl;
 }

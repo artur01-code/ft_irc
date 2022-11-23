@@ -32,6 +32,7 @@ class Client : public Noun
 		std::string	_realname;
 		std::string	_username;
 		int			_regFlag;
+		int			_pwdFlag;
 		std::map<std::string, Channel *> _channels;
 
 	public:
@@ -58,6 +59,8 @@ class Client : public Noun
 		void		setHostname(std::string hostname);
 		int			getRegFlag(void) const;
 		void		setRegFlag(int regFlag);
+		int			getPwdFlag(void);
+		void		setPwdFlag(int n);
 
 
 		std::map<std::string, Channel *>	getChannels(void) const;

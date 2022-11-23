@@ -59,6 +59,7 @@ class Server {
     int _kq_fd;
     int _port;
     int _server_fd;
+    int _pwdFlag;
     // kevent data struct info
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
@@ -99,10 +100,11 @@ std::string server_ipaddr);
     std::string getServerName();
     std::string getHost();
     std::string getMotd();
+    int getPwdFlag(void);
     // setter
-    void setPassword(std::string param_password);
+    void setPassword(std::string password);
     void setKEvent();
-
+    void setPwdFlag(int n);
 
     std::vector<Client *> _Client;
 
@@ -111,8 +113,8 @@ std::string server_ipaddr);
     void checkCommands(const Message &msgObj, Client &clientObj);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
-    void PASS(const Message &obj);
     void JOIN(const Message &obj);
+    void QUIT(const Message &obj, Client &clientObj);
 			static std::vector<std::vector<std::string> >	getTree(const Message &obj);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj);
@@ -157,6 +159,9 @@ std::string server_ipaddr);
 		bool	zero_param();
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
+    void PASS(const Message &msgObj, Client &clientObj);
+    void NAMES(const Message &msgObj, Client &clientObj);
+
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
     std::string ERR_NOSUCHSERVER(Client *client);
