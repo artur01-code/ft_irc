@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 //--------------DEFAULT CONSTRUCTOR-------------//
-Server::Server() : _v_channels()
+Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 {
 	std::string ip_address = "127.0.0.1";
 	int port = 6969;
@@ -10,7 +10,7 @@ Server::Server() : _v_channels()
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _v_channels()
+Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
 {
 	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
@@ -19,7 +19,7 @@ Server::Server(int port) : _v_channels()
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port, std::string ip_address) : _v_channels()
+Server::Server(int port, std::string ip_address) : _v_channels(), _mapChannels(), MODE(*this)
 {
 	setupConnection(ip_address, port);
 	setKqueue();
@@ -197,8 +197,6 @@ int Server::parsingMessages(std::string read)
 
 	while (itMsg != v_message.end())
 	{
-		if (M_DEBUG)
-			std::cout << "Enters anyways" << std::endl;
 		this->checkCommands(*itMsg, itCli->second);
 		itMsg++;
 	}
@@ -384,6 +382,22 @@ std::string Server::makeNickMask(Server server, Client client)
 // #define RemoveException() throw new runtime_error("REMOVE ERROR")
 
 // RemoveException();
+
+
+int Server::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Server::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
+}
+
+void Server::setPassword(std::string password)
+{
+	this->_password = password;
+}
 
 //--------------Exceptions-------------//
 const char *Server::NoSuchChannelException::what() const throw()
