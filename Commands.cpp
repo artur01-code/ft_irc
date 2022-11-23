@@ -15,7 +15,7 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	else if (msgObj.getCommand() == "NICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NICK(msgObj, clientObj);
 	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
-		this->JOIN(msgObj);
+		this->JOIN(msgObj, clientObj);
 	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->PART(msgObj);
 	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
@@ -207,7 +207,7 @@ void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::strin
 	}
 }
 
-void	Server::JOIN(const Message &obj)
+void	Server::JOIN(const Message &obj, Client &caller)
 {
 	typedef std::vector<std::string>::iterator	viterator;
 	if (M_DEBUG)
@@ -215,6 +215,11 @@ void	Server::JOIN(const Message &obj)
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
 
+	if (tree.size() < 1)
+	{
+		sendMessage(&_conClients[_fd_client], ERR_NEEDMOREPARAMS(&_conClients[_fd_client], obj.getRawInput()));
+		return ;
+	}
 	// Add user to channel or create channel.
 	size_t key = 0;
 	viterator	chanelname2(tree[0].end());
@@ -256,19 +261,27 @@ void	Server::JOIN(const Message &obj)
 			{
 				if (!chany->InviteContains(_conClients[_fd_client]))
 				{
-					send(_fd_client, "Server requires invite\n", 24, 0);
+					sendMessage(&caller, ERR_INVITEONLYCHAN(&caller, *chanelname1));
 					return ;
 				}
 			}
 			// check if banned
 			if (chany->isClientRight(_conClients[_fd_client].getUsername(), 'b'))
 			{
-				send(_fd_client, "You are banned from this server\n", 33, 0);
+				sendMessage(&caller, ERR_BANNEDFROMCHAN(&caller, *chanelname1));
+				return ;
+			}
+			if (chany->getLimit() == chany->_clients.size())
+			{
+				sendMessage(&caller, ERR_CHANNELISFULL(&caller, *chanelname1));
 				return ;
 			}
 			// </Selection criteria>
 			if (!chany->contains(_conClients[_fd_client]))
+			{
 				chany->addClient(_conClients[_fd_client]);
+				sendMessage(&caller, RPL_TOPIC(&caller, chany));
+			}
 			else
 				send(_fd_client, "You are allready member of this server\n", 40, 0);
 		}

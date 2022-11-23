@@ -296,3 +296,6 @@ bool	Channel::isClientRight( std::string nickname, char right )
 	return (client_rights[nickname] & flag);
 	return (false);
 }
+
+int	Channel::getLimit() const
+{return (_limit);}

@@ -113,6 +113,7 @@ class Channel : public Noun
 		};
 		BanLst							_banLst;
 	public:
+		int	getLimit() const;
 			virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
 			virtual std::string greet() {return("Hello channel");}
 		std::vector<Client *>			_clients;

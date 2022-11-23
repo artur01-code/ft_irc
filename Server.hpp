@@ -114,7 +114,7 @@ std::string server_ipaddr);
     void checkCommands(const Message &msgObj, Client &clientObj);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
-    void JOIN(const Message &obj);
+    void JOIN(const Message &obj, Client &clientObj);
     void QUIT(const Message &obj, Client &clientObj);
 			static std::vector<std::vector<std::string> >	getTree(const Message &obj);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
