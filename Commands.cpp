@@ -158,7 +158,7 @@ void	Server::JOIN(const Message &obj)
 		if (chany)
 		{
 			// Selection criteria
-			if (chany->getHas_pwd())
+			if (chany->getHasPwd())
 			{
 				try
 				{

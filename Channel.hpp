@@ -131,7 +131,7 @@ class Channel : public Noun
 		int	isChannelRule(char rule);
 
 		std::string getPwd() const;
-		bool getHas_pwd() const;
+		bool	getHasPwd() const;
 		void	setPwd(const std::string &newPwd, bool active = true);
 		bool	getInvite_only() const;
 		void	setInvite_only(bool newIO);

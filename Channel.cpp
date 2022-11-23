@@ -227,7 +227,7 @@ std::string Channel::getPwd() const
 	return (_pwd);
 }
 
-bool Channel::getHas_pwd() const
+bool Channel::getHasPwd() const
 {
 	return (_has_pwd);
 }
