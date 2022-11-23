@@ -92,11 +92,13 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 			}
 			itChannel++;
 		}
-	}
+	} 
+	//need to print all the other names that are not in a channel with *:
+	names = names + "*:\n";
 	//send a priv message to ClientObj with all the names stored in *itClient
 	// Message reply;
 	// reply.setCommand("PRIVMSG");
-	// // reply.setPrefix();
+	// reply.setParameters(names);
 	// this->PRIVMSG(&clientObj, reply);
 	if (M_DEBUG)
 		std::cout << names << std::endl;
