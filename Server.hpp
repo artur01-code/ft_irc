@@ -67,9 +67,9 @@ class Server {
     // returned events are places in event_list
     struct kevent _event_list[20];
     struct sockaddr_in _server_address;
+    Server();
 
    public:
-    Server();
     Server(int port);
     Server(int port, std::string ip_address);
     ~Server();

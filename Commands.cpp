@@ -118,14 +118,14 @@ void Server::PASS(const Message &msgObj, Client &clientObj)
 		return ;
 	}
 
-	if (msgObj.getParameters().empty())
+	std::vector<std::string> vec = msgObj.getParameters();
+	if (vec.empty() || vec[1] != "")
 	{
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "PASS"));
 		if (M_DEBUG)
 			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "PASS") << std::endl;
 		return;
 	}
-	std::vector<std::string> vec = msgObj.getParameters();
 
 	if (vec[0] == this->_password)
 	{

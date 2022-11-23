@@ -3,16 +3,14 @@
 //--------------DEFAULT CONSTRUCTOR-------------//
 Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 {
-	std::string ip_address = "127.0.0.1";
-	int port = 6969;
-	setupConnection(_ip_address, port);
-	setKqueue();
+	/*
+	FOBIDDEN because we need to specify the port
+	*/
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
 Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
 {
-	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
 	setupConnection(tmp, port);
 	setKqueue();
