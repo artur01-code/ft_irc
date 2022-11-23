@@ -14,17 +14,17 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->USER(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->JOIN(msgObj);
-	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->PART(msgObj);
-	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->TOPIC(&clientObj, msgObj);
-	else if (msgObj.getCommand() == "PRIVMSG" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "PRIVMSG" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->PRIVMSG(&clientObj, msgObj);
-	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->MODE(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->NAMES(msgObj, clientObj);
 	//call channel commands
 }
@@ -52,13 +52,15 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
 		while (itChannel != this->_v_channels.end())
 		{
+			names = names + itChannel->getName() + ":\n";
 			std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
 			while (itClient != itChannel->_clients.end())
 			{
 				// std::cout << (*itClient)->getNickname() << std::endl;
-				names = names + " " + (*itClient)->getNickname();
+				names = names + " " + (*itClient)->getNickname() + "\n";
 				itClient++;
 			}
+			names = names + "\n";
 			itChannel++;
 		}
 	}
@@ -76,13 +78,15 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 			{
 				if (itChannel->getName() == vec[i])
 				{
+					names = names + itChannel->getName() + ":\n";
 					std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
 					while (itClient != itChannel->_clients.end())
 					{
 						// std::cout << (*itClient)->getNickname() << std::endl;
-						names = names + " " + (*itClient)->getNickname();
+						names = names + " " + (*itClient)->getNickname() + "\n";
 						itClient++;
 					}
+					names = names + "\n";
 				}
 				i++;
 			}
@@ -90,9 +94,13 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 		}
 	}
 	//send a priv message to ClientObj with all the names stored in *itClient
-	// this->PRIVMSG()
+	// Message reply;
+	// reply.setCommand("PRIVMSG");
+	// // reply.setPrefix();
+	// this->PRIVMSG(&clientObj, reply);
 	if (M_DEBUG)
 		std::cout << names << std::endl;
+	
 }
 
 
