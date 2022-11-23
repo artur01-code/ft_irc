@@ -12,7 +12,7 @@ StrNoun::~StrNoun() {}
 std::string StrNoun::greet() {return ("Hello from string");}
 int StrNoun::setFlag(char flag, Noun *obj, bool active, Client &caller) {(void)flag, (void)obj, (void)active, (void)caller; return(1);}
 
-const char *s_names::WrongFormatException::what() throw()
+const char *s_names::WrongFormatException::what() const throw()
 {
 	return ("The name mask must be of format: 'nick!user@host'!\n");
 }
@@ -92,6 +92,7 @@ bool	isNum(std::string str)
 
 int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
+	(void)caller;
 	// if (!isClientRight(caller.getNickname(), 'o'))
 	// 	return (3);
 	Client *cobj = dynamic_cast<Client *>(obj);

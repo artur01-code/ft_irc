@@ -75,7 +75,7 @@ typedef struct	s_names
 	s_names(const std::string &pattern);
 	class WrongFormatException : public std::exception
 	{
-		const virtual char *what() throw();
+		const virtual char *what() const throw();
 	};
 } t_names;
 
