@@ -19,7 +19,7 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->PART(msgObj);
 	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
-		this->MODE(msgObj);
+		this->MODE(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NAMES(msgObj, clientObj);
 	//call channel commands
