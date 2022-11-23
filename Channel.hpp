@@ -64,6 +64,21 @@ class RuleSetter
 		}
 };
 
+typedef struct	s_names
+{
+	std::string	nick;
+	std::string	user;
+	std::string	host;
+
+	bool	operator<(const s_names	&other) const;
+	s_names(const Client &request);
+	s_names(const std::string &pattern);
+	class WrongFormatException : public std::exception
+	{
+		const virtual char *what() throw();
+	};
+} t_names;
+
 #include "Server.hpp"
 #include "Client.hpp"
 
@@ -85,14 +100,15 @@ class Channel : public Noun
 		int								_limit;
 		class BanLst
 		{
-			friend std::ostream	&operator<<(std::ostream &os, BanLst &banLst);
+			// friend std::ostream	&operator<<(std::ostream &os, BanLst &banLst);
 			private:
-				std::set<std::string>		_patterns;
+				std::set<t_names>		_patterns;
 			public:
 				BanLst() {}
 				void add(std::string newPattern, bool active);
 
-				std::set<std::string>		getPatterns()
+				bool match(const Client &request) const;
+				std::set<t_names>		getPatterns()
 				{return (_patterns);}
 		};
 		BanLst							_banLst;
@@ -124,8 +140,8 @@ class Channel : public Noun
 		void	addInvitedClients(std::string newInvite);
 		bool	InviteContains(const Client &obj);
 
-		void add_client(Client &obj);
-		void rm_client(const Client &obj);
+		void addClient(Client &obj);
+		void rmClient(const Client &obj);
 
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);

@@ -1,8 +1,8 @@
 #include "Channel.hpp"
 #include <cmath>
 
-const std::string Channel::_alphabet = "opsitnmlk";
-const std::string Channel::_clientAlphabet = "biswov";
+const std::string Channel::_alphabet = "opsitnmlkb";
+const std::string Channel::_clientAlphabet = "iswov";
 
 // <HELPERS>
 
@@ -12,12 +12,69 @@ StrNoun::~StrNoun() {}
 std::string StrNoun::greet() {return ("Hello from string");}
 int StrNoun::setFlag(char flag, Noun *obj, bool active, Client &caller) {(void)flag, (void)obj, (void)active, (void)caller; return(1);}
 
+const char *s_names::WrongFormatException::what() throw()
+{
+	return ("The name mask must be of format: 'nick!user@host'!\n");
+}
+
+s_names::s_names(const Client &request)
+{
+	nick = request.getNickname();
+	user = request.getUsername();
+	host = request.getHostname();
+}
+
+bool	s_names::operator<(const s_names	&other) const
+{
+	if (nick < other.nick)
+		return (true);
+	else if (nick > other.nick)
+		return (false);
+	else if (user < other.user)
+		return (true);
+	else if (user > other.user)
+		return (false);
+	else if (host < other.host)
+		return (true);
+	else if (host > other.host)
+		return (false);
+	return (false);
+}
+
+s_names::s_names(const std::string &pattern)
+{
+	std::cout << "Enters the constructor at all" << std::endl;
+	if (pattern.find('!') == std::string::npos || pattern.find('@') == std::string::npos)
+	{
+		std::cout << "Executed" << std::endl;
+		throw WrongFormatException();
+	}
+	nick = pattern.substr(0, pattern.find("!"));
+	user = pattern.substr(pattern.find("!") + 1, pattern.find("@") - pattern.find("!") - 1);
+	host = pattern.substr(pattern.find("@") + 1);
+}
+
+std::ostream	&operator<<(std::ostream &os, const t_names	&obj)
+{
+	os << obj.nick << std::endl;
+	os << obj.user << std::endl;
+	os << obj.host << std::endl;
+	return (os);
+}
+
 void	Channel::BanLst::add(std::string newPattern, bool active)
 {
 	if (active)
-		_patterns.insert(newPattern);
+		_patterns.insert(t_names(newPattern));
 	else
-		_patterns.erase(newPattern);
+		_patterns.erase(t_names(newPattern));
+}
+
+
+bool Channel::BanLst::match(const Client &request) const
+{
+	(void)request;
+	return (false);
 }
 
 bool	isNum(std::string str)
@@ -50,11 +107,7 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 		{
 			return (2);
 		}
-
-		if (flag == 'b')
-			_banLst.add(cobj->getNickname(), active);
-		else
-			charRuleSetter(client_rights[cobj->getNickname()], flag, active);
+		charRuleSetter(client_rights[cobj->getNickname()], flag, active);
 	}
 	else
 	{
@@ -67,7 +120,10 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 		else
 		{
 			if (flag == 'b')
+			{
 				_banLst.add(str->content, active);
+				std::cout << *this << std::endl;
+			}
 			if (flag == 'k')
 				setPwd(str->content, active);
 			else if (flag == 'l')
@@ -77,7 +133,8 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 			}
 		}
 	}
-	std::cout << *this << std::endl;
+	if (M_DEBUG)
+		std::cout << *this << std::endl;
 	return (0);
 }
 
@@ -105,7 +162,7 @@ int	flag_val(std::string alphabet, char flag)
 	return (-1);
 }
 
-void Channel::add_client(Client &obj)
+void Channel::addClient(Client &obj)
 {
 	if (M_DEBUG)
 		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
@@ -131,9 +188,9 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 			os << channy._alphabet[log2(i)];
 	}
 	os << std::endl;
-	std::set<std::string> banLst = channy._banLst.getPatterns();
-	std::set<std::string>::iterator	begin(banLst.begin());
-	for (std::set<std::string>::iterator end(banLst.end()); begin != end; begin++)
+	std::set<t_names> banLst = channy._banLst.getPatterns();
+	std::set<t_names>::iterator	begin(banLst.begin());
+	for (std::set<t_names>::iterator end(banLst.end()); begin != end; begin++)
 		os << "Banned nick: " << *begin << std::endl;
 	os << "User limit: " << channy._limit << std::endl;
 	os << std::endl;
@@ -208,16 +265,14 @@ void	Channel::addInvitedClients(std::string newInvite)
 	_listInvitedClients.push_back(newInvite);
 }
 
-void Channel::rm_client(const Client &obj)
+void Channel::rmClient(const Client &obj)
 {
 	std::vector<Client *>::iterator	begin(_clients.begin());
 
 	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
-		std::cout << "Should be triggered exactly twice" << std::endl;
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
-			std::cout << "The state was sucessfully altered" << std::endl;
 			_clients.erase(begin);
 			return ;
 		}
