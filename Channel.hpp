@@ -125,7 +125,11 @@ class Channel : public Noun
 		Channel(std::string name);
 		virtual ~Channel() {}
 
-		bool	isClientRight( std::string nickname, char right );
+		std::string	getTopic() const;
+		void		setTopic(std::string topic);
+
+		void	setClientRight( std::string username, char toAdd, bool active);
+		bool	isClientRight( std::string username, char right );
 
 		// void	setChannelRule(char toAdd, bool active);
 		int	isChannelRule(char rule);
@@ -139,6 +143,7 @@ class Channel : public Noun
 		const std::vector<std::string>	&getInvitedClients() const;
 		void	addInvitedClients(std::string newInvite);
 		bool	InviteContains(const Client &obj);
+		bool    removeMode(int mode);
 
 		void addClient(Client &obj);
 		void rmClient(const Client &obj);

@@ -62,4 +62,3 @@ std::string	Server::RPL_TOPIC(Client *client, Channel *channel)
 	msg += "\r\n";
 	return (msg);
 }
-
