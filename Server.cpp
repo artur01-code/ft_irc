@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 //--------------DEFAULT CONSTRUCTOR-------------//
-Server::Server() : _v_channels()
+Server::Server() : _v_channels(), _m_channels(), MODE(*this)
 {
 	std::string ip_address = "127.0.0.1";
 	int port = 6969;
@@ -10,7 +10,7 @@ Server::Server() : _v_channels()
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _v_channels()
+Server::Server(int port) : _v_channels(), _m_channels(), MODE(*this)
 {
 	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
@@ -19,7 +19,7 @@ Server::Server(int port) : _v_channels()
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port, std::string ip_address) : _v_channels()
+Server::Server(int port, std::string ip_address) : _v_channels(), _m_channels(), MODE(*this)
 {
 	setupConnection(ip_address, port);
 	setKqueue();
