@@ -12,6 +12,25 @@
 
 #include "Client.hpp"
 
+const std::string Client::_alphabet = "abcd";
+RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
+
+std::string	Client::greet()
+{
+	return ("Hello from client");
+}
+
+int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
+{
+	(void)caller;
+	(void)obj;
+	if (_alphabet.find(flag) == std::string::npos)
+		return (1);
+	_charRuleSetter(_globalClientMode, flag, active);
+	std::cout << *this << std::endl;
+	return (0);
+}
+
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
 	if (M_DEBUG)
@@ -37,7 +56,8 @@ Client::Client(const Client &rhs)
 
 Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
-
+	if (M_DEBUG)
+		std::cout << COLOR_GREEN << " Client socket Constructor" << END << std::endl;
 }
 
 Client::~Client()
@@ -157,7 +177,8 @@ void Client::printAttributes(void)
 
 std::ostream	&operator<<(std::ostream &os, Client &obj)
 {
-	os << obj.getSocket();
+	os << "socket id: " << obj.getSocket() << std::endl;
+	os << "global rights: " << (int)obj._globalClientMode << std::endl;
 	return (os);
 }
 
