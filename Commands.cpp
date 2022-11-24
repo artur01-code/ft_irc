@@ -462,6 +462,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 		return;
 	}
 	std::vector<std::string> vec = obj.getParameters();
+	// max size of 9 is from IRC protocol documentation
 	if (vec[0].size() > 9 || !isalpha(vec[0][0]))
 	{
 		std::string msg = ERR_ERRONEUSNICKNAME(&clientObj);

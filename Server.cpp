@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 //--------------DEFAULT CONSTRUCTOR-------------//
+// I think we shouldnt accept server without specified ports..? is it required argument or optional?
 Server::Server() : _v_channels(), _m_channels(), MODE(*this)
 {
 	std::string ip_address = "127.0.0.1";
@@ -30,6 +31,7 @@ Server::~Server() {}
 
 std::string Server::getServerName() { return (this->_servername); }
 std::string Server::getHost() { return (this->_host); }
+// what is motd? message of the day.
 std::string Server::getMotd() { return (this->_motd); }
 
 //--------------setupConnection-------------//
@@ -166,7 +168,7 @@ void Server::sendMessage(Client *client, std::string message)
 
 int Server::parsingMessages(std::string read)
 {
-	/*--- PARSIND START ---*/
+	/*--- PARSING START ---*/
 	/*
 		create a vector(list) of all the possible messages;
 		every message is seperated by "\r\n" and gets their own Message obj
@@ -211,6 +213,7 @@ int Server::parsingMessages(std::string read)
 // }
 
 //-*-*-*-*-*-*-*-*-*-*setKqueue//-*-*-*-*-*-*-*-*-*-*
+//kqueue vs select?
 void Server::setKqueue()
 {
 	if ((this->_kq_fd = kqueue()) == ERROR)
