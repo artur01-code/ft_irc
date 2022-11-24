@@ -280,8 +280,7 @@ void Channel::rmClient(const Client &obj)
 			return ;
 		}
 	}
-	if (M_DEBUG)
-		std::cout << "_clients doesn't hold the nickname: " << obj.getNickname() << std::endl;
+	throw TunnelUp();
 }
 
 // </ SETTERS AND GETTERS>
@@ -301,3 +300,8 @@ bool	Channel::isClientRight( std::string nickname, char right )
 
 size_t	Channel::getLimit() const
 {return (_limit);}
+
+const char *Channel::TunnelUp::what() const throw()
+{
+	return ("Just a tunnel that has't been catched\n");
+}

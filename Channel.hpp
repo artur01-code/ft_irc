@@ -153,6 +153,9 @@ class Channel : public Noun
 		bool contains(const Client &obj);
 		int	hasClient(Client *client);
 		friend std::ostream	&operator<<(std::ostream &os, Channel &channy);
+		class TunnelUp : public std::exception{
+			virtual const char *what() const throw();
+		};
 };
 
 

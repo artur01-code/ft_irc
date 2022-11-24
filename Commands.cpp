@@ -183,20 +183,25 @@ void	Server::PART(const Message &obj, Client &caller)
 		return;
 	}
 
-		str_iterator	param_begin(tree[0].begin());
-		for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
+	str_iterator	param_begin(tree[0].begin());
+	for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
+	{
+		try
 		{
 			try
 			{
-				std::map<std::string, Channel *>::iterator first_elem = _mapChannels.begin();
-
 				_mapChannels.at(*param_begin)->rmClient(caller);
 			}
-			catch (std::out_of_range &e)
+			catch(Channel::TunnelUp	&tunnel)
 			{
-				sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, *param_begin));
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, *param_begin));
 			}
 		}
+		catch (std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, *param_begin));
+		}
+	}
 }
 
 void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign)
@@ -226,9 +231,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
 
-	if (tree.size() < 1)
+	if (tree.size() < 1 || tree.size() > 2)
 	{
-		sendMessage(&_conClients[_fd_client], ERR_NEEDMOREPARAMS(&_conClients[_fd_client], obj.getRawInput()));
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
 	// Add user to channel or create channel.
@@ -302,7 +307,6 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				std::cout << "Creating new channel" << std::endl;
 			// To have no pointers invalidated in case of reallocation
 			{
-				void *before_realloc = reinterpret_cast<void *>(_v_channels.begin().base());
 				_v_channels.push_back(Channel(*chanelname1));
 				_mapChannels.clear();
 				std::vector<Channel>::iterator	begin(_v_channels.begin());
