@@ -201,6 +201,8 @@ std::string server_ipaddr);
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
 	std::string	RPL_TOPIC(Client *client, Channel *channel);
+    std::string	RPL_WHOREPLY(Client *client, Client *target);
+    std::string RPL_ENDOFWHO(Client *client, std::string mask);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

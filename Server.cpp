@@ -153,7 +153,11 @@ void Server::sendMessage(Client *client, std::string message)
 {
 	int nb_of_bytes_sent;
 	if (client->getSocket() == ERROR)
+	{
+		if (M_DEBUG)
+			std::cout << "ERROR: sendMessage() unsuccessfull" << std::endl;
 		return;
+	}
 	if (M_DEBUG)
 		std::cout << "sendMessage() : " << message << std::endl;
 	nb_of_bytes_sent =

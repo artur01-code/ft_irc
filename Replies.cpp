@@ -62,3 +62,41 @@ std::string	Server::RPL_TOPIC(Client *client, Channel *channel)
 	msg += "\r\n";
 	return (msg);
 }
+
+std::string	Server::RPL_WHOREPLY(Client *client, Client *target)
+{
+	std::string msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 352 ";
+	msg += client->getNickname() + " ";
+	if (!target->getChannels().size())
+		msg += "*";
+	else
+		msg += target->getChannels().begin()->second->getName();
+	msg += " " + target->getUsername() + " ";
+	msg += this->_host + " ";
+	msg += target->getNickname() + " ";
+	if (target->checkMode(USERMODE_AWAY))
+		msg += "G";
+	else
+		msg += "H";
+	if (target->checkMode(USERMODE_OP))
+		msg += "*";
+	msg += " :0 ";
+	msg += target->getRealname();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_ENDOFWHO(Client *client, std::string mask)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 315 ";
+	msg += client->getNickname() + " ";
+	msg += mask;
+	msg += " :End of WHO list";
+	msg += "\r\n";
+	return (msg);
+}

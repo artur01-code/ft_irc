@@ -38,70 +38,69 @@ if channels are specified, only return names of users on these channels
 */
 void Server::NAMES(const Message &msgObj, Client &clientObj)
 {
+	// if (!msgObj.getParameters().size())
+	// 	return ;
+	// std::string mask = msgObj.getParameters().front();
+	// if (mask.front() == '#')
+	// {
+	// 	if (!this->_mapChannels.count(mask))
+	// 		return ;
+	// 	Channel *channel = this->_mapChannels.at(mask);
+	// 	std::vector<Client *> clients = channel->_clients;
+	// 	for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
+	// 		this->sendMessage(clients, RPL_WHOREPLY(clients, &it));
+	// }
+	// else if (this->_regClients.count(mask))
+	// 	this->sendMessage(&clients, RPL_WHOREPLY(&clients, this->_regClients.at(mask)));
+	// else
+	// {
+	// 	// for (std::map<std::string, Client*>::iterator it = this->_regClients.begin(); it != this->_regClients.end(); it++)
+	// 	// {
+	// 	// 	if (matchMask(mask, makeNickMask(this, it->second)))
+	// 	// 		this->sendMessage(clients, RPL_WHOREPLY(clients, it->second));
+	// 	// }
+	// }
+	// this->sendMessage(clients, RPL_ENDOFWHO(clients, mask));
+
 	//replies needs to get implemented -> check in the documentation
 	(void) clientObj;
 	if (M_DEBUG)
 		std::cout << "COMMAND: *NAMES* FUNCTION GOT TRIGGERT" << std::endl;
 	std::vector<std::string> vec = msgObj.getParameters();
-	std::string names;
-	if (msgObj.getParameters().empty())
+
+	if (M_DEBUG)
+		std::cout << "No parameters got passed" << std::endl << std::endl;
+	//go through each channel and in each Channel through each clients list and print all the names
+	std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
+	while (itChannel != this->_v_channels.end())
 	{
-		if (M_DEBUG)
-			std::cout << "No parameters got passed" << std::endl << std::endl;
-		//go through each channel and in each Channel through each clients list and print all the names
-		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
-		while (itChannel != this->_v_channels.end())
+		std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
+		while (itClient != itChannel->_clients.end())
 		{
-			names = names + itChannel->getName() + ":\n";
-			std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
-			while (itClient != itChannel->_clients.end())
+			if (msgObj.getParameters().empty())
+				this->sendMessage(&clientObj, RPL_WHOREPLY(&clientObj, *itClient));
+			else
 			{
-				// std::cout << (*itClient)->getNickname() << std::endl;
-				names = names + " " + (*itClient)->getNickname() + "\n";
-				itClient++;
-			}
-			names = names + "\n";
-			itChannel++;
-		}
-	}
-	else
-	{
-		if (M_DEBUG)
-			std::cout << "Parameters got passed" << std::endl << std::endl;
-		//loop through the channels that are specified and list all the nicknames
-		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
-		int i = 0;
-		while (itChannel != this->_v_channels.end())
-		{
-			i = 0;
-			while (!vec[i].empty())
-			{
-				if (itChannel->getName() == vec[i])
+				int i = 0;
+				while (!vec[i].empty())
 				{
-					names = names + itChannel->getName() + ":\n";
-					std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
-					while (itClient != itChannel->_clients.end())
-					{
-						// std::cout << (*itClient)->getNickname() << std::endl;
-						names = names + " " + (*itClient)->getNickname() + "\n";
-						itClient++;
-					}
-					names = names + "\n";
+					std::cout << itChannel->getName() << " and " << vec[0] << std::endl;
+					if (itChannel->getName() == vec[0])
+						this->sendMessage(&clientObj, RPL_WHOREPLY(&clientObj, *itClient));
+					i++;
 				}
-				i++;
 			}
-			itChannel++;
+			itClient++;
 		}
-	} 
-	//need to print all the other names that are not in a channel with *:
-	names = names + "*:\n";
-	//send a priv message to ClientObj with all the names stored in *itClient
+		itChannel++;
+	}
+	this->sendMessage(&clientObj, RPL_ENDOFWHO(&clientObj, "test")); //send mask ?
+	// need to print all the other names that are not in a channel with *:
+	// send a priv message to ClientObj with all the names stored in *itClient
 	// Message reply;
 	// reply.setCommand("PRIVMSG");
 	// reply.setParameters(names);
 	// this->PRIVMSG(&clientObj, reply);
-	if (M_DEBUG)
-		std::cout << names << std::endl;
 	
 }
 
