@@ -11,6 +11,18 @@ std::string	Server::RPL_ENDOFBANLIST(Client *caller, Channel *channel)
 	return (msg);
 }
 
+std::string	Server::RPL_UMODEIS(Client *caller, Channel *channel, Client *object)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 371 ";
+	msg += caller->getNickname() + " on " + channel->getName() + " ";
+	msg += ": " + channel->channelUsrModes(object);
+	msg += "\r\n";
+	return (msg);
+}
+
 std::string	Server::RPL_UMODEIS(Client *caller, Client *object)
 {
 	std::string	msg;

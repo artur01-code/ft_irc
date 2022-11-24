@@ -63,7 +63,9 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 		_object_str = remainder.at(2);
 	}
 	catch (std::out_of_range	&e)
-	{}
+	{
+		_object_str = "";
+	}
 	try
 	{
 		remainder.at(3);
@@ -82,6 +84,14 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 			_subject = reinterpret_cast<Noun *>(_server._mapChannels.at(_subject_str));
 			if (_flags == "mode")
 			{
+				try
+				{
+					_object = reinterpret_cast<Noun *>(_server._regClients.at(_object_str));
+					_server.sendMessage(&caller, _server.RPL_UMODEIS(&caller, reinterpret_cast<Channel *>(_subject), reinterpret_cast<Client *>(_object)));
+					return (false);
+				}
+				catch (std::out_of_range)
+				{}
 				_server.sendMessage(&caller, _server.RPL_CHANNELMODEIS(&caller, reinterpret_cast<Channel *>(_subject)));
 				return (false);
 			}

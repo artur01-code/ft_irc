@@ -198,6 +198,7 @@ std::string server_ipaddr);
     /*---REPLIES---*/
 	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
 	std::string	RPL_UMODEIS(Client *caller, Client *object);
+	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
 	std::string	RPL_BANLIST(Client *caller, Channel *channel);
 	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
 	std::string	RPL_AWAY(Client *client, std::string message);

@@ -2,7 +2,7 @@
 #include <cmath>
 
 const std::string Channel::_alphabet = "opsitnmlkb";
-const std::string Channel::_clientAlphabet = "iswov";
+const std::string Channel::_clientAlphabet = "iswovx"; // x is for serverowner
 
 // <HELPERS>
 
@@ -194,8 +194,11 @@ void Channel::addClient(Client &obj)
 	}
 	if (M_DEBUG)
 		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
+	
 	_clients.push_back(&obj);
 	client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
+	if (_clients.size() == 1) // Add owner rights.
+		setFlag('x', reinterpret_cast<Noun *>(_clients[0]), true, obj);
 }
 
 std::string	Channel::ModeStr()
@@ -218,7 +221,7 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 	for (std::vector<Client *>::iterator	clients_begin(channy._clients.begin()); clients_begin < clients_end; clients_begin++)
 	{
 		os << **clients_begin;
-		os << "Rights: " << (int)channy.client_rights[ (*clients_begin)->getNickname()] << std::endl << std::endl;
+		os << "Rights: " << channy._clientAlphabet[log2(channy.client_rights[ (*clients_begin)->getNickname()])] << std::endl << std::endl; // print only works for one mode at a time!
 	}
 	os << "Rules: ";
 	for (size_t i = 1; i <= 256; i <<= 1)
@@ -419,4 +422,16 @@ bool	strMatch(std::string specific, std::string pattern)
 		}
 	}
 	return (true);
+}
+
+std::string	Channel::channelUsrModes(Client *object)
+{
+	std::string	msg;
+
+	for (char i = 1; i != CHAR_MIN; i <<= 1)
+	{
+		if (i & client_rights[object->getNickname()])
+			msg += _clientAlphabet[log2(i)];
+	}
+	return (msg);
 }

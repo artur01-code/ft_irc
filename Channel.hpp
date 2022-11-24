@@ -121,6 +121,7 @@ class Channel : public Noun
 		// are members of the server!
 		std::map<std::string, char>		client_rights; // nick in call
 		std::string	ModeStr();
+		std::string	channelUsrModes(Client *object);
 		std::string						getBanLst() const;
 		std::string						getEndBanLst() const;
 
