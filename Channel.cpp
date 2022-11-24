@@ -116,8 +116,10 @@ bool	isNum(std::string str)
 int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
 	(void)caller;
-	// if (!isClientRight(caller.getNickname(), 'o'))
-	// 	return (3);
+	if (!isClientRight(caller.getNickname(), 'o') && !isClientRight(caller.getNickname(), 'x'))
+	{
+		return (3);
+	}
 	Client *cobj = dynamic_cast<Client *>(obj);
 	if (cobj) // works
 	{
@@ -143,6 +145,12 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 			intRuleSetter(_channel_rules, flag, active);
 		else
 		{
+			if ((flag == 'o' && !isClientRight(caller.getNickname(), 'x')) || \
+				(flag == 'k' && !isClientRight(caller.getNickname(), 'x')))
+			{
+				return (3);
+			}
+
 			if (flag == 'b')
 			{
 				_banLst.add(str->content, active);
@@ -196,9 +204,10 @@ void Channel::addClient(Client &obj)
 		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
 	
 	_clients.push_back(&obj);
-	client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
 	if (_clients.size() == 1) // Add owner rights.
-		setFlag('x', reinterpret_cast<Noun *>(_clients[0]), true, obj);
+		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), flag_val(_clientAlphabet, 'x')));
+	else
+		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
 }
 
 std::string	Channel::ModeStr()
