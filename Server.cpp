@@ -1,8 +1,7 @@
 #include "Server.hpp"
 
 //--------------DEFAULT CONSTRUCTOR-------------//
-// I think we shouldnt accept server without specified ports..? is it required argument or optional?
-Server::Server() : _v_channels(), _m_channels(), MODE(*this)
+Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 {
 	std::string ip_address = "127.0.0.1";
 	int port = 6969;
@@ -11,7 +10,7 @@ Server::Server() : _v_channels(), _m_channels(), MODE(*this)
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _v_channels(), _m_channels(), MODE(*this)
+Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
 {
 	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
@@ -20,7 +19,7 @@ Server::Server(int port) : _v_channels(), _m_channels(), MODE(*this)
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port, std::string ip_address) : _v_channels(), _m_channels(), MODE(*this)
+Server::Server(int port, std::string ip_address) : _v_channels(), _mapChannels(), MODE(*this)
 {
 	setupConnection(ip_address, port);
 	setKqueue();
@@ -284,6 +283,14 @@ void Server::kqueueEngine()
 			}
 		}
 	}
+}
+
+std::string Server::makeNickMask(Server server, Client client)
+{
+	// std::string mask;
+	// mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
+	// return (mask);
+	return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {

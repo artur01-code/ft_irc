@@ -13,8 +13,14 @@
 #include <map>
 #include <vector>
 
-#include "Channel.hpp"
-#include "Colors.hpp"
+#include	"Channel.hpp"
+#include	"Colors.hpp"
+
+#define USERMODE_AWAY		1
+#define USERMODE_INVIS		2
+#define USERMODE_NOTICE		4
+#define USERMODE_WALLOPS	8
+#define USERMODE_OP			16
 
 class Channel;
 
@@ -34,7 +40,7 @@ class Client : public Noun
 		int			_regFlag;
 		int			_pwdFlag;
 		std::map<std::string, Channel *> _channels;
-
+		id_t		_modes;
 	public:
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
 			virtual std::string greet();
@@ -61,12 +67,14 @@ class Client : public Noun
 		void		setRegFlag(int regFlag);
 		int			getPwdFlag(void);
 		void		setPwdFlag(int n);
-
+		bool		checkMode(char c);  
 
 		std::map<std::string, Channel *>	getChannels(void) const;
 		void								setChannels(std::map<std::string, Channel *> channels);
 
 		void printAttributes(void);
+		bool	addMode(int mode);
+		bool	removeMode(int mode);
 		bool	operator==(const Client &obj) const
 		{
 			return (_socket == obj.getSocket());

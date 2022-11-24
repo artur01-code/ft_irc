@@ -182,3 +182,39 @@ std::ostream	&operator<<(std::ostream &os, Client &obj)
 	return (os);
 }
 
+std::string	Channel::getTopic() const
+{
+	return (this->_topic);
+}
+void		Channel::setTopic(std::string topic)
+{
+	this->_topic = topic;
+}
+
+// MODE section
+
+bool	Client::addMode(int mode)
+{
+	if (!(this->_modes & mode))
+	{
+		this->_modes |= mode;
+		return (true);
+	}
+	return (false);
+}
+
+bool	Client::removeMode(int mode)
+{
+	if (this->_modes & mode)
+	{
+		// if mode found, unset it
+		this->_modes &= ~mode;
+		return (true);
+	}
+	return (false);
+}
+
+bool	Client::checkMode(char c)
+{
+	return (_globalClientMode & flag_val(_alphabet, c));
+}

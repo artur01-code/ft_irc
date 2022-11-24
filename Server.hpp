@@ -24,6 +24,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include "Channel.hpp"
 #include "Client.hpp"
@@ -48,9 +49,9 @@ class Server {
     std::string _servername;
     std::string _motd;
     std::string _password_operator;
-	// For iteration purposes
+	// For iteration purposes   
 	std::vector<Channel>	_v_channels;
-	std::map<std::string, Channel *>	_m_channels;
+    std::map<std::string, Channel *> _mapChannels;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
@@ -104,8 +105,8 @@ std::string server_ipaddr);
     // setter
     void setPassword(std::string password);
     void setKEvent();
+    std::string makeNickMask(Server server, Client client);
     void setPwdFlag(int n);
-
     std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/

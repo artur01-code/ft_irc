@@ -81,7 +81,7 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 	{
 		try
 		{
-			_subject = reinterpret_cast<Noun *>(_server._m_channels.at(_subject_str));
+			_subject = reinterpret_cast<Noun *>(_server._mapChannels.at(_subject_str));
 		}
 		catch (std::out_of_range &e)
 		{
