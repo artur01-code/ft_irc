@@ -196,6 +196,10 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
+	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
+	std::string	RPL_UMODEIS(Client *caller, Client *object);
+	std::string	RPL_BANLIST(Client *caller, Channel *channel);
+	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
 	std::string	RPL_AWAY(Client *client, std::string message);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);

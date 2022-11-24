@@ -1,5 +1,51 @@
 #include "Server.hpp"
 
+std::string	Server::RPL_ENDOFBANLIST(Client *caller, Channel *channel)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 334 ";
+	msg += caller->getNickname() + " ";
+	msg += ": " + channel->getEndBanLst();
+	return (msg);
+}
+
+std::string	Server::RPL_UMODEIS(Client *caller, Client *object)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 370 ";
+	msg += caller->getNickname() + " ";
+	msg += ": " + object->modeStr();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_BANLIST(Client *caller, Channel *channel)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 333 ";
+	msg += caller->getNickname() + " ";
+	msg += ": " + channel->getBanLst();
+	return (msg);
+}
+
+std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 369 ";
+	msg += client->getNickname() + " ";
+	msg += ": +" + channel->ModeStr();
+	msg += "\r\n";
+	return (msg);
+}
+
 std::string	Server::RPL_AWAY(Client *client, std::string message)
 {
 	std::string msg;

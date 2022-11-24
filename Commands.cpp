@@ -192,9 +192,10 @@ void	Server::PART(const Message &obj, Client &caller)
 			{
 				_mapChannels.at(*param_begin)->rmClient(caller);
 			}
-			catch(Channel::TunnelUp	&tunnel)
+			catch(const char *tunnel)
 			{
-				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, *param_begin));
+				if (std::string(tunnel) == "rmClient")
+					sendMessage(&caller, ERR_NOTONCHANNEL(&caller, *param_begin));
 			}
 		}
 		catch (std::out_of_range &e)
@@ -295,7 +296,18 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			// </Selection criteria>
 			if (!chany->contains(_conClients[_fd_client]))
 			{
-				chany->addClient(_conClients[_fd_client]);
+				try
+				{
+					chany->addClient(_conClients[_fd_client]);
+				}
+				catch(std::string &e)
+				{
+					if (e == "Banned (addClient)")
+					{
+						sendMessage(&caller, ERR_BANNEDFROMCHAN(&caller, chany->getName()));
+						return ;
+					}
+				}
 				sendMessage(&caller, RPL_TOPIC(&caller, chany));
 			}
 			else

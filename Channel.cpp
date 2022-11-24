@@ -46,7 +46,14 @@ s_names::s_names(const std::string &pattern)
 	std::cout << "Enters the constructor at all" << std::endl;
 	if (pattern.find('!') == std::string::npos || pattern.find('@') == std::string::npos)
 	{
-		std::cout << "Executed" << std::endl;
+		throw WrongFormatException();
+	}
+	if (pattern.find('!') > pattern.find('@'))
+	{
+		throw WrongFormatException();
+	}
+	if (pattern.find('!') == 0 || pattern.find('@') - pattern.find('!') == 1 || pattern.find('!') == pattern.size() - 1)
+	{
 		throw WrongFormatException();
 	}
 	nick = pattern.substr(0, pattern.find("!"));
@@ -73,7 +80,23 @@ void	Channel::BanLst::add(std::string newPattern, bool active)
 
 bool Channel::BanLst::match(const Client &request) const
 {
-	(void)request;
+	typedef std::set<t_names>::iterator	iter;
+
+	t_names	newClient(request);
+	iter	begin(_patterns.begin());
+	for (iter end(_patterns.end()); begin != end; begin++)
+	{
+		if (strMatch(newClient.nick, begin->nick))
+		{
+			if (strMatch(newClient.user, begin->user))
+			{
+				if (strMatch(newClient.host, begin->host))
+				{
+					return (true);
+				}
+			}
+		}
+	}
 	return (false);
 }
 
@@ -165,10 +188,25 @@ int	flag_val(std::string alphabet, char flag)
 
 void Channel::addClient(Client &obj)
 {
+	if (_banLst.match(obj))
+	{
+		throw std::string("Banned (addClient)");
+	}
 	if (M_DEBUG)
 		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
 	_clients.push_back(&obj);
 	client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
+}
+
+std::string	Channel::ModeStr()
+{
+	std::string	modes;
+	for (int i = 1; i != INT_MIN; i <<= 1)
+	{
+		if (i & _channel_rules)
+			modes += this->_alphabet[log2(i)];
+	}
+	return (modes);
 }
 
 std::ostream	&operator<<(std::ostream &os, Channel &channy)
@@ -280,7 +318,7 @@ void Channel::rmClient(const Client &obj)
 			return ;
 		}
 	}
-	throw TunnelUp();
+	throw("rmClient");
 }
 
 // </ SETTERS AND GETTERS>
@@ -301,7 +339,84 @@ bool	Channel::isClientRight( std::string nickname, char right )
 size_t	Channel::getLimit() const
 {return (_limit);}
 
-const char *Channel::TunnelUp::what() const throw()
+std::string		Channel::getBanLst() const
 {
-	return ("Just a tunnel that has't been catched\n");
+	std::string	banLst;
+	std::set<t_names>	structs = _banLst.getPatterns();
+	if (structs.size() == 0)
+		banLst += "empty";
+	std::set<t_names>::iterator	begin(structs.begin());
+	for (std::set<t_names>::iterator end(structs.end()); begin != end; begin++)
+	{
+		banLst += "nick: " + (*begin).nick + " | ";
+		banLst += "user: " + (*begin).user + " | ";
+		banLst += "host: " + (*begin).host + "\r\n";
+	}
+	return (banLst);
+}
+
+std::string			Channel::getEndBanLst() const
+{
+	std::string banLst;
+	std::set<t_names>	structs = _banLst.getPatterns();
+	if (structs.size() == 0)
+		banLst += "empty";
+	std::set<t_names>::iterator end(structs.end());
+	--end;
+	banLst += "nick: " + (*end).nick + " | ";
+	banLst += "user: " + (*end).user + " | ";
+	banLst += "host: " + (*end).host + "\r\n";
+
+	return (banLst);
+}
+
+
+std::string	getPrimer(std::string &pattern)
+{
+	if (pattern.size() == 0)
+		return ("");
+	bool last_primer = false;
+	if (pattern.find('*') == std::string::npos)
+		last_primer = true;
+
+	std::string substr = pattern.substr(0, (last_primer) ? (pattern.size()) : (pattern.find('*')));
+	(last_primer) ? (pattern.erase(0, substr.size())) : (pattern.erase(0, substr.size() + 1));
+	return (substr);
+}
+
+bool	strMatch(std::string specific, std::string pattern)
+{
+	std::string primer;
+
+	if (pattern[0] != '*') // works
+	{
+		primer = getPrimer(pattern);
+		if	(specific.find(primer) != 0)
+		{
+			return (false);
+		}
+		specific.erase(0, primer.size());
+	}
+	else
+		pattern.erase(0, 1);
+	primer = getPrimer(pattern);
+	if (primer != "") // allways matches empty or just '*'
+	{
+		while (pattern.size() > 0)
+		{
+			std::cout << "primer: |" << primer << "| specific: " << specific << std::endl;
+			if (specific.find(primer) != std::string::npos) // If match cut out all before and in match
+				specific.erase(0, specific.find(primer) + primer.size());
+			else
+			{
+				return (false);
+			}
+			primer = getPrimer(pattern);
+		}
+		if (specific.find(primer) + primer.size() != specific.size()) // last case must match the end
+		{
+			return (false);
+		}
+	}
+	return (true);
 }

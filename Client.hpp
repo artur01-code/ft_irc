@@ -79,6 +79,7 @@ class Client : public Noun
 		{
 			return (_socket == obj.getSocket());
 		}
+		std::string	modeStr() const;
 		friend std::ostream	&operator<<(std::ostream &os, Client &obj);
 };
 

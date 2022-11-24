@@ -108,7 +108,7 @@ class Channel : public Noun
 				void add(std::string newPattern, bool active);
 
 				bool match(const Client &request) const;
-				std::set<t_names>		getPatterns()
+				std::set<t_names>		getPatterns() const
 				{return (_patterns);}
 		};
 		BanLst							_banLst;
@@ -120,6 +120,9 @@ class Channel : public Noun
 		// The clients for whom rights are set are a superset of the clients that
 		// are members of the server!
 		std::map<std::string, char>		client_rights; // nick in call
+		std::string	ModeStr();
+		std::string						getBanLst() const;
+		std::string						getEndBanLst() const;
 
 	// Getters and setters:
 		std::string	getName() const;
@@ -153,10 +156,9 @@ class Channel : public Noun
 		bool contains(const Client &obj);
 		int	hasClient(Client *client);
 		friend std::ostream	&operator<<(std::ostream &os, Channel &channy);
-		class TunnelUp : public std::exception{
-			virtual const char *what() const throw();
-		};
 };
 
+std::string	getPrimer(std::string &pattern);
+bool	strMatch(std::string specific, std::string pattern);
 
 #endif

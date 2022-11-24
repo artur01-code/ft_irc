@@ -15,14 +15,12 @@ void	Server::MODE_CLASS::operator()(const Message &obj, Client &caller) // Just 
 		for (_tree_iterator	begin(_reduced_tree.begin()); begin < end; begin++)
 			std::cout << "Tree contents: " << *begin << std::endl;
 	}
-	size_t i = 0;
-	for (; i < _reduced_tree.size(); i++)
-		;
-	if (i < 2)
+	if (_reduced_tree.size() < 2)
 	{
 		_server.sendMessage(&caller, _server.ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+
 	recursive_part(_reduced_tree, caller);
 }
 
@@ -82,6 +80,21 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 		try
 		{
 			_subject = reinterpret_cast<Noun *>(_server._mapChannels.at(_subject_str));
+			if (_flags == "mode")
+			{
+				_server.sendMessage(&caller, _server.RPL_CHANNELMODEIS(&caller, reinterpret_cast<Channel *>(_subject)));
+				return (false);
+			}
+			else if (_flags == "banlist")
+			{
+				_server.sendMessage(&caller, _server.RPL_BANLIST(&caller, reinterpret_cast<Channel *>(_subject)));
+				return (false);
+			}
+			else if (_flags == "eobanlist")
+			{
+				_server.sendMessage(&caller, _server.RPL_ENDOFBANLIST(&caller, reinterpret_cast<Channel *>(_subject)));
+				return (false);
+			}
 		}
 		catch (std::out_of_range &e)
 		{
@@ -94,6 +107,11 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 		try
 		{
 			_subject = reinterpret_cast<Noun *>(_server._regClients.at(_subject_str));
+			if (_flags == "mode")
+			{
+				_server.sendMessage(&caller, _server.RPL_UMODEIS(&caller, reinterpret_cast<Client *>(_subject)));
+				return (false);
+			}
 			if (_server._regClients[_subject_str]->getNickname() != caller.getNickname())
 			{
 				_server.sendMessage(&caller, _server.ERR_USERSDONTMATCH(&caller));

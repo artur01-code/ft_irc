@@ -218,3 +218,14 @@ bool	Client::checkMode(char c)
 {
 	return (_globalClientMode & flag_val(_alphabet, c));
 }
+
+std::string	Client::modeStr() const
+{
+	std::string	modes;
+	for (char i = 1; i != CHAR_MIN; i <<= 1)
+	{
+		if (i & _globalClientMode)
+			modes += this->_alphabet[log2(i)];
+	}
+	return (modes);
+}
