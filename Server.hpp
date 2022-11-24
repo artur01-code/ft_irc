@@ -24,6 +24,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <algorithm>
 
 #include "Channel.hpp"
 #include "Client.hpp"
@@ -48,8 +49,9 @@ class Server {
     std::string _servername;
     std::string _motd;
     std::string _password_operator;
-	// For iteration purposes
+	// For iteration purposes   
 	std::vector<Channel>	_v_channels;
+    std::map<std::string, Channel *> _mapChannels;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
@@ -58,7 +60,9 @@ class Server {
     int _kq_fd;
     int _port;
     int _server_fd;
-    int _max;
+
+    int _pwdFlag;
+
     // kevent data struct info
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
@@ -100,11 +104,14 @@ class Server {
     std::string getServerName();
     std::string getHost();
     std::string getMotd();
-    int getMax(void) const { return _max; }
+
+    int getPwdFlag(void);
     // setter
-    void setPassword(std::string param_password);
+    void setPassword(std::string password);
     void setKEvent();
-    void setMax(int max) { _max = max; }
+
+    std::string makeNickMask(Server server, Client client);
+    void setPwdFlag(int n);
 
     std::vector<Client *> _Client;
 
@@ -113,16 +120,59 @@ class Server {
     void checkCommands(const Message &msgObj, Client &clientObj);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
-    void PASS(const Message &obj);
     void JOIN(const Message &obj);
 
+    void QUIT(const Message &obj, Client &clientObj);
+	static std::vector<std::vector<std::string> >	getTree(const Message &obj);
 	void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
+
     void PART(const Message &obj);
-    void MODE(const Message &obj);
+	// ------------ MODE MEMBER CLASS ------------------- //
+
+	// Implementation in: Mode.cpp
+	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
+	class MODE_CLASS
+	{
+		private:
+			bool									_sign;
+
+			std::vector<std::string >				_reduced_tree;
+			typedef	std::vector<std::string>::iterator	_tree_iterator;
+
+			std::string								_flags;
+			std::string								_subject_str;
+			Noun*									_subject;
+			std::string								_object_str;
+			Noun*									_object;
+			StrNoun									_strArg;
+			Server&									_server;
+		public:
+			MODE_CLASS(Server &server); // Instance of server, whose Modes are altered
+			void	recursive_part(std::vector<std::string> &remainder, Client &caller); // Handling multiple objects
+			void	operator()(const Message &obj, Client &caller);
+			bool	internal_state(Client &caller, std::vector<std::string> &remainder);
+			template <class Data>
+			std::vector<Data> reduce(std::vector<std::vector<Data> > vector) const // Fields are not comma separated, therefore we can reduce them
+			{
+				typedef	typename std::vector<std::vector<Data> >::iterator	iterator;
+				std::vector<Data>	ret;
+
+				iterator	end(vector.end());
+				for (iterator	begin(vector.begin()); begin < end; begin++)
+					ret.push_back( (*begin)[0]);
+				return (ret);
+			}
+	};
+	// ------------ </MODE MEMBER CLASS> ------------------- //
+    MODE_CLASS MODE;
+		bool	zero_param();
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
 
-    void QUIT(const Message &obj, Client &clientObj);
+
+
+    void PASS(const Message &msgObj, Client &clientObj);
+    void NAMES(const Message &msgObj, Client &clientObj);
 
 
     /*---ERRORS---*/

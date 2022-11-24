@@ -9,7 +9,8 @@ SRCS	=	Channel.cpp \
 			Message.cpp \
 			Server.cpp \
 			ErrorMessages.cpp \
-			#Replies.cpp \
+			Replies.cpp \
+			Mode.cpp
 
 DFLAGS	=	-g -D M_DEBUG=1
 

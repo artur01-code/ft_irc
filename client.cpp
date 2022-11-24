@@ -12,7 +12,26 @@
 
 #include "Client.hpp"
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
+const std::string Client::_alphabet = "abcd";
+RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
+
+std::string	Client::greet()
+{
+	return ("Hello from client");
+}
+
+int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
+{
+	(void)caller;
+	(void)obj;
+	if (_alphabet.find(flag) == std::string::npos)
+		return (1);
+	_charRuleSetter(_globalClientMode, flag, active);
+	std::cout << *this << std::endl;
+	return (0);
+}
+
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
@@ -35,9 +54,10 @@ Client::Client(const Client &rhs)
 	*this = rhs;
 }
 
-Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0)
+Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
 {
-
+	if (M_DEBUG)
+		std::cout << COLOR_GREEN << " Client socket Constructor" << END << std::endl;
 }
 
 Client::~Client()
@@ -120,6 +140,16 @@ void Client::setRegFlag(int regFlag)
 	this->_regFlag = regFlag;
 }
 
+int Client::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Client::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
+}
+
 std::map<std::string, Channel *> Client::getChannels(void) const
 {
 	return (this->_channels);
@@ -147,7 +177,44 @@ void Client::printAttributes(void)
 
 std::ostream	&operator<<(std::ostream &os, Client &obj)
 {
-	os << obj.getSocket();
+	os << "socket id: " << obj.getSocket() << std::endl;
+	os << "global rights: " << (int)obj._globalClientMode << std::endl;
 	return (os);
 }
 
+std::string	Channel::getTopic() const
+{
+	return (this->_topic);
+}
+void		Channel::setTopic(std::string topic)
+{
+	this->_topic = topic;
+}
+
+// MODE section
+
+bool	Client::addMode(int mode)
+{
+	if (!(this->_modes & mode))
+	{
+		this->_modes |= mode;
+		return (true);
+	}
+	return (false);
+}
+
+bool	Client::removeMode(int mode)
+{
+	if (this->_modes & mode)
+	{
+		// if mode found, unset it
+		this->_modes &= ~mode;
+		return (true);
+	}
+	return (false);
+}
+
+bool	Client::checkMode(char c)
+{
+	return (_globalClientMode & flag_val(_alphabet, c));
+}

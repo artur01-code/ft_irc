@@ -1,25 +1,28 @@
 #include "Server.hpp"
 
 //--------------DEFAULT CONSTRUCTOR-------------//
-Server::Server() {
-    std::string ip_address = "127.0.0.1";
-    int port = 6969;
-    setupConnection(_ip_address, port);
-    setKqueue();
+Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
+{
+	std::string ip_address = "127.0.0.1";
+	int port = 6969;
+	setupConnection(_ip_address, port);
+	setKqueue();
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) {
-    std::cout << "hey1\n";
-    std::string tmp = "127.0.0.1";
-    setupConnection(tmp, port);
-    setKqueue();
+Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
+{
+	std::cout << "hey1\n";
+	std::string tmp = "127.0.0.1";
+	setupConnection(tmp, port);
+	setKqueue();
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port, std::string ip_address) {
-    setupConnection(ip_address, port);
-    setKqueue();
+Server::Server(int port, std::string ip_address) : _v_channels(), _mapChannels(), MODE(*this)
+{
+	setupConnection(ip_address, port);
+	setKqueue();
 }
 
 //--------------DESTRUCTOR-------------//
@@ -137,48 +140,57 @@ int Server::receiveMessages(int fd) {
 }
 
 //-*-*-*-*-*-*-*-*-*-* SEND MESSAGE //-*-*-*-*-*-*-*-*-*-*
-void Server::sendMessage(Client *client, std::string message) {
-    int nb_of_bytes_sent;
-    if (client->getSocket() == ERROR) return;
-    if (M_DEBUG) std::cout << "sendMessage() : " << message << std::endl;
-    nb_of_bytes_sent =
-        send(client->getSocket(), message.c_str(), message.size(), 0);
-    if (nb_of_bytes_sent == ERROR) throw SendException();
+void Server::sendMessage(Client *client, std::string message)
+{
+	int nb_of_bytes_sent;
+	if (client->getSocket() == ERROR)
+		return;
+	if (M_DEBUG)
+		std::cout << "sendMessage() : " << message << std::endl;
+	nb_of_bytes_sent =
+		send(client->getSocket(), message.c_str(), message.size(), 0);
+	if (nb_of_bytes_sent == ERROR)
+		throw SendException();
 }
 
-int Server::parsingMessages(std::string read) {
-    /*--- PARSIND START ---*/
-    /*
-        create a vector(list) of all the possible messages;
-        every message is seperated by "\r\n" and gets their own Message obj
-        every Message obj gets redirected to the commandCheck() function of the
-       server
-    */
-    std::vector<Message> v_message;
+int Server::parsingMessages(std::string read)
+{
+	/*--- PARSIND START ---*/
+	/*
+		create a vector(list) of all the possible messages;
+		every message is seperated by "\r\n" and gets their own Message obj
+		every Message obj gets redirected to the commandCheck() function of the
+	   server
+	*/
+	std::vector<Message> v_message;
 
-    std::string buf_string(read);
-    while (buf_string.find("\r\n") != buf_string.npos) {
-        Message msg(buf_string.substr(0, buf_string.find("\r\n")));
-        v_message.push_back(msg);
-        buf_string = buf_string.substr(
-            buf_string.find("\r\n") + 2,
-            (size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
-    }
-    std::vector<Message>::iterator itMsg = v_message.begin();
+	std::string buf_string(read);
 
-    std::map<int, Client>::iterator itCli = this->_conClients.begin();
-    while (itCli != this->_conClients.end()) {
-        if (itCli->first == this->_fd_client) break;
-        itCli++;
-    }
+	while (buf_string.find("\r\n") != buf_string.npos)
+	{
+		Message msg(buf_string.substr(0, buf_string.find("\r\n")));
+		v_message.push_back(msg);
+		buf_string = buf_string.substr(
+			buf_string.find("\r\n") + 2,
+			(size_t)(buf_string.size() - buf_string.find("\r\n") + 2));
+	}
+	std::vector<Message>::iterator itMsg = v_message.begin();
 
-    while (itMsg != v_message.end()) {
-        if (M_DEBUG) std::cout << "Enters anyways" << std::endl;
-        this->checkCommands(*itMsg, itCli->second);
-        itMsg++;
-    }
-    return (1);
-    /*--- PARSING END ---*/
+	std::map<int, Client>::iterator itCli = this->_conClients.begin();
+	while (itCli != this->_conClients.end())
+	{
+		if (itCli->first == this->_fd_client)
+			break;
+		itCli++;
+	}
+
+	while (itMsg != v_message.end())
+	{
+		this->checkCommands(*itMsg, itCli->second);
+		itMsg++;
+	}
+	return (1);
+	/*--- PARSING END ---*/
 }
 
 // int Server::get_connection(int fd) {
@@ -262,6 +274,14 @@ void Server::kqueueEngine() {
 //     std::vector<Client *>::iterator it =
 //     for (u_iterator it = )
 // }
+
+std::string Server::makeNickMask(Server server, Client client)
+{
+	// std::string mask;
+	// mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
+	// return (mask);
+	return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
+}
 
 // int Server::get_connection(int fd) {
 //     for (int i = 0; i < NUM_CLIENTS; i++) {
@@ -354,6 +374,22 @@ void Server::kqueueEngine() {
 // #define RemoveException() throw new runtime_error("REMOVE ERROR")
 
 // RemoveException();
+
+
+int Server::getPwdFlag(void)
+{
+	return (this->_pwdFlag);
+}
+
+void Server::setPwdFlag(int n)
+{
+	this->_pwdFlag = n;
+}
+
+void Server::setPassword(std::string password)
+{
+	this->_password = password;
+}
 
 //--------------Exceptions-------------//
 const char *Server::SendException::what() const throw() {
