@@ -118,7 +118,7 @@ std::string server_ipaddr);
     void QUIT(const Message &obj, Client &clientObj);
 			static std::vector<std::vector<std::string> >	getTree(const Message &obj);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
-    void PART(const Message &obj);
+    void PART(const Message &obj, Client &caller);
 	// ------------ MODE MEMBER CLASS ------------------- //
 
 	// Implementation in: Mode.cpp

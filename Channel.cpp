@@ -272,6 +272,8 @@ void Channel::rmClient(const Client &obj)
 
 	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
+		if (M_DEBUG)
+			std::cout << (**begin).getNickname() << " is a member" << std::endl;
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
 			_clients.erase(begin);
@@ -297,5 +299,5 @@ bool	Channel::isClientRight( std::string nickname, char right )
 	return (false);
 }
 
-int	Channel::getLimit() const
+size_t	Channel::getLimit() const
 {return (_limit);}

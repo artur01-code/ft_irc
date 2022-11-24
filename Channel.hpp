@@ -97,7 +97,7 @@ class Channel : public Noun
 		bool							_has_pwd;
 		bool							_invite_only;
 		std::vector<std::string>		_listInvitedClients;
-		int								_limit;
+		size_t							_limit;
 		class BanLst
 		{
 			// friend std::ostream	&operator<<(std::ostream &os, BanLst &banLst);
@@ -113,7 +113,7 @@ class Channel : public Noun
 		};
 		BanLst							_banLst;
 	public:
-		int	getLimit() const;
+		size_t	getLimit() const;
 			virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
 			virtual std::string greet() {return("Hello channel");}
 		std::vector<Client *>			_clients;

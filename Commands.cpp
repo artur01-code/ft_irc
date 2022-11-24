@@ -3,6 +3,8 @@
 #include "Message.hpp"
 #include "Server.hpp"
 #include <set>
+#include <pthread.h>
+
 
 void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
@@ -17,7 +19,7 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->JOIN(msgObj, clientObj);
 	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
-		this->PART(msgObj);
+		this->PART(msgObj, clientObj);
 	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->TOPIC(&clientObj, msgObj);
 	else if (msgObj.getCommand() == "PRIVMSG" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
@@ -167,25 +169,34 @@ std::vector<std::vector<std::string> >	Server::getTree(const Message &obj)
 }
 
 // Very, very inefficent because I am not using maps... talk to your team mates
-void	Server::PART(const Message &obj)
+void	Server::PART(const Message &obj, Client &caller)
 {
-	typedef std::vector<Channel>::iterator	iterator;
+	// typedef std::vector<Channel>::iterator	iterator;
 	typedef	std::vector<std::string>::iterator	str_iterator;
 	if (M_DEBUG)
 		std::cout << "TRIGGERED PART" << std::endl;
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
-
-	iterator begin(_v_channels.begin());
-	for (iterator end(_v_channels.end()); begin < end; begin++)
+	if (tree.size() != 1)
 	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return;
+	}
+
 		str_iterator	param_begin(tree[0].begin());
 		for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
 		{
-			if ( (*begin).getName() == *param_begin)
-				(*begin).rmClient(_conClients[_fd_client]);
+			try
+			{
+				std::map<std::string, Channel *>::iterator first_elem = _mapChannels.begin();
+
+				_mapChannels.at(*param_begin)->rmClient(caller);
+			}
+			catch (std::out_of_range &e)
+			{
+				sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, *param_begin));
+			}
 		}
-	}
 }
 
 void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign)
@@ -265,12 +276,12 @@ void	Server::JOIN(const Message &obj, Client &caller)
 					return ;
 				}
 			}
-			// check if banned
-			if (chany->isClientRight(_conClients[_fd_client].getUsername(), 'b'))
-			{
-				sendMessage(&caller, ERR_BANNEDFROMCHAN(&caller, *chanelname1));
-				return ;
-			}
+			// check if banned -> first implement banlist.
+			// if (chany->isClientRight(_conClients[_fd_client].getUsername(), 'b'))
+			// {
+			// 	sendMessage(&caller, ERR_BANNEDFROMCHAN(&caller, *chanelname1));
+			// 	return ;
+			// }
 			if (chany->getLimit() == chany->_clients.size())
 			{
 				sendMessage(&caller, ERR_CHANNELISFULL(&caller, *chanelname1));
@@ -287,8 +298,20 @@ void	Server::JOIN(const Message &obj, Client &caller)
 		}
 		else
 		{
-			_v_channels.push_back(Channel(*chanelname1));
-			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, &_v_channels[_v_channels.size() - 1]));
+			if (M_DEBUG)
+				std::cout << "Creating new channel" << std::endl;
+			// To have no pointers invalidated in case of reallocation
+			{
+				void *before_realloc = reinterpret_cast<void *>(_v_channels.begin().base());
+				_v_channels.push_back(Channel(*chanelname1));
+				_mapChannels.clear();
+				std::vector<Channel>::iterator	begin(_v_channels.begin());
+				for (std::vector<Channel>::iterator end(_v_channels.end()); begin < end; begin++)
+					_mapChannels.insert(std::pair<std::string, Channel *>(begin->getName(), &(*begin)));
+				_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, &_v_channels[_v_channels.size() - 1]));
+			}
+
+			// TAG
 			_v_channels[_v_channels.size() - 1].addClient(_conClients[_fd_client]);
 		}
 		key++;
