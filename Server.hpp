@@ -58,6 +58,7 @@ class Server {
     int _kq_fd;
     int _port;
     int _server_fd;
+    int _max;
     // kevent data struct info
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
@@ -88,8 +89,9 @@ class Server {
     int examineAndRead();
     int addConnection(int fd);
     void sendMessage(Client *client, std::string message);
-	void addClient(int fd_client, sockaddr_in addrinfo_client,
-std::string server_ipaddr);
+    void addClient(int fd_client, sockaddr_in addrinfo_client,
+                   std::string server_ipaddr);
+    void deleteClient(int fd, Client *client);
 
     // Client *getClientFd(int fd);
 
@@ -98,10 +100,11 @@ std::string server_ipaddr);
     std::string getServerName();
     std::string getHost();
     std::string getMotd();
+    int getMax(void) const { return _max; }
     // setter
     void setPassword(std::string param_password);
     void setKEvent();
-
+    void setMax(int max) { _max = max; }
 
     std::vector<Client *> _Client;
 
@@ -112,11 +115,16 @@ std::string server_ipaddr);
     void NICK(const Message &obj, Client &clientObj);
     void PASS(const Message &obj);
     void JOIN(const Message &obj);
-			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
+
+	void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj);
     void MODE(const Message &obj);
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
+
+    void QUIT(const Message &obj, Client &clientObj);
+
+
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
     std::string ERR_NOSUCHSERVER(Client *client);

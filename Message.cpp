@@ -22,6 +22,7 @@ Message::Message(const std::string &input) {
                   << END << std::endl;
 }
 
+
 Message &Message::operator=(const Message &rhs) {
     this->_prefix = rhs._prefix;
     this->_command = rhs._command;

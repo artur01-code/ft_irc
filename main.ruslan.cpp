@@ -6,7 +6,7 @@
 /*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-/*   Updated: 2022/11/16 13:49:42 by rkultaev         ###   ########.fr       */
+/*   Updated: 2022/11/23 17:54:58 by rkultaev         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ int addConnection(int fd) {
         error_message("appending clients issue!");
         return ERROR;
     }
+
     clients[i].fd = fd;
     return 0;
 }

@@ -28,6 +28,7 @@ class Client
 		std::string	_username;
 		int			_regFlag;
 		std::map<std::string, Channel *> _channels;
+		std::map<int, Client *> _clients;
 
 	public:
 		Client();
@@ -57,10 +58,46 @@ class Client
 		void								setChannels(std::map<std::string, Channel *> channels);
 
 		void printAttributes(void);
+
 		bool	operator==(const Client &obj) const
 		{
 			return (_socket == obj.getSocket());
 		}
+
+		// void add(Client *client) {
+		// 	_clients.insert(std::pair<int, Client *>(client->getSocket(), client));
+		// }
+		// // void remove(Client *client) {
+		// // 	_clients.erase(std::pair<int, Client *>(client->getSocket(), client));
+		// // }
+		// Client *findByNickName(std::string nick_name) {
+
+		// 	std::map<int, Client *>::iterator begin = _clients.begin();
+		// 	for (; begin != _clients.end(); begin++) {
+		// 		if (begin->second != NULL && nick_name == begin->second->getNickname())
+		// 			return begin->second;
+		// 	}
+		// 	return NULL;
+		// }
+
+		// bool contains(std::string nick_name) {
+		// 	return (this->findByNickName(nick_name) != nullptr);
+		// }
+
+		// bool contains(int socket) {
+		// 	return (_clients.count(socket) == 1);
+		// }
+
+		// Client *findBySocket(int socket_fd) {
+		// 	if (!this->contains(socket_fd))
+		// 		return NULL;
+		// 	return _clients[socket_fd];
+		// }
+
+		// void remove(int socket_fd) {
+		// 	_clients.erase(socket_fd);
+		// }
+
 };
 
 std::ostream	&operator<<(std::ostream &os, Client &obj);
