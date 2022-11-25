@@ -41,6 +41,7 @@ class Server {
     typedef std::map<int, Client>::iterator it;
 
    private:
+    std::string	_operPwd;
     std::string _password;
     struct sockaddr_in _address;
     std::map<std::string, Client *> _regClients;
@@ -167,6 +168,7 @@ std::string server_ipaddr);
 	void OPER(const Message &msgObj, Client &clientObj);
 
     /*---ERRORS---*/
+	std::string	ERR_NOOPERHOST(); // WILD
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
     std::string ERR_NOSUCHSERVER(Client *client);
     std::string ERR_NOSUCHCHANNEL(Client *client, std::string channel);
@@ -199,12 +201,13 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
-	std::string	RPL_INVITING(Client *caller, Channel *channel);
-	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
-	std::string	RPL_UMODEIS(Client *caller, Client *object);
-	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
-	std::string	RPL_BANLIST(Client *caller, Channel *channel);
-	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
+	std::string	RPL_YOUAREOPER();
+	std::string	RPL_INVITING(Client *caller, Channel *channel); // Wild
+	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel); // Wild
+	std::string	RPL_UMODEIS(Client *caller, Client *object); // Wild
+	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object); // Wild
+	std::string	RPL_BANLIST(Client *caller, Channel *channel); // Wild
+	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel); // Wild
 	std::string	RPL_AWAY(Client *client, std::string message);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);

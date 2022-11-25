@@ -32,9 +32,38 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->INVITE(msgObj, clientObj);
 	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->KICK(msgObj, clientObj);
-	// else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
-	// 	this->OPER(msgObj, clientObj);
+	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->OPER(msgObj, clientObj);
 	//call channel commands
+}
+
+void Server::OPER(const Message &obj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+
+	reduced_tree = reduce(getTree(obj));
+	if (reduced_tree.size() != 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return ;
+	}
+	if (reduced_tree[1] != _operPwd)
+	{
+		sendMessage(&caller, ERR_PASSWDMISMATCH(&caller));
+		return ;
+	}
+	Client *newOper;
+	try
+	{
+		newOper = _regClients.at(reduced_tree[0]);
+		newOper->setMeOperator();
+	}
+	catch(std::out_of_range &e)
+	{
+		sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+		return ;
+	}
+	sendMessage(newOper, RPL_YOUAREOPER());
 }
 
 void Server::KICK(const Message &msgObj, Client &caller)

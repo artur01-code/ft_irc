@@ -1,5 +1,16 @@
 #include "Server.hpp"
 
+std::string	Server::ERR_NOOPERHOST() // Wild
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 909 ";
+	msg += ": You are not an operator";
+	msg += "\r\n";
+	return (msg);
+}
+
 std::string	Server::ERR_NOSUCHNICK(Client *client, std::string nick)
 {
 	std::string msg;

@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-const std::string Client::_alphabet = "abcd";
+const std::string Client::_alphabet = "o";
 RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
 
 std::string	Client::greet()
@@ -24,11 +24,21 @@ int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
 	(void)caller;
 	(void)obj;
+	if ('o' && active)
+		return (0);
 	if (_alphabet.find(flag) == std::string::npos)
 		return (1);
 	_charRuleSetter(_globalClientMode, flag, active);
-	std::cout << *this << std::endl;
+	if (M_DEBUG)
+		std::cout << *this << std::endl;
 	return (0);
+}
+
+void Client::setMeOperator()
+{
+	if (_alphabet.find('o') == std::string::npos)
+		return ;
+	_charRuleSetter(_globalClientMode, 'o', true);
 }
 
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)

@@ -2,21 +2,6 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-// // <OPER>
-// void Server::OPER(const Message &obj, Client &caller)
-// {
-// 	std::vector<std::string >				reduced_tree;
-
-// 	reduced_tree = reduce(getTree(obj));
-// 	if (reduced_tree.size() < 1)
-// 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput());
-// 	try
-// 	{
-		
-// 	}
-// }
-// </OPER>
-
 Server::MODE_CLASS::MODE_CLASS(Server &server) : _server(server)
 {
 }

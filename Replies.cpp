@@ -1,5 +1,16 @@
 #include "Server.hpp"
 
+std::string	Server::RPL_YOUAREOPER()
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 381 ";
+	msg += ":You are now an IRC operator\r\n";
+
+	return(msg);
+}
+
 std::string	Server::RPL_INVITING(Client *caller, Channel *channel)
 {
 	std::string	msg;

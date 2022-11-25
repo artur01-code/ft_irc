@@ -43,6 +43,7 @@ class Client : public Noun
 		id_t		_modes;
 	public:
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
+			void setMeOperator();
 			virtual std::string greet();
 		Client();
 		Client(std::string nickname);
