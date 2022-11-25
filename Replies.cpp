@@ -1,5 +1,16 @@
 #include "Server.hpp"
 
+std::string	Server::RPL_INVITING(Client *caller, Channel *channel)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 389 ";
+	msg += caller->getNickname() + " ";
+	msg += "has invited you to join " + channel->getName() + "\r\n";
+	return (msg);
+}
+
 std::string	Server::RPL_ENDOFBANLIST(Client *caller, Channel *channel)
 {
 	std::string	msg;

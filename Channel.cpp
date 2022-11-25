@@ -176,7 +176,7 @@ std::string	Channel::getName() const
 }
 
 // NAME CONSTRUCTOR
-Channel::Channel(std::string name) : _name(name),  _channel_rules(0), intRuleSetter(_alphabet), charRuleSetter(_clientAlphabet), _has_pwd(false), _invite_only(false), _limit(69)
+Channel::Channel(std::string name) : _name(name),  _channel_rules(0), intRuleSetter(_alphabet), charRuleSetter(_clientAlphabet), _has_pwd(false), _limit(69)
 {
 }
 
@@ -230,7 +230,7 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 	for (std::vector<Client *>::iterator	clients_begin(channy._clients.begin()); clients_begin < clients_end; clients_begin++)
 	{
 		os << **clients_begin;
-		os << "Rights: " << channy._clientAlphabet[log2(channy.client_rights[ (*clients_begin)->getNickname()])] << std::endl << std::endl; // print only works for one mode at a time!
+		// os << "Rights: " << channy._clientAlphabet[log2(channy.client_rights[ (*clients_begin)->getNickname()])] << std::endl << std::endl; // print only works for one mode at a time!
 	}
 	os << "Rules: ";
 	for (size_t i = 1; i <= 256; i <<= 1)
@@ -295,16 +295,6 @@ void	Channel::setPwd(const std::string &newPwd, bool active)
 	_pwd = newPwd;
 }
 
-bool	Channel::getInvite_only() const
-{
-	return (_invite_only);
-}
-
-void	Channel::setInvite_only(bool newIO)
-{
-	_invite_only = newIO;
-}
-
 const std::vector<std::string>	&Channel::getInvitedClients() const
 {
 	return (_listInvitedClients);
@@ -312,7 +302,6 @@ const std::vector<std::string>	&Channel::getInvitedClients() const
 
 void	Channel::addInvitedClients(std::string newInvite)
 {
-	_invite_only = true;
 	_listInvitedClients.push_back(newInvite);
 }
 
@@ -342,10 +331,16 @@ int	Channel::isChannelRule(char rule) // tested
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
+	if (right == 'o') // The owner is also operator.
+	{
+		if (isClientRight(nickname, 'x'))
+		{
+			return (true);
+		}
+	}
 	int	flag = flag_val(_clientAlphabet, right);
 
 	return (client_rights[nickname] & flag);
-	return (false);
 }
 
 size_t	Channel::getLimit() const

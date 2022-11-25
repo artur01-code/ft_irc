@@ -123,6 +123,17 @@ std::string server_ipaddr);
 
 	// Implementation in: Mode.cpp
 	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
+	template <class Data>
+	static std::vector<Data> reduce(std::vector<std::vector<Data> > vector) // Fields are not comma separated, therefore we can reduce them
+	{
+		typedef	typename std::vector<std::vector<Data> >::iterator	iterator;
+		std::vector<Data>	ret;
+
+		iterator	end(vector.end());
+		for (iterator	begin(vector.begin()); begin < end; begin++)
+			ret.push_back( (*begin)[0]);
+		return (ret);
+	}
 	class MODE_CLASS
 	{
 		private:
@@ -143,17 +154,6 @@ std::string server_ipaddr);
 			void	recursive_part(std::vector<std::string> &remainder, Client &caller); // Handling multiple objects
 			void	operator()(const Message &obj, Client &caller);
 			bool	internal_state(Client &caller, std::vector<std::string> &remainder);
-			template <class Data>
-			std::vector<Data> reduce(std::vector<std::vector<Data> > vector) const // Fields are not comma separated, therefore we can reduce them
-			{
-				typedef	typename std::vector<std::vector<Data> >::iterator	iterator;
-				std::vector<Data>	ret;
-
-				iterator	end(vector.end());
-				for (iterator	begin(vector.begin()); begin < end; begin++)
-					ret.push_back( (*begin)[0]);
-				return (ret);
-			}
 	};
 	// ------------ </MODE MEMBER CLASS> ------------------- //
     MODE_CLASS MODE;
@@ -162,6 +162,8 @@ std::string server_ipaddr);
 	void PRIVMSG(Client *cl, const Message &msg);
     void PASS(const Message &msgObj, Client &clientObj);
     void NAMES(const Message &msgObj, Client &clientObj);
+	void INVITE(const Message &msgObj, Client &clientObj);
+	void OPER(const Message &msgObj, Client &clientObj);
 
     /*---ERRORS---*/
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
@@ -196,6 +198,7 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
+	std::string	RPL_INVITING(Client *caller, Channel *channel);
 	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
 	std::string	RPL_UMODEIS(Client *caller, Client *object);
 	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);

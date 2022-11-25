@@ -95,7 +95,6 @@ class Channel : public Noun
 		RuleSetter<int>					intRuleSetter;
 		RuleSetter<char>				charRuleSetter;
 		bool							_has_pwd;
-		bool							_invite_only;
 		std::vector<std::string>		_listInvitedClients;
 		size_t							_limit;
 		class BanLst
@@ -142,8 +141,6 @@ class Channel : public Noun
 		std::string getPwd() const;
 		bool	getHasPwd() const;
 		void	setPwd(const std::string &newPwd, bool active = true);
-		bool	getInvite_only() const;
-		void	setInvite_only(bool newIO);
 
 		const std::vector<std::string>	&getInvitedClients() const;
 		void	addInvitedClients(std::string newInvite);
@@ -155,7 +152,6 @@ class Channel : public Noun
 
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);
-		int	hasClient(Client *client);
 		friend std::ostream	&operator<<(std::ostream &os, Channel &channy);
 };
 

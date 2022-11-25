@@ -28,7 +28,62 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->MODE(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NAMES(msgObj, clientObj);
+	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->INVITE(msgObj, clientObj);
+	// else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	// 	this->OPER(msgObj, clientObj);
 	//call channel commands
+}
+
+void Server::INVITE(const Message &msgObj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+	Channel *channel = NULL;
+	Client *guest = NULL;
+
+	reduced_tree = reduce(getTree(msgObj));
+	if (reduced_tree.size() != 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
+		return ;
+	}
+	// string to objects
+	{
+		try
+		{
+			channel = _mapChannels.at(reduced_tree[1]);
+			if (!channel->contains(caller))
+			{
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				return ;
+			}
+			if (channel->isChannelRule('i') && !channel->isClientRight(caller.getNickname(), 'o'))
+			{
+				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			return ;
+		}
+		try
+		{
+			guest = _regClients.at(reduced_tree[0]);
+			if (channel->contains(*guest))
+			{
+				sendMessage(&caller, ERR_USERONCHANNEL(&caller, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+			return ;
+		}
+	}
+	channel->addInvitedClients(guest->getNickname());
+	sendMessage(guest, RPL_INVITING(&caller, channel));
 }
 
 /*
@@ -274,20 +329,15 @@ void	Server::JOIN(const Message &obj, Client &caller)
 					return ;
 				}
 			}
-			if (chany->getInvite_only())
+			if (chany->isChannelRule('i'))
 			{
+				std::cout << "IS EXECUTED" << std::endl;
 				if (!chany->InviteContains(_conClients[_fd_client]))
 				{
 					sendMessage(&caller, ERR_INVITEONLYCHAN(&caller, *chanelname1));
 					return ;
 				}
 			}
-			// check if banned -> first implement banlist.
-			// if (chany->isClientRight(_conClients[_fd_client].getUsername(), 'b'))
-			// {
-			// 	sendMessage(&caller, ERR_BANNEDFROMCHAN(&caller, *chanelname1));
-			// 	return ;
-			// }
 			if (chany->getLimit() == chany->_clients.size())
 			{
 				sendMessage(&caller, ERR_CHANNELISFULL(&caller, *chanelname1));
