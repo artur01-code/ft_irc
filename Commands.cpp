@@ -42,12 +42,26 @@ void Server::KICK(const Message &msgObj, Client &caller)
 	std::vector<std::string>	reduced_tree;
 	Channel *channel = NULL;
 	Client *snitch = NULL;
+	std::string	comment = "";
 
 	reduced_tree = reduce(getTree(msgObj));
-	if (reduced_tree.size() != 2)
+	if (reduced_tree.size() < 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
 		return ;
+	}
+	if (reduced_tree.size() > 2)
+	{
+		try
+		{
+			for (size_t i = 2; ; i++)
+			{
+				reduced_tree.at(i);
+				comment += reduced_tree[i] + " ";
+			}
+		}
+		catch(std::out_of_range)
+		{}
 	}
 	// string to objects
 	{
@@ -86,6 +100,8 @@ void Server::KICK(const Message &msgObj, Client &caller)
 		}
 	}
 	PART(Message("PART " + channel->getName()), *snitch);
+	if (comment != "")
+		sendMessage(snitch, "Banned from " + channel->getName() + " reason: " + comment + "\r\n");
 }
 
 void Server::INVITE(const Message &msgObj, Client &caller)
