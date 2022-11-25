@@ -30,9 +30,62 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->NAMES(msgObj, clientObj);
 	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->INVITE(msgObj, clientObj);
+	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->KICK(msgObj, clientObj);
 	// else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 	// 	this->OPER(msgObj, clientObj);
 	//call channel commands
+}
+
+void Server::KICK(const Message &msgObj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+	Channel *channel = NULL;
+	Client *snitch = NULL;
+
+	reduced_tree = reduce(getTree(msgObj));
+	if (reduced_tree.size() != 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
+		return ;
+	}
+	// string to objects
+	{
+		try
+		{
+			channel = _mapChannels.at(reduced_tree[1]);
+			if (!channel->contains(caller))
+			{
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				return ;
+			}
+			if (!channel->isClientRight(caller.getNickname(), 'o'))
+			{
+				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, reduced_tree[1]));
+			return ;
+		}
+		try
+		{
+			snitch = _regClients.at(reduced_tree[0]);
+			if (!channel->contains(*snitch))
+			{
+				sendMessage(&caller, ERR_USERNOTINCHANNEL(snitch, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+			return ;
+		}
+	}
+	PART(Message("PART " + channel->getName()), *snitch);
 }
 
 void Server::INVITE(const Message &msgObj, Client &caller)
@@ -72,7 +125,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 			guest = _regClients.at(reduced_tree[0]);
 			if (channel->contains(*guest))
 			{
-				sendMessage(&caller, ERR_USERONCHANNEL(&caller, reduced_tree[1]));
+				sendMessage(&caller, ERR_USERONCHANNEL(guest, reduced_tree[1]));
 				return ;
 			}
 		}

@@ -163,6 +163,7 @@ std::string server_ipaddr);
     void PASS(const Message &msgObj, Client &clientObj);
     void NAMES(const Message &msgObj, Client &clientObj);
 	void INVITE(const Message &msgObj, Client &clientObj);
+	void KICK(const Message &msgObj, Client &clientObj);
 	void OPER(const Message &msgObj, Client &clientObj);
 
     /*---ERRORS---*/
