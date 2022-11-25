@@ -181,7 +181,8 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 		}
 	}
 	channel->addInvitedClients(guest->getNickname());
-	sendMessage(guest, RPL_INVITING(&caller, channel));
+	sendMessage(&caller, RPL_INVITING(guest, channel));
+	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
 }
 
 /*

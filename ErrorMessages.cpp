@@ -1,12 +1,12 @@
 #include "Server.hpp"
 
-std::string	Server::ERR_NOOPERHOST() // Wild
+std::string	Server::ERR_NOOPERHOST()
 {
 	std::string	msg;
 
 	msg += ":" + this->getServerName();
 	msg += " 909 ";
-	msg += ": You are not an operator";
+	msg += ":No O-lines for your host";
 	msg += "\r\n";
 	return (msg);
 }

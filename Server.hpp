@@ -202,12 +202,13 @@ std::string server_ipaddr);
 
     /*---REPLIES---*/
 	std::string	RPL_YOUAREOPER();
-	std::string	RPL_INVITING(Client *caller, Channel *channel); // Wild
-	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel); // Wild
-	std::string	RPL_UMODEIS(Client *caller, Client *object); // Wild
-	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object); // Wild
-	std::string	RPL_BANLIST(Client *caller, Channel *channel); // Wild
-	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel); // Wild
+	std::string	RPL_INVITINGOBJECT(Client *caller, Channel *channel); // costume (not in protocol but usefull)
+	std::string	RPL_INVITING(Client *invited, Channel *invitedTo);
+	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
+	std::string	RPL_UMODEIS(Client *caller, Client *object);
+	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
+	void		RPL_BANLIST(Client *caller, Channel *channel);
+	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
 	std::string	RPL_AWAY(Client *client, std::string message);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);

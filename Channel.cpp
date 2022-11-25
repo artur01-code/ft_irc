@@ -346,20 +346,19 @@ bool	Channel::isClientRight( std::string nickname, char right )
 size_t	Channel::getLimit() const
 {return (_limit);}
 
-std::string		Channel::getBanLst() const
+std::vector<std::string>	Channel::getBanLst() const
 {
-	std::string	banLst;
+	std::vector<std::string>	ret;
+
 	std::set<t_names>	structs = _banLst.getPatterns();
 	if (structs.size() == 0)
-		banLst += "empty";
+	{
+		ret.push_back("empty");
+	}
 	std::set<t_names>::iterator	begin(structs.begin());
 	for (std::set<t_names>::iterator end(structs.end()); begin != end; begin++)
-	{
-		banLst += "nick: " + (*begin).nick + " | ";
-		banLst += "user: " + (*begin).user + " | ";
-		banLst += "host: " + (*begin).host + "\r\n";
-	}
-	return (banLst);
+		ret.push_back((*begin).nick + "!" + (*begin).user + "@" + (*begin).host);
+	return (ret);
 }
 
 std::string			Channel::getEndBanLst() const

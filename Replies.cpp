@@ -11,7 +11,19 @@ std::string	Server::RPL_YOUAREOPER()
 	return(msg);
 }
 
-std::string	Server::RPL_INVITING(Client *caller, Channel *channel)
+std::string	Server::RPL_INVITING(Client *invited, Channel *invitedTo)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 341 ";
+	msg += invitedTo->getName() + " ";
+	msg += invited->getNickname() + "\r\n";
+
+	return (msg);
+}
+
+std::string	Server::RPL_INVITINGOBJECT(Client *caller, Channel *channel)
 {
 	std::string	msg;
 
@@ -24,12 +36,13 @@ std::string	Server::RPL_INVITING(Client *caller, Channel *channel)
 
 std::string	Server::RPL_ENDOFBANLIST(Client *caller, Channel *channel)
 {
+	(void)caller;
 	std::string	msg;
 
 	msg += ":" + this->getServerName();
-	msg += " 334 ";
-	msg += caller->getNickname() + " ";
-	msg += ": " + channel->getEndBanLst();
+	msg += " 368 ";
+	msg += channel->getName() + " ";
+	msg += ":End of channel ban list\r\n";
 	return (msg);
 }
 
@@ -38,9 +51,9 @@ std::string	Server::RPL_UMODEIS(Client *caller, Channel *channel, Client *object
 	std::string	msg;
 
 	msg += ":" + this->getServerName();
-	msg += " 371 ";
+	msg += " costume ";
 	msg += caller->getNickname() + " on " + channel->getName() + " ";
-	msg += ": " + channel->channelUsrModes(object);
+	msg += ": +" + channel->channelUsrModes(object);
 	msg += "\r\n";
 	return (msg);
 }
@@ -50,22 +63,29 @@ std::string	Server::RPL_UMODEIS(Client *caller, Client *object)
 	std::string	msg;
 
 	msg += ":" + this->getServerName();
-	msg += " 370 ";
+	msg += " 221 ";
 	msg += caller->getNickname() + " ";
 	msg += ": " + object->modeStr();
 	msg += "\r\n";
 	return (msg);
 }
 
-std::string	Server::RPL_BANLIST(Client *caller, Channel *channel)
+void	Server::RPL_BANLIST(Client *caller, Channel *channel)
 {
 	std::string	msg;
+	std::vector<std::string>	banids = channel->getBanLst();
+	std::vector<std::string>::iterator	begin(banids.begin());
+	for (std::vector<std::string>::iterator	end(banids.end()); begin < end; begin++)
+	{
+		msg += ":" + this->getServerName();
+		msg += " 324 ";
+		msg += channel->getName() + " ";
+		msg += *begin + "\r\n";
 
-	msg += ":" + this->getServerName();
-	msg += " 333 ";
-	msg += caller->getNickname() + " ";
-	msg += ": " + channel->getBanLst();
-	return (msg);
+		sendMessage(caller, msg);
+		msg = "";
+	}
+	sendMessage(caller, RPL_ENDOFBANLIST(caller, channel));
 }
 
 std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
@@ -73,9 +93,9 @@ std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
 	std::string	msg;
 
 	msg += ":" + this->getServerName();
-	msg += " 369 ";
-	msg += client->getNickname() + " ";
-	msg += ": +" + channel->ModeStr();
+	msg += " 324 ";
+	msg += client->getNickname() +  " ";
+	msg += channel->getName() + " +" + channel->ModeStr();
 	msg += "\r\n";
 	return (msg);
 }

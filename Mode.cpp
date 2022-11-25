@@ -97,14 +97,14 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 			}
 			else if (_flags == "banlist")
 			{
-				_server.sendMessage(&caller, _server.RPL_BANLIST(&caller, reinterpret_cast<Channel *>(_subject)));
+				_server.RPL_BANLIST(&caller, reinterpret_cast<Channel *>(_subject));
 				return (false);
 			}
-			else if (_flags == "eobanlist")
-			{
-				_server.sendMessage(&caller, _server.RPL_ENDOFBANLIST(&caller, reinterpret_cast<Channel *>(_subject)));
-				return (false);
-			}
+			// else if (_flags == "eobanlist")
+			// {
+			// 	_server.sendMessage(&caller, _server.RPL_ENDOFBANLIST(&caller, reinterpret_cast<Channel *>(_subject)));
+			// 	return (false);
+			// }
 		}
 		catch (std::out_of_range &e)
 		{
