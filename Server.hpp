@@ -134,6 +134,19 @@ std::string server_ipaddr);
 			ret.push_back( (*begin)[0]);
 		return (ret);
 	}
+	template <class Key, class Data>
+	static std::set<Data> reduce(std::map<Key, Data> map)
+	{
+		typedef typename std::map<Key, Data>::iterator	mIter;
+		std::set<Data>	ret;
+
+		mIter	begin(map.begin());
+		for (mIter end(map.end()); begin != end; begin++)
+		{
+			ret.insert((*begin).second);
+		}
+		return (ret);
+	}
 	class MODE_CLASS
 	{
 		private:

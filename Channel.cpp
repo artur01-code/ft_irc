@@ -210,6 +210,16 @@ void Channel::addClient(Client &obj)
 		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
 	// Extend the list the given Client is apartisan of:
 	obj.addChannel(this);
+	if (M_DEBUG)
+	{
+		std::map<std::string, Channel *> local = obj.getChannels();
+		std::map<std::string, Channel *>::iterator	begin(local.begin());
+		for (std::map<std::string, Channel *>::iterator	end(local.end()); begin != end; begin++)
+		{
+			std::cout << "Aparisan of:" << std::endl;
+			std::cout << *(begin->second) << std::endl;
+		}
+	}
 }
 
 std::string	Channel::ModeStr()

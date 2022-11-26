@@ -41,6 +41,40 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 
 void Server::WHO(const Message &obj, Client &caller)
 {
+	(void)obj;
+	std::set<Channel *> base = reduce(caller.getChannels());
+	if (M_DEBUG)
+	{
+		std::set<Channel *>::iterator	begin(base.begin());
+		for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
+		{
+			std::cout << "Base channels from WHO" << std::endl;
+			std::cout << **begin << std::endl;
+		}
+	}
+	std::set<Client *>	commonClients;
+
+	std::set<Channel *>::iterator	channel(base.begin());
+	for (std::set<Channel *>::iterator	end(base.end()); channel != end; channel++)
+	{
+		std::vector<Client *>::iterator	eachClient((*channel)->_clients.begin());
+		for (std::vector<Client *>::iterator	eachClientEnd((*channel)->_clients.end()); eachClient < eachClientEnd; eachClient++)
+		{
+			if (!(*channel)->isClientRight((*eachClient)->getNickname(), 'i')) // only add the user if he is not marked as invisible on the common channel
+				commonClients.insert(*eachClient);
+		}
+	}
+
+	commonClients.erase(&caller);
+	if (M_DEBUG)
+	{
+		std::set<Client *>::iterator	commonClientsBegin(commonClients.begin());
+		for (std::set<Client *>::iterator	commonClientsEnd(commonClients.end()); commonClientsBegin != commonClientsEnd; commonClientsBegin++)
+		{
+			std::cout << "WHO: common clients:" << std::endl;
+			std::cout << (*commonClientsBegin)->getNickname() << std::endl;
+		}
+	}
 }
 
 void Server::OPER(const Message &obj, Client &caller)
