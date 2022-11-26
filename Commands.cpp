@@ -75,6 +75,26 @@ void Server::WHO(const Message &obj, Client &caller)
 			std::cout << (*commonClientsBegin)->getNickname() << std::endl;
 		}
 	}
+
+	std::vector<std::string> reduced_tree = reduce(getTree(obj));
+	if (reduced_tree.size() < 1 || reduced_tree.size() > 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return ;
+	}
+	std::set<Client *>	nickRet;
+	{
+		std::set<Client *>::iterator	toFilter(commonClients.begin());
+		for (std::set<Client *>::iterator	toFilterEnd(commonClients.end()); toFilter != toFilterEnd; toFilter++)
+		{
+			if (strMatch((*toFilter)->getNickname(), reduced_tree[0]))
+				nickRet.insert(*toFilter);
+		}
+	}
+	if (nickRet.size() > 0)
+	{
+		return ;
+	}
 }
 
 void Server::OPER(const Message &obj, Client &caller)
