@@ -165,9 +165,19 @@ std::map<std::string, Channel *> Client::getChannels(void) const
 	return (this->_channels);
 }
 
-void Client::setChannels(std::map<std::string, Channel *> channels)
+void Client::addChannel(Channel *ptr)
 {
-	this->_channels = channels;
+	this->_channels.insert(std::pair<std::string, Channel *>(ptr->getName(), ptr));
+}
+
+void Client::subtractChannel(std::string name)
+{
+	this->_channels.erase(name);
+}
+
+void Client::subtractChannel(Channel *ptr)
+{
+	this->_channels.erase(ptr->getName());
 }
 
 void Client::printAttributes(void)

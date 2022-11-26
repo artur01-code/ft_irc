@@ -71,7 +71,9 @@ class Client : public Noun
 		bool		checkMode(char c);  
 
 		std::map<std::string, Channel *>	getChannels(void) const;
-		void								setChannels(std::map<std::string, Channel *> channels);
+		void	addChannel(Channel *ptr);
+		void	subtractChannel(std::string name);
+		void	subtractChannel(Channel *ptr);
 
 		void printAttributes(void);
 		bool	addMode(int mode);

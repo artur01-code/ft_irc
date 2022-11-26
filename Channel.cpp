@@ -202,12 +202,14 @@ void Channel::addClient(Client &obj)
 	}
 	if (M_DEBUG)
 		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
-	
+
 	_clients.push_back(&obj);
 	if (_clients.size() == 1) // Add owner rights.
 		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), flag_val(_clientAlphabet, 'x')));
 	else
 		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
+	// Extend the list the given Client is apartisan of:
+	obj.addChannel(this);
 }
 
 std::string	Channel::ModeStr()
