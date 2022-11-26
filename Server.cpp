@@ -29,7 +29,12 @@ Server::Server(int port, std::string ip_address) : _v_channels(), _mapChannels()
 }
 
 //--------------DESTRUCTOR-------------//
-Server::~Server() {}
+Server::~Server()
+{
+	std::vector<Channel *>::iterator	free_begin(_v_channels.begin());
+	for (std::vector<Channel *>::iterator	free_end(_v_channels.end()); free_begin < free_end; free_begin++)
+		delete *(free_begin);
+}
 
 std::string Server::getServerName() { return (this->_servername); }
 std::string Server::getHost() { return (this->_host); }
