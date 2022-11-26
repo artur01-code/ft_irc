@@ -50,8 +50,7 @@ class Server {
     std::string _servername;
     std::string _motd;
     std::string _password_operator;
-	// For iteration purposes   
-	std::vector<Channel>	_v_channels;
+	std::vector<Channel *>	_v_channels;
     std::map<std::string, Channel *> _mapChannels;
     std::map<int, Client> _bots;
 
@@ -166,6 +165,7 @@ std::string server_ipaddr);
 	void INVITE(const Message &msgObj, Client &clientObj);
 	void KICK(const Message &msgObj, Client &clientObj);
 	void OPER(const Message &msgObj, Client &clientObj);
+	void WHO(const Message &obj, Client &caller);
 
     /*---ERRORS---*/
 	std::string	ERR_NOOPERHOST(); // WILD

@@ -34,7 +34,13 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->KICK(msgObj, clientObj);
 	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->OPER(msgObj, clientObj);
+	else if (msgObj.getCommand() == "WHO" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->WHO(msgObj, clientObj);
 	//call channel commands
+}
+
+void Server::WHO(const Message &obj, Client &caller)
+{
 }
 
 void Server::OPER(const Message &obj, Client &caller)
@@ -205,11 +211,11 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 		if (M_DEBUG)
 			std::cout << "No parameters got passed" << std::endl << std::endl;
 		//go through each channel and in each Channel through each clients list and print all the names
-		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
+		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
 		while (itChannel != this->_v_channels.end())
 		{
-			std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
-			while (itClient != itChannel->_clients.end())
+			std::vector<Client *>::iterator itClient = (*itChannel)->_clients.begin();
+			while (itClient != (*itChannel)->_clients.end())
 			{
 				// std::cout << (*itClient)->getNickname() << std::endl;
 				names = names + " " + (*itClient)->getNickname();
@@ -223,17 +229,17 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 		if (M_DEBUG)
 			std::cout << "Parameters got passed" << std::endl << std::endl;
 		//loop through the channels that are specified and list all the nicknames
-		std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
+		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
 		int i = 0;
 		while (itChannel != this->_v_channels.end())
 		{
 			i = 0;
 			while (!vec[i].empty())
 			{
-				if (itChannel->getName() == vec[i])
+				if ((*itChannel)->getName() == vec[i])
 				{
-					std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
-					while (itClient != itChannel->_clients.end())
+					std::vector<Client *>::iterator itClient = (*itChannel)->_clients.begin();
+					while (itClient != (*itChannel)->_clients.end())
 					{
 						// std::cout << (*itClient)->getNickname() << std::endl;
 						names = names + " " + (*itClient)->getNickname();
@@ -398,12 +404,12 @@ void	Server::JOIN(const Message &obj, Client &caller)
 	{
 		Channel	*chany = NULL;
 		{
-			std::vector<Channel>::iterator chanel_list2(_v_channels.end());
-			for (std::vector<Channel>::iterator chanel_list1(_v_channels.begin()); chanel_list1 < chanel_list2; chanel_list1++)
+			std::vector<Channel *>::iterator chanel_list2(_v_channels.end());
+			for (std::vector<Channel *>::iterator chanel_list1(_v_channels.begin()); chanel_list1 < chanel_list2; chanel_list1++)
 			{
-				if ( (*chanel_list1).getName() == *chanelname1 )
+				if ( (*chanel_list1)->getName() == *chanelname1 )
 				{
-					chany = chanel_list1.base();
+					chany = (*chanel_list1.base());
 					break ;
 				}
 			}
@@ -467,17 +473,11 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			if (M_DEBUG)
 				std::cout << "Creating new channel" << std::endl;
 			// To have no pointers invalidated in case of reallocation
-			{
-				_v_channels.push_back(Channel(*chanelname1));
-				_mapChannels.clear();
-				std::vector<Channel>::iterator	begin(_v_channels.begin());
-				for (std::vector<Channel>::iterator end(_v_channels.end()); begin < end; begin++)
-					_mapChannels.insert(std::pair<std::string, Channel *>(begin->getName(), &(*begin)));
-				_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, &_v_channels[_v_channels.size() - 1]));
-			}
+			_v_channels.push_back(new Channel(*chanelname1));
+			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
 
 			// TAG
-			_v_channels[_v_channels.size() - 1].addClient(_conClients[_fd_client]);
+			_v_channels[_v_channels.size() - 1]->addClient(_conClients[_fd_client]);
 		}
 		key++;
 	}
@@ -489,9 +489,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 
 	if (M_DEBUG)
 	{
-		std::vector<Channel>::iterator	end(_v_channels.end());
-		for (std::vector<Channel>::iterator begin(_v_channels.begin()); begin < end; begin++)
-			std::cout << *begin << std::endl;
+		std::vector<Channel *>::iterator	end(_v_channels.end());
+		for (std::vector<Channel *>::iterator begin(_v_channels.begin()); begin < end; begin++)
+			std::cout << **begin << std::endl;
 	}
 }
 
@@ -568,11 +568,11 @@ void	Server::TOPIC(Client *cl, Message msg)
 	}
 	std::string channelName = msg.getParameters()[0];
 	std::string channelTopic = msg.getParameters()[1];
-	std::vector<Channel>::iterator itCh = this->_v_channels.begin();
+	std::vector<Channel *>::iterator itCh = this->_v_channels.begin();
 	bool	tmpChannelFlag = false;
 	while (itCh != this->_v_channels.end())
 	{
-		if (itCh->getName() == channelName)
+		if ((*itCh)->getName() == channelName)
 		{
 			tmpChannelFlag = true;
 			break ;
@@ -587,7 +587,7 @@ void	Server::TOPIC(Client *cl, Message msg)
 		this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, channelName));
 		return ;
 	}
-	Channel ch = *itCh;
+	Channel ch = **itCh;
 	if (!ch.contains(*cl))
 	{
 		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, channelName));
