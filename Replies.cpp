@@ -1,5 +1,128 @@
 #include "Server.hpp"
 
+// "<name> :End of /WHO list"
+std::string Server::RPL_ENDOFWHO(Client *caller)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 315 ";
+	msg += caller->getNickname();
+	msg += " :End of /WHO list\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_WHOREPLY(Channel *foundOn, Client *found)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 352 ";
+	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("* ") : ("")) + ":0 " + found->getRealname();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_YOUAREOPER()
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 381 ";
+	msg += ":You are now an IRC operator\r\n";
+
+	return(msg);
+}
+
+std::string	Server::RPL_INVITING(Client *invited, Channel *invitedTo)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 341 ";
+	msg += invitedTo->getName() + " ";
+	msg += invited->getNickname() + "\r\n";
+
+	return (msg);
+}
+
+std::string	Server::RPL_INVITINGOBJECT(Client *caller, Channel *channel)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 389 ";
+	msg += caller->getNickname() + " ";
+	msg += "has invited you to join " + channel->getName() + "\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_ENDOFBANLIST(Client *caller, Channel *channel)
+{
+	(void)caller;
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 368 ";
+	msg += channel->getName() + " ";
+	msg += ":End of channel ban list\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_UMODEIS(Client *caller, Channel *channel, Client *object)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " costume ";
+	msg += caller->getNickname() + " on " + channel->getName() + " ";
+	msg += ": +" + channel->channelUsrModes(object);
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_UMODEIS(Client *caller, Client *object)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 221 ";
+	msg += caller->getNickname() + " ";
+	msg += ": " + object->modeStr();
+	msg += "\r\n";
+	return (msg);
+}
+
+void	Server::RPL_BANLIST(Client *caller, Channel *channel)
+{
+	std::string	msg;
+	std::vector<std::string>	banids = channel->getBanLst();
+	std::vector<std::string>::iterator	begin(banids.begin());
+	for (std::vector<std::string>::iterator	end(banids.end()); begin < end; begin++)
+	{
+		msg += ":" + this->getServerName();
+		msg += " 324 ";
+		msg += channel->getName() + " ";
+		msg += *begin + "\r\n";
+
+		sendMessage(caller, msg);
+		msg = "";
+	}
+	sendMessage(caller, RPL_ENDOFBANLIST(caller, channel));
+}
+
+std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 324 ";
+	msg += client->getNickname() +  " ";
+	msg += channel->getName() + " +" + channel->ModeStr();
+	msg += "\r\n";
+	return (msg);
+}
+
 std::string	Server::RPL_AWAY(Client *client, std::string message)
 {
 	std::string msg;

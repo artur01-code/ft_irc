@@ -11,12 +11,17 @@ SRCS	=	Channel.cpp \
 			ErrorMessages.cpp \
 			Replies.cpp \
 			Mode.cpp
+INC = Channel.hpp \
+	  Client.hpp \
+	  Colors.hpp \
+	  Message.hpp \
+	  Server.hpp
 
 DFLAGS	=	-g -D M_DEBUG=1
 
 all:	${NAME}
 
-${NAME}:
+${NAME}: ${SRCS} ${INC}
 	${CC} ${MAIN} ${SRCS} -o ${NAME}
 
 docker:
