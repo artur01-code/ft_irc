@@ -50,6 +50,8 @@ void	Server::MODE_CLASS::recursive_part(std::vector<std::string> &remainder, Cli
 			case 3:
 				_server.sendMessage(&caller, _server.ERR_CHANOPRIVSNEEDED(&caller, _subject_str));
 				break ;
+			case 4:
+				_server.sendMessage(&caller, _server.ERR_KEYSET(_subject_str));
 		}
 	}
 }
@@ -100,11 +102,6 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 				_server.RPL_BANLIST(&caller, reinterpret_cast<Channel *>(_subject));
 				return (false);
 			}
-			// else if (_flags == "eobanlist")
-			// {
-			// 	_server.sendMessage(&caller, _server.RPL_ENDOFBANLIST(&caller, reinterpret_cast<Channel *>(_subject)));
-			// 	return (false);
-			// }
 		}
 		catch (std::out_of_range &e)
 		{

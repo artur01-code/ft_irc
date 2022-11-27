@@ -157,7 +157,11 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 				std::cout << *this << std::endl;
 			}
 			if (flag == 'k')
+			{
+				if (active && _has_pwd)
+					return (4); // ERR_KEYSET()
 				setPwd(str->content, active);
+			}
 			else if (flag == 'l')
 			{
 				if (isNum(str->content))

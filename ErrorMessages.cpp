@@ -1,5 +1,15 @@
 #include "Server.hpp"
 
+std::string	Server::ERR_KEYSET(std::string channelName)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 467 ";
+	msg += channelName + " :Channel key already set\r\n";
+	return (msg);
+}
+
 std::string	Server::ERR_NOOPERHOST()
 {
 	std::string	msg;
