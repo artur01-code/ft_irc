@@ -460,20 +460,20 @@ std::string	Channel::channelUsrModes(Client *object)
 
 static void	sendMessage(Client &to, std::string &msg)
 {
-	std::cout << "This shit is nontheless triggered" << std::endl;
-	send(to.getSocket(), msg.c_str(), msg.size(), 0);
+	if (to.getSocket() == ERROR)
+		return ;
+	
+	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
+		throw Server::SendException();
 }
 
 void	Channel::broadcast(Client &caller, std::string msg)
 {
-	std::cout << "Triggered1" << std::endl;
 	std::vector<Client *>::iterator	aMemberBeg(_clients.begin());
 	for (std::vector<Client *>::iterator aMemberEnd(_clients.end()); aMemberBeg < aMemberEnd; aMemberBeg++)
 	{
-		std::cout << "Triggered2" << std::endl;
 		if (*aMemberBeg == &caller)
 			continue ;
-		std::cout << "Triggered3" << std::endl;
 		sendMessage(**aMemberBeg, msg);
 	}
 }
