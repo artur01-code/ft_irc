@@ -149,7 +149,7 @@ class Channel : public Noun
 		bool    removeMode(int mode);
 
 		void addClient(Client &obj);
-		void rmClient(const Client &obj);
+		void rmClient(Client &obj);
 
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);

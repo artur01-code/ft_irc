@@ -321,10 +321,11 @@ void	Channel::addInvitedClients(std::string newInvite)
 	_listInvitedClients.push_back(newInvite);
 }
 
-void Channel::rmClient(const Client &obj)
+void Channel::rmClient(Client &obj)
 {
-	std::vector<Client *>::iterator	begin(_clients.begin());
+	obj.subtractChannel(this->getName()); // Change what channels obj is a member of.
 
+	std::vector<Client *>::iterator	begin(_clients.begin());
 	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
 		if (M_DEBUG)
@@ -332,6 +333,8 @@ void Channel::rmClient(const Client &obj)
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
 			_clients.erase(begin);
+			if (_clients.size() == 0) // No more clients left
+				throw("destroyChannel");
 			return ;
 		}
 	}
