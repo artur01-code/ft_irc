@@ -123,6 +123,7 @@ class Channel : public Noun
 		std::string	channelUsrModes(Client *object);
 		std::vector<std::string>	getBanLst() const;
 		std::string						getEndBanLst() const;
+		void	broadcast(Client &caller, std::string msg);
 
 	// Getters and setters:
 		std::string	getName() const;
@@ -148,7 +149,7 @@ class Channel : public Noun
 		bool    removeMode(int mode);
 
 		void addClient(Client &obj);
-		void rmClient(const Client &obj);
+		void rmClient(Client &obj);
 
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);

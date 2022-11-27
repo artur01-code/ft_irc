@@ -460,6 +460,14 @@ void	Server::PART(const Message &obj, Client &caller)
 			{
 				if (std::string(tunnel) == "rmClient")
 					sendMessage(&caller, ERR_NOTONCHANNEL(&caller, *param_begin));
+				else if (std::string(tunnel) == "destroyChannel")
+				{
+					apply(_v_channels, SignalEraseEqual<Channel *>(_mapChannels[*param_begin]));
+					delete _mapChannels[*param_begin];
+					_mapChannels.erase(*param_begin);
+					if (M_DEBUG)
+						apply(_mapChannels, printShit);
+				}
 			}
 		}
 		catch (std::out_of_range &e)

@@ -123,13 +123,7 @@ std::string server_ipaddr);
 
 	// Implementation in: Mode.cpp
 	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
-	template <class Iter>
-	static void apply(Iter i, void (*func)(typename Iter::value_type))
-	{
-		typename Iter::iterator	begin(i.begin());
-		for (typename Iter::iterator end(i.end()); begin != end; begin++)
-			func(*begin);
-	}
+
 	template <class Data>
 	static std::vector<Data> reduce(std::vector<std::vector<Data> > vector) // Fields are not comma separated, therefore we can reduce them
 	{
@@ -307,5 +301,93 @@ std::string server_ipaddr);
     // Server(const Server &rhs);
     // Server &operator=(const Server &rhs);
 };
+
+// <Some experimental stuff>
+
+template <class Iter>
+void apply(Iter &i, void (*func)(typename Iter::value_type))
+{
+	typename Iter::iterator	begin(i.begin());
+	for (typename Iter::iterator end(i.end()); begin != end; begin++)
+	{
+		try
+		{
+			func(*begin);
+		}
+		catch(const char *str)
+		{
+			if (std::string(str) == "erase")
+			{
+				i.erase(begin);
+			}
+		}
+	}
+}
+
+template <class Iter, class CallableObj>
+void apply(Iter &i, CallableObj obj)
+{
+	typename Iter::iterator	begin(i.begin());
+	for (typename Iter::iterator end(i.end()); begin != end; begin++)
+	{
+		try
+		{
+			obj(*begin);
+		}
+		catch(const char *str)
+		{
+			if (std::string(str) == "erase")
+				i.erase(begin);
+		}
+	}
+}
+
+template <class ValueType>
+class SignalEraseEqual
+{
+	private:
+		ValueType _compVal;
+	public:
+		SignalEraseEqual(const SignalEraseEqual &ref) : _compVal(ref._compVal) {}
+		SignalEraseEqual(ValueType compVal) : _compVal(compVal){}
+
+		void	operator()(ValueType &val)
+		{
+			if (val == _compVal)
+				throw ("erase");
+		}
+};
+
+template <class First, class Second>
+bool	operator==(First someVal ,std::pair<First, Second> pair)
+{
+	if (someVal == pair.first)
+		return (true);
+	return (false);
+}
+
+template <class First, class Second>
+bool	operator==(Second someVal ,std::pair<First, Second> pair)
+{
+	if (someVal == pair.second)
+		return (true);
+	return (false);
+}
+// </Some experimental stuff>
+
+// For debugging
+template <class First, class Second>
+std::ostream	&operator<<(std::ostream &os, std::pair<First, Second> pair)
+{
+	os << pair.first;
+	return (os);
+}
+
+template <class ValueType>
+void printShit(ValueType v)
+{
+	std::cout << v << std::endl;
+}
+
 
 #endif
