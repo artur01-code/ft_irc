@@ -123,6 +123,13 @@ std::string server_ipaddr);
 
 	// Implementation in: Mode.cpp
 	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
+	template <class Iter>
+	static void apply(Iter i, void (*func)(typename Iter::value_type))
+	{
+		typename Iter::iterator	begin(i.begin());
+		for (typename Iter::iterator end(i.end()); begin != end; begin++)
+			func(*begin);
+	}
 	template <class Data>
 	static std::vector<Data> reduce(std::vector<std::vector<Data> > vector) // Fields are not comma separated, therefore we can reduce them
 	{
@@ -214,6 +221,8 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
+	std::string RPL_ENDOFWHO(Client *caller);
+	std::string	RPL_WHOREPLY(Channel *foundOn, Client *found);
 	std::string	RPL_YOUAREOPER();
 	std::string	RPL_INVITINGOBJECT(Client *caller, Channel *channel); // costume (not in protocol but usefull)
 	std::string	RPL_INVITING(Client *invited, Channel *invitedTo);

@@ -39,10 +39,43 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	//call channel commands
 }
 
+void searchMatch(std::map<Client *, Channel *> &ret, std::map<Client *, Channel *> &commonClients, std::string &pattern, std::string whatName)
+{
+	std::map<Client *, Channel * >::iterator	toFilter(commonClients.begin());
+	for (std::map<Client *, Channel *>::iterator	toFilterEnd(commonClients.end()); toFilter != toFilterEnd; toFilter++)
+	{
+		if (whatName == "user")
+		{
+			if (strMatch((*toFilter).first->getUsername(), pattern))
+				ret.insert(*toFilter);
+		}
+		else if (whatName == "host")
+		{
+			if (strMatch((*toFilter).first->getHostname(), pattern))
+				ret.insert(*toFilter);
+		}
+		else if (whatName == "real")
+		{
+			if (strMatch((*toFilter).first->getRealname(), pattern))
+				ret.insert(*toFilter);
+		}
+		else if (whatName == "nick")
+		{
+			if (strMatch((*toFilter).first->getNickname(), pattern))
+				ret.insert(*toFilter);
+		}
+	}
+}
+
 void Server::WHO(const Message &obj, Client &caller)
 {
 	(void)obj;
 	std::set<Channel *> base = reduce(caller.getChannels());
+	if (base.size() == 0)
+	{
+		ERR_NOSUCHCHANNEL(&caller, "ANY");
+		return ;
+	}
 	if (M_DEBUG)
 	{
 		std::set<Channel *>::iterator	begin(base.begin());
@@ -52,7 +85,8 @@ void Server::WHO(const Message &obj, Client &caller)
 			std::cout << **begin << std::endl;
 		}
 	}
-	std::set<Client *>	commonClients;
+
+	std::map<Client *, Channel *>	commonClients;
 
 	std::set<Channel *>::iterator	channel(base.begin());
 	for (std::set<Channel *>::iterator	end(base.end()); channel != end; channel++)
@@ -61,40 +95,56 @@ void Server::WHO(const Message &obj, Client &caller)
 		for (std::vector<Client *>::iterator	eachClientEnd((*channel)->_clients.end()); eachClient < eachClientEnd; eachClient++)
 		{
 			if (!(*channel)->isClientRight((*eachClient)->getNickname(), 'i')) // only add the user if he is not marked as invisible on the common channel
-				commonClients.insert(*eachClient);
+				commonClients.insert(std::pair<Client *, Channel *>(*eachClient, *channel));
 		}
 	}
 
 	commonClients.erase(&caller);
 	if (M_DEBUG)
 	{
-		std::set<Client *>::iterator	commonClientsBegin(commonClients.begin());
-		for (std::set<Client *>::iterator	commonClientsEnd(commonClients.end()); commonClientsBegin != commonClientsEnd; commonClientsBegin++)
+		std::map<Client *, Channel *>::iterator	commonClientsBegin(commonClients.begin());
+		for (std::map<Client *, Channel *>::iterator	commonClientsEnd(commonClients.end()); commonClientsBegin != commonClientsEnd; commonClientsBegin++)
 		{
 			std::cout << "WHO: common clients:" << std::endl;
-			std::cout << (*commonClientsBegin)->getNickname() << std::endl;
+			std::cout << (*commonClientsBegin).first->getNickname() << std::endl;
 		}
 	}
 
+	// Parsing
 	std::vector<std::string> reduced_tree = reduce(getTree(obj));
 	if (reduced_tree.size() < 1 || reduced_tree.size() > 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
-	std::set<Client *>	nickRet;
+	// Filtering with operator flag
+	if (reduced_tree.size() == 2 && reduced_tree[1] == "o")
 	{
-		std::set<Client *>::iterator	toFilter(commonClients.begin());
-		for (std::set<Client *>::iterator	toFilterEnd(commonClients.end()); toFilter != toFilterEnd; toFilter++)
+		std::map<Client *, Channel *> cpy = commonClients;
+
+		std::map<Client *, Channel *>::iterator	allUsrsBeg(cpy.begin());
+		for (std::map<Client *, Channel *>::iterator	allUsrsEnd(cpy.end()); allUsrsBeg != allUsrsEnd; allUsrsBeg++)
 		{
-			if (strMatch((*toFilter)->getNickname(), reduced_tree[0]))
-				nickRet.insert(*toFilter);
+			if (!(*allUsrsBeg).first->checkMode('o'))
+				commonClients.erase((*allUsrsBeg).first);
 		}
 	}
-	if (nickRet.size() > 0)
+
+	std::map<Client *, Channel *>	ret;
+	std::string trys[4] = {"user", "host", "real", "nick"};
+	for (size_t i = 0; i < 4; i++)
 	{
-		return ;
+		searchMatch(ret, commonClients, reduced_tree[0], trys[i]);
+		if (ret.size() > 0)
+		{
+			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
+			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
+				sendMessage(&caller, RPL_WHOREPLY((*matchesBegin).second, (*matchesBegin).first));
+			sendMessage(&caller, RPL_ENDOFWHO(&caller));
+			return ;
+		}
 	}
+	sendMessage(&caller, RPL_ENDOFWHO(&caller));
 }
 
 void Server::OPER(const Message &obj, Client &caller)

@@ -1,5 +1,28 @@
 #include "Server.hpp"
 
+// "<name> :End of /WHO list"
+std::string Server::RPL_ENDOFWHO(Client *caller)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 315 ";
+	msg += caller->getNickname();
+	msg += " :End of /WHO list\r\n";
+	return (msg);
+}
+
+std::string	Server::RPL_WHOREPLY(Channel *foundOn, Client *found)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 352 ";
+	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("* ") : ("")) + ":0 " + found->getRealname();
+	msg += "\r\n";
+	return (msg);
+}
+
 std::string	Server::RPL_YOUAREOPER()
 {
 	std::string	msg;
