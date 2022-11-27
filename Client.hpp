@@ -43,6 +43,7 @@ class Client : public Noun
 		id_t		_modes;
 	public:
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
+			void setMeOperator();
 			virtual std::string greet();
 		Client();
 		Client(std::string nickname);
@@ -70,7 +71,9 @@ class Client : public Noun
 		bool		checkMode(char c);  
 
 		std::map<std::string, Channel *>	getChannels(void) const;
-		void								setChannels(std::map<std::string, Channel *> channels);
+		void	addChannel(Channel *ptr);
+		void	subtractChannel(std::string name);
+		void	subtractChannel(Channel *ptr);
 
 		void printAttributes(void);
 		bool	addMode(int mode);
@@ -79,6 +82,7 @@ class Client : public Noun
 		{
 			return (_socket == obj.getSocket());
 		}
+		std::string	modeStr() const;
 		friend std::ostream	&operator<<(std::ostream &os, Client &obj);
 };
 

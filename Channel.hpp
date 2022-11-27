@@ -95,9 +95,8 @@ class Channel : public Noun
 		RuleSetter<int>					intRuleSetter;
 		RuleSetter<char>				charRuleSetter;
 		bool							_has_pwd;
-		bool							_invite_only;
 		std::vector<std::string>		_listInvitedClients;
-		int								_limit;
+		size_t							_limit;
 		class BanLst
 		{
 			// friend std::ostream	&operator<<(std::ostream &os, BanLst &banLst);
@@ -108,17 +107,22 @@ class Channel : public Noun
 				void add(std::string newPattern, bool active);
 
 				bool match(const Client &request) const;
-				std::set<t_names>		getPatterns()
+				std::set<t_names>		getPatterns() const
 				{return (_patterns);}
 		};
 		BanLst							_banLst;
 	public:
+		size_t	getLimit() const;
 			virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
 			virtual std::string greet() {return("Hello channel");}
 		std::vector<Client *>			_clients;
 		// The clients for whom rights are set are a superset of the clients that
 		// are members of the server!
 		std::map<std::string, char>		client_rights; // nick in call
+		std::string	ModeStr();
+		std::string	channelUsrModes(Client *object);
+		std::vector<std::string>	getBanLst() const;
+		std::string						getEndBanLst() const;
 
 	// Getters and setters:
 		std::string	getName() const;
@@ -137,8 +141,6 @@ class Channel : public Noun
 		std::string getPwd() const;
 		bool	getHasPwd() const;
 		void	setPwd(const std::string &newPwd, bool active = true);
-		bool	getInvite_only() const;
-		void	setInvite_only(bool newIO);
 
 		const std::vector<std::string>	&getInvitedClients() const;
 		void	addInvitedClients(std::string newInvite);
@@ -150,9 +152,10 @@ class Channel : public Noun
 
 		// Contains reliant on socketid, good?
 		bool contains(const Client &obj);
-		int	hasClient(Client *client);
 		friend std::ostream	&operator<<(std::ostream &os, Channel &channy);
 };
 
+std::string	getPrimer(std::string &pattern);
+bool	strMatch(std::string specific, std::string pattern);
 
 #endif

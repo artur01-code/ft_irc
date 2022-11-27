@@ -15,14 +15,12 @@ void	Server::MODE_CLASS::operator()(const Message &obj, Client &caller) // Just 
 		for (_tree_iterator	begin(_reduced_tree.begin()); begin < end; begin++)
 			std::cout << "Tree contents: " << *begin << std::endl;
 	}
-	size_t i = 0;
-	for (; i < _reduced_tree.size(); i++)
-		;
-	if (i < 2)
+	if (_reduced_tree.size() < 2)
 	{
 		_server.sendMessage(&caller, _server.ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+
 	recursive_part(_reduced_tree, caller);
 }
 
@@ -52,6 +50,8 @@ void	Server::MODE_CLASS::recursive_part(std::vector<std::string> &remainder, Cli
 			case 3:
 				_server.sendMessage(&caller, _server.ERR_CHANOPRIVSNEEDED(&caller, _subject_str));
 				break ;
+			case 4:
+				_server.sendMessage(&caller, _server.ERR_KEYSET(_subject_str));
 		}
 	}
 }
@@ -65,7 +65,9 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 		_object_str = remainder.at(2);
 	}
 	catch (std::out_of_range	&e)
-	{}
+	{
+		_object_str = "";
+	}
 	try
 	{
 		remainder.at(3);
@@ -82,6 +84,24 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 		try
 		{
 			_subject = reinterpret_cast<Noun *>(_server._mapChannels.at(_subject_str));
+			if (_flags == "mode")
+			{
+				try
+				{
+					_object = reinterpret_cast<Noun *>(_server._regClients.at(_object_str));
+					_server.sendMessage(&caller, _server.RPL_UMODEIS(&caller, reinterpret_cast<Channel *>(_subject), reinterpret_cast<Client *>(_object)));
+					return (false);
+				}
+				catch (std::out_of_range)
+				{}
+				_server.sendMessage(&caller, _server.RPL_CHANNELMODEIS(&caller, reinterpret_cast<Channel *>(_subject)));
+				return (false);
+			}
+			else if (_flags == "banlist")
+			{
+				_server.RPL_BANLIST(&caller, reinterpret_cast<Channel *>(_subject));
+				return (false);
+			}
 		}
 		catch (std::out_of_range &e)
 		{
@@ -94,6 +114,11 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 		try
 		{
 			_subject = reinterpret_cast<Noun *>(_server._regClients.at(_subject_str));
+			if (_flags == "mode")
+			{
+				_server.sendMessage(&caller, _server.RPL_UMODEIS(&caller, reinterpret_cast<Client *>(_subject)));
+				return (false);
+			}
 			if (_server._regClients[_subject_str]->getNickname() != caller.getNickname())
 			{
 				_server.sendMessage(&caller, _server.ERR_USERSDONTMATCH(&caller));

@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-const std::string Client::_alphabet = "abcd";
+const std::string Client::_alphabet = "o";
 RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
 
 std::string	Client::greet()
@@ -24,11 +24,21 @@ int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
 	(void)caller;
 	(void)obj;
+	if ('o' && active)
+		return (0);
 	if (_alphabet.find(flag) == std::string::npos)
 		return (1);
 	_charRuleSetter(_globalClientMode, flag, active);
-	std::cout << *this << std::endl;
+	if (M_DEBUG)
+		std::cout << *this << std::endl;
 	return (0);
+}
+
+void Client::setMeOperator()
+{
+	if (_alphabet.find('o') == std::string::npos)
+		return ;
+	_charRuleSetter(_globalClientMode, 'o', true);
 }
 
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
@@ -155,9 +165,19 @@ std::map<std::string, Channel *> Client::getChannels(void) const
 	return (this->_channels);
 }
 
-void Client::setChannels(std::map<std::string, Channel *> channels)
+void Client::addChannel(Channel *ptr)
 {
-	this->_channels = channels;
+	this->_channels.insert(std::pair<std::string, Channel *>(ptr->getName(), ptr));
+}
+
+void Client::subtractChannel(std::string name)
+{
+	this->_channels.erase(name);
+}
+
+void Client::subtractChannel(Channel *ptr)
+{
+	this->_channels.erase(ptr->getName());
 }
 
 void Client::printAttributes(void)
@@ -217,4 +237,15 @@ bool	Client::removeMode(int mode)
 bool	Client::checkMode(char c)
 {
 	return (_globalClientMode & flag_val(_alphabet, c));
+}
+
+std::string	Client::modeStr() const
+{
+	std::string	modes;
+	for (char i = 1; i != CHAR_MIN; i <<= 1)
+	{
+		if (i & _globalClientMode)
+			modes += this->_alphabet[log2(i)];
+	}
+	return (modes);
 }

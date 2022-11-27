@@ -2,7 +2,7 @@
 #include <cmath>
 
 const std::string Channel::_alphabet = "opsitnmlkb";
-const std::string Channel::_clientAlphabet = "iswov";
+const std::string Channel::_clientAlphabet = "iswovx"; // x is for serverowner
 
 // <HELPERS>
 
@@ -46,7 +46,14 @@ s_names::s_names(const std::string &pattern)
 	std::cout << "Enters the constructor at all" << std::endl;
 	if (pattern.find('!') == std::string::npos || pattern.find('@') == std::string::npos)
 	{
-		std::cout << "Executed" << std::endl;
+		throw WrongFormatException();
+	}
+	if (pattern.find('!') > pattern.find('@'))
+	{
+		throw WrongFormatException();
+	}
+	if (pattern.find('!') == 0 || pattern.find('@') - pattern.find('!') == 1 || pattern.find('!') == pattern.size() - 1)
+	{
 		throw WrongFormatException();
 	}
 	nick = pattern.substr(0, pattern.find("!"));
@@ -73,7 +80,23 @@ void	Channel::BanLst::add(std::string newPattern, bool active)
 
 bool Channel::BanLst::match(const Client &request) const
 {
-	(void)request;
+	typedef std::set<t_names>::iterator	iter;
+
+	t_names	newClient(request);
+	iter	begin(_patterns.begin());
+	for (iter end(_patterns.end()); begin != end; begin++)
+	{
+		if (strMatch(newClient.nick, begin->nick))
+		{
+			if (strMatch(newClient.user, begin->user))
+			{
+				if (strMatch(newClient.host, begin->host))
+				{
+					return (true);
+				}
+			}
+		}
+	}
 	return (false);
 }
 
@@ -93,8 +116,10 @@ bool	isNum(std::string str)
 int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 {
 	(void)caller;
-	// if (!isClientRight(caller.getNickname(), 'o'))
-	// 	return (3);
+	if (!isClientRight(caller.getNickname(), 'o') && !isClientRight(caller.getNickname(), 'x'))
+	{
+		return (3);
+	}
 	Client *cobj = dynamic_cast<Client *>(obj);
 	if (cobj) // works
 	{
@@ -120,13 +145,23 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 			intRuleSetter(_channel_rules, flag, active);
 		else
 		{
+			if ((flag == 'o' && !isClientRight(caller.getNickname(), 'x')) || \
+				(flag == 'k' && !isClientRight(caller.getNickname(), 'x')))
+			{
+				return (3);
+			}
+
 			if (flag == 'b')
 			{
 				_banLst.add(str->content, active);
 				std::cout << *this << std::endl;
 			}
 			if (flag == 'k')
+			{
+				if (active && _has_pwd)
+					return (4); // ERR_KEYSET()
 				setPwd(str->content, active);
+			}
 			else if (flag == 'l')
 			{
 				if (isNum(str->content))
@@ -145,7 +180,7 @@ std::string	Channel::getName() const
 }
 
 // NAME CONSTRUCTOR
-Channel::Channel(std::string name) : _name(name),  _channel_rules(0), intRuleSetter(_alphabet), charRuleSetter(_clientAlphabet), _has_pwd(false), _invite_only(false), _limit(69)
+Channel::Channel(std::string name) : _name(name),  _channel_rules(0), intRuleSetter(_alphabet), charRuleSetter(_clientAlphabet), _has_pwd(false), _limit(69)
 {
 }
 
@@ -165,10 +200,41 @@ int	flag_val(std::string alphabet, char flag)
 
 void Channel::addClient(Client &obj)
 {
+	if (_banLst.match(obj))
+	{
+		throw std::string("Banned (addClient)");
+	}
 	if (M_DEBUG)
 		std::cout << "Push back is triggered with the following nickname: " << obj.getNickname() << std::endl;
+
 	_clients.push_back(&obj);
-	client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
+	if (_clients.size() == 1) // Add owner rights.
+		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), flag_val(_clientAlphabet, 'x')));
+	else
+		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
+	// Extend the list the given Client is apartisan of:
+	obj.addChannel(this);
+	if (M_DEBUG)
+	{
+		std::map<std::string, Channel *> local = obj.getChannels();
+		std::map<std::string, Channel *>::iterator	begin(local.begin());
+		for (std::map<std::string, Channel *>::iterator	end(local.end()); begin != end; begin++)
+		{
+			std::cout << "Aparisan of:" << std::endl;
+			std::cout << *(begin->second) << std::endl;
+		}
+	}
+}
+
+std::string	Channel::ModeStr()
+{
+	std::string	modes;
+	for (int i = 1; i != INT_MIN; i <<= 1)
+	{
+		if (i & _channel_rules)
+			modes += this->_alphabet[log2(i)];
+	}
+	return (modes);
 }
 
 std::ostream	&operator<<(std::ostream &os, Channel &channy)
@@ -180,7 +246,7 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 	for (std::vector<Client *>::iterator	clients_begin(channy._clients.begin()); clients_begin < clients_end; clients_begin++)
 	{
 		os << **clients_begin;
-		os << "Rights: " << (int)channy.client_rights[ (*clients_begin)->getNickname()] << std::endl << std::endl;
+		// os << "Rights: " << channy._clientAlphabet[log2(channy.client_rights[ (*clients_begin)->getNickname()])] << std::endl << std::endl; // print only works for one mode at a time!
 	}
 	os << "Rules: ";
 	for (size_t i = 1; i <= 256; i <<= 1)
@@ -245,16 +311,6 @@ void	Channel::setPwd(const std::string &newPwd, bool active)
 	_pwd = newPwd;
 }
 
-bool	Channel::getInvite_only() const
-{
-	return (_invite_only);
-}
-
-void	Channel::setInvite_only(bool newIO)
-{
-	_invite_only = newIO;
-}
-
 const std::vector<std::string>	&Channel::getInvitedClients() const
 {
 	return (_listInvitedClients);
@@ -262,7 +318,6 @@ const std::vector<std::string>	&Channel::getInvitedClients() const
 
 void	Channel::addInvitedClients(std::string newInvite)
 {
-	_invite_only = true;
 	_listInvitedClients.push_back(newInvite);
 }
 
@@ -272,14 +327,15 @@ void Channel::rmClient(const Client &obj)
 
 	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
+		if (M_DEBUG)
+			std::cout << (**begin).getNickname() << " is a member" << std::endl;
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
 			_clients.erase(begin);
 			return ;
 		}
 	}
-	if (M_DEBUG)
-		std::cout << "_clients doesn't hold the nickname: " << obj.getNickname() << std::endl;
+	throw("rmClient");
 }
 
 // </ SETTERS AND GETTERS>
@@ -291,8 +347,110 @@ int	Channel::isChannelRule(char rule) // tested
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
+	if (right == 'o') // The owner is also operator.
+	{
+		if (isClientRight(nickname, 'x'))
+		{
+			return (true);
+		}
+	}
 	int	flag = flag_val(_clientAlphabet, right);
 
 	return (client_rights[nickname] & flag);
-	return (false);
+}
+
+size_t	Channel::getLimit() const
+{return (_limit);}
+
+std::vector<std::string>	Channel::getBanLst() const
+{
+	std::vector<std::string>	ret;
+
+	std::set<t_names>	structs = _banLst.getPatterns();
+	if (structs.size() == 0)
+	{
+		ret.push_back("empty");
+	}
+	std::set<t_names>::iterator	begin(structs.begin());
+	for (std::set<t_names>::iterator end(structs.end()); begin != end; begin++)
+		ret.push_back((*begin).nick + "!" + (*begin).user + "@" + (*begin).host);
+	return (ret);
+}
+
+std::string			Channel::getEndBanLst() const
+{
+	std::string banLst;
+	std::set<t_names>	structs = _banLst.getPatterns();
+	if (structs.size() == 0)
+		banLst += "empty";
+	std::set<t_names>::iterator end(structs.end());
+	--end;
+	banLst += "nick: " + (*end).nick + " | ";
+	banLst += "user: " + (*end).user + " | ";
+	banLst += "host: " + (*end).host + "\r\n";
+
+	return (banLst);
+}
+
+
+std::string	getPrimer(std::string &pattern)
+{
+	if (pattern.size() == 0)
+		return ("");
+	bool last_primer = false;
+	if (pattern.find('*') == std::string::npos)
+		last_primer = true;
+
+	std::string substr = pattern.substr(0, (last_primer) ? (pattern.size()) : (pattern.find('*')));
+	(last_primer) ? (pattern.erase(0, substr.size())) : (pattern.erase(0, substr.size() + 1));
+	return (substr);
+}
+
+bool	strMatch(std::string specific, std::string pattern)
+{
+	std::string primer;
+
+	if (pattern[0] != '*') // works
+	{
+		primer = getPrimer(pattern);
+		if	(specific.find(primer) != 0)
+		{
+			return (false);
+		}
+		specific.erase(0, primer.size());
+	}
+	else
+		pattern.erase(0, 1);
+	primer = getPrimer(pattern);
+	if (primer != "") // allways matches empty or just '*'
+	{
+		while (pattern.size() > 0)
+		{
+			std::cout << "primer: |" << primer << "| specific: " << specific << std::endl;
+			if (specific.find(primer) != std::string::npos) // If match cut out all before and in match
+				specific.erase(0, specific.find(primer) + primer.size());
+			else
+			{
+				return (false);
+			}
+			primer = getPrimer(pattern);
+		}
+		if (specific.find(primer) + primer.size() != specific.size()) // last case must match the end
+		{
+			return (false);
+		}
+	}
+	return (true);
+}
+
+std::string	Channel::channelUsrModes(Client *object)
+{
+	std::string	msg;
+
+	for (char i = 1; i != CHAR_MIN; i <<= 1)
+	{
+		if (i & client_rights[object->getNickname()])
+			msg += _clientAlphabet[log2(i)];
+	}
+	return (msg);
 }
