@@ -123,6 +123,7 @@ class Channel : public Noun
 		std::string	channelUsrModes(Client *object);
 		std::vector<std::string>	getBanLst() const;
 		std::string						getEndBanLst() const;
+		void	broadcast(Client &caller, std::string msg);
 
 	// Getters and setters:
 		std::string	getName() const;
