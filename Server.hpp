@@ -184,6 +184,7 @@ std::string server_ipaddr);
 	void WHO(const Message &obj, Client &caller);
 
     /*---ERRORS---*/
+	std::string	ERR_BADCHANMASK(std::string channel_name);
 	std::string	ERR_KEYSET(std::string channelName);
 	std::string	ERR_NOOPERHOST(); // WILD
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);

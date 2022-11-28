@@ -588,6 +588,11 @@ void	Server::JOIN(const Message &obj, Client &caller)
 		{
 			if (M_DEBUG)
 				std::cout << "Creating new channel" << std::endl;
+			if ((*chanelname1)[0] != '#')
+			{
+				sendMessage(&caller, ERR_BADCHANMASK(*chanelname1));
+				return ;
+			}
 			// To have no pointers invalidated in case of reallocation I am allocting, freeing in ~Server();
 			_v_channels.push_back(new Channel(*chanelname1));
 			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
