@@ -727,6 +727,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 	std::string					target;
 	std::string					text;
 	Client *					toClient;
+	Channel *					toChannel;
 
 	if (msg.getParameters().empty())
 	{
@@ -758,6 +759,24 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 		if (target[0] == '#')
 		{
 			// target is a channel
+			if (!this->_mapChannels.count(target))
+			{
+				this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, target));
+				continue ;
+			}
+			toChannel = this->_mapChannels[target];
+			// check if Client is banned on that channel
+			if (!cl->isOnChannel(toChannel))
+			{
+				this->sendMessage(cl, ERR_CANNOTSENDTOCHAN(cl, target));
+				continue ;
+			}
+			//TODO: check to see if it works without a mask
+			text = msg.getParameters().back();
+			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
+			if (M_DEBUG)
+				std::cout << COLOR_GREEN << text << END;
+			toChannel->broadcast(*cl, text);
 		}
 		else
 		{
@@ -765,21 +784,17 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			text = msg.getParameters().back();
 			if (!this->_regClients.count(target))
 			{
-				sendMessage(cl, ERR_NOSUCHNICK(cl, target));
+				this->sendMessage(cl, ERR_NOSUCHNICK(cl, target));
 				continue ;
 			}
 			else
 			{
 			// send message to client
-				std::string message;
 				toClient = this->_regClients[target];
-				if (toClient->checkMode('a'))
-				// set prefix to include full client identifier
-				message += ":" + this->makeNickMask(*this, *cl);
-				// append target nickname to PRIVMSG cmd
-				message += " PRIVMSG " + toClient->getNickname();
-				message += ":" + text + "\r\n";
-				this->sendMessage(toClient, message);
+				// if (toClient->checkMode('a'))
+				if (M_DEBUG)
+					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
+				this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}
 		}
 	}

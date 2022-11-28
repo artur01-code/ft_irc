@@ -125,6 +125,7 @@ class Channel : public Noun
 		std::string						getEndBanLst() const;
 		void	broadcast(Client &caller, std::string msg);
 
+
 	// Getters and setters:
 		std::string	getName() const;
 		Channel(std::string name);

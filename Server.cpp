@@ -158,6 +158,17 @@ int Server::receiveMessages(int fd)
 	return 1;
 }
 
+std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string text)
+{
+	std::string msg;
+	// set prefix to include full client identifier
+	msg += ":" + this->makeNickMask(*this, *cl);
+	// append target nickname to PRIVMSG cmd
+	msg += " PRIVMSG " + receiver;
+	msg += " :" + text + "\r\n";
+	return (msg);
+}
+
 //-*-*-*-*-*-*-*-*-*-* SEND MESSAGE //-*-*-*-*-*-*-*-*-*-*
 void Server::sendMessage(Client *client, std::string message)
 {
@@ -293,10 +304,10 @@ void Server::kqueueEngine()
 
 std::string Server::makeNickMask(Server server, Client client)
 {
-	// std::string mask;
-	// mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
-	// return (mask);
-	return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
+	std::string mask;
+	mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
+	return (mask);
+	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {
