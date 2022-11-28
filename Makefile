@@ -39,6 +39,7 @@ test_errors:
 fclean:
 	rm -f ${NAME}
 	rm -f *.test
+	rm -rf ircserv.dSYM/
 
 re: fclean all
 

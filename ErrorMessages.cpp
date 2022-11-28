@@ -1,5 +1,17 @@
 #include "Server.hpp"
 
+// "<channel> :Bad Channel Mask"
+std::string	Server::ERR_BADCHANMASK(std::string channel_name)
+{
+	std::string	msg;
+
+	msg += ":" + this->getServerName();
+	msg += " 476 ";
+	msg += channel_name;
+	msg += " :Bad Channel Mask\r\n";
+	return (msg);
+}
+
 std::string	Server::ERR_KEYSET(std::string channelName)
 {
 	std::string	msg;

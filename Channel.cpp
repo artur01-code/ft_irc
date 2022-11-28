@@ -255,10 +255,10 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 			os << channy._alphabet[log2(i)];
 	}
 	os << std::endl;
-	std::set<t_names> banLst = channy._banLst.getPatterns();
-	std::set<t_names>::iterator	begin(banLst.begin());
-	for (std::set<t_names>::iterator end(banLst.end()); begin != end; begin++)
-		os << "Banned nick: " << *begin << std::endl;
+	std::vector<std::string>	banids = channy.getBanLst();
+	std::vector<std::string>::iterator	begin(banids.begin());
+	for (std::vector<std::string>::iterator	end(banids.end()); begin < end; begin++)
+		os << *begin << std::endl;
 	os << "User limit: " << channy._limit << std::endl;
 	os << std::endl;
 	return (os);
@@ -350,7 +350,7 @@ int	Channel::isChannelRule(char rule) // tested
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
-	if (right == 'o') // The owner is also operator.
+	if (right == CHANMODE_OPER) // The owner is also operator.
 	{
 		if (isClientRight(nickname, 'x'))
 		{
@@ -460,20 +460,21 @@ std::string	Channel::channelUsrModes(Client *object)
 
 static void	sendMessage(Client &to, std::string &msg)
 {
-	std::cout << "This shit is nontheless triggered" << std::endl;
+	if (to.getSocket() == ERROR)
+		return ;
+
+	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
+		throw Server::SendException();
 	send(to.getSocket(), msg.c_str(), msg.size(), 0);
 }
 
 void	Channel::broadcast(Client &caller, std::string msg)
 {
-	std::cout << "Triggered1" << std::endl;
 	std::vector<Client *>::iterator	aMemberBeg(_clients.begin());
 	for (std::vector<Client *>::iterator aMemberEnd(_clients.end()); aMemberBeg < aMemberEnd; aMemberBeg++)
 	{
-		std::cout << "Triggered2" << std::endl;
 		if (*aMemberBeg == &caller)
 			continue ;
-		std::cout << "Triggered3" << std::endl;
 		sendMessage(**aMemberBeg, msg);
 	}
 }
@@ -490,4 +491,9 @@ std::string Channel::getNickList(void)
 		*itClient++;
 	}
 	return (list);
+}
+
+bool	Channel::matchBanLst(const Client &request)
+{
+	return (_banLst.match(request));
 }

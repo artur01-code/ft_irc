@@ -175,6 +175,7 @@ std::string server_ipaddr);
 		bool	zero_param();
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
+		std::string buildPRIVMSG(Client *cl, std::string toClient, std::string text);
     void PASS(const Message &msgObj, Client &clientObj);
     void NAMES(const Message &msgObj, Client &clientObj);
 	void INVITE(const Message &msgObj, Client &clientObj);
@@ -183,6 +184,7 @@ std::string server_ipaddr);
 	void WHO(const Message &obj, Client &caller);
 
     /*---ERRORS---*/
+	std::string	ERR_BADCHANMASK(std::string channel_name);
 	std::string	ERR_KEYSET(std::string channelName);
 	std::string	ERR_NOOPERHOST(); // WILD
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
