@@ -67,9 +67,9 @@ class Server {
     // returned events are places in event_list
     struct kevent _event_list[20];
     struct sockaddr_in _server_address;
+    Server();
 
    public:
-    Server();
     Server(int port);
     Server(int port, std::string ip_address);
     ~Server();
@@ -119,6 +119,7 @@ std::string server_ipaddr);
 			static std::vector<std::vector<std::string> >	getTree(const Message &obj);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj, Client &caller);
+    void LIST(const Message &obj, Client &clientObj);
 	// ------------ MODE MEMBER CLASS ------------------- //
 
 	// Implementation in: Mode.cpp
@@ -231,6 +232,11 @@ std::string server_ipaddr);
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
 	std::string	RPL_TOPIC(Client *client, Channel *channel);
+    std::string RPL_ENDOFNAMES(Client *client, Channel *channel);
+    std::string RPL_NAMREPLY(Client *client, Channel *channel);
+    std::string RPL_LISTSTART();
+    std::string RPL_LIST(Channel *channel);
+    std::string RPL_LISTEND();
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

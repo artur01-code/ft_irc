@@ -3,6 +3,9 @@
 //--------------DEFAULT CONSTRUCTOR-------------//
 Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 {
+	/*
+	FOBIDDEN because we need to specify the port
+	*/
 	_operPwd = "6969";
 	std::string ip_address = "127.0.0.1";
 	int port = 6969;
@@ -14,7 +17,6 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
 {
 	_operPwd = "6969";
-	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
 	setupConnection(tmp, port);
 	setKqueue();
@@ -163,7 +165,11 @@ void Server::sendMessage(Client *client, std::string message)
 {
 	int nb_of_bytes_sent;
 	if (client->getSocket() == ERROR)
+	{
+		if (M_DEBUG)
+			std::cout << "ERROR: sendMessage() unsuccessfull" << std::endl;
 		return;
+	}
 	if (M_DEBUG)
 		std::cout << "sendMessage() : " << message << std::endl;
 	nb_of_bytes_sent =

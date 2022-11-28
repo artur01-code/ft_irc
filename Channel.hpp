@@ -135,6 +135,7 @@ class Channel : public Noun
 
 		void	setClientRight( std::string username, char toAdd, bool active);
 		bool	isClientRight( std::string username, char right );
+		std::string getNickList(void);
 
 		// void	setChannelRule(char toAdd, bool active);
 		int	isChannelRule(char rule);
