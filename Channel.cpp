@@ -492,3 +492,8 @@ std::string Channel::getNickList(void)
 	}
 	return (list);
 }
+
+bool	Channel::matchBanLst(const Client &request)
+{
+	return (_banLst.match(request));
+}

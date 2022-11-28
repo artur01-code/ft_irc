@@ -55,6 +55,7 @@ class Channel : public Noun
 
 		std::vector<Client *>			_clients;
 		void	broadcast(Client &caller, std::string msg);
+		bool	matchBanLst(const Client &request);
 
 
 		// CLIENT MODE INTERFACE
