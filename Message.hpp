@@ -27,6 +27,9 @@ class Message {
     std::string getCommand() const;
     std::vector<std::string> getParameters() const;
     std::string getRawInput() const;
+    void setPrefix(std::string prefix);
+    void setCommand(std::string command);
+    void setParameters(std::string rawParameters);
     void parseMessage(std::string input);
 };
 

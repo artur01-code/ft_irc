@@ -465,6 +465,7 @@ static void	sendMessage(Client &to, std::string &msg)
 	
 	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
 		throw Server::SendException();
+	send(to.getSocket(), msg.c_str(), msg.size(), 0);
 }
 
 void	Channel::broadcast(Client &caller, std::string msg)
@@ -476,4 +477,18 @@ void	Channel::broadcast(Client &caller, std::string msg)
 			continue ;
 		sendMessage(**aMemberBeg, msg);
 	}
+}
+
+std::string Channel::getNickList(void)
+{
+	std::string list;
+	std::vector<Client *>::iterator itClient = this->_clients.begin();
+	while (itClient != this->_clients.end())
+	{
+		// if (/*client is operator [@|+] */)
+		list = list + (*itClient)->getNickname();
+		list = list + " ";
+		*itClient++;
+	}
+	return (list);
 }

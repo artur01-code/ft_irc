@@ -185,3 +185,52 @@ std::string	Server::RPL_TOPIC(Client *client, Channel *channel)
 	msg += "\r\n";
 	return (msg);
 }
+
+std::string Server::RPL_NAMREPLY(Client *client, Channel *channel)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 353 ";
+	msg += client->getNickname() + " ";
+	if (channel->isClientRight(client->getNickname(), 'i'))
+		msg += " @ ";
+	else
+		msg += " = ";
+	msg += channel->getName();
+	msg += " :" + channel->getNickList();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_ENDOFNAMES(Client *client, Channel *channel)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 366 ";
+	msg += client->getNickname() + " ";
+	msg += channel->getName();
+	msg += " :End of /NAMES list";
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_LISTSTART()
+{
+	return ("Channel :Users Name\r\n");
+}
+
+std::string Server::RPL_LIST(Channel *channel)
+{
+	std::string msg;
+	msg += channel->getName() + " :";
+	msg += channel->getTopic();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_LISTEND()
+{
+	return (":End of /LIST\r\n");
+}
+
+

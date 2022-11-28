@@ -3,6 +3,9 @@
 //--------------DEFAULT CONSTRUCTOR-------------//
 Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 {
+	/*
+	FOBIDDEN because we need to specify the port
+	*/
 	_operPwd = "6969";
 	std::string ip_address = "127.0.0.1";
 	int port = 6969;
@@ -14,7 +17,6 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
 {
 	_operPwd = "6969";
-	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
 	setupConnection(tmp, port);
 	setKqueue();
@@ -158,12 +160,27 @@ int Server::receiveMessages(int fd)
 	return 1;
 }
 
+std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string text)
+{
+	std::string msg;
+	// set prefix to include full client identifier
+	msg += ":" + this->makeNickMask(*this, *cl);
+	// append target nickname to PRIVMSG cmd
+	msg += " PRIVMSG " + receiver;
+	msg += " :" + text + "\r\n";
+	return (msg);
+}
+
 //-*-*-*-*-*-*-*-*-*-* SEND MESSAGE //-*-*-*-*-*-*-*-*-*-*
 void Server::sendMessage(Client *client, std::string message)
 {
 	int nb_of_bytes_sent;
 	if (client->getSocket() == ERROR)
+	{
+		if (M_DEBUG)
+			std::cout << "ERROR: sendMessage() unsuccessfull" << std::endl;
 		return;
+	}
 	if (M_DEBUG)
 		std::cout << "sendMessage() : " << message << std::endl;
 	nb_of_bytes_sent =
@@ -293,10 +310,10 @@ void Server::kqueueEngine()
 
 std::string Server::makeNickMask(Server server, Client client)
 {
-	// std::string mask;
-	// mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
-	// return (mask);
-	return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
+	std::string mask;
+	mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
+	return (mask);
+	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {

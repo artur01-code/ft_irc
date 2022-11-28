@@ -16,26 +16,28 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->USER(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->JOIN(msgObj, clientObj);
-	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->PART(msgObj, clientObj);
-	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->TOPIC(&clientObj, msgObj);
-	else if (msgObj.getCommand() == "PRIVMSG" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "PRIVMSG" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->PRIVMSG(&clientObj, msgObj);
-	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "MODE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->MODE(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->NAMES(msgObj, clientObj);
-	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->INVITE(msgObj, clientObj);
-	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->KICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->OPER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "WHO" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "WHO" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->WHO(msgObj, clientObj);
+	else if (msgObj.getCommand() == "LIST" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
+		this->LIST(msgObj, clientObj);
 	//call channel commands
 }
 
@@ -304,62 +306,64 @@ if channels are specified, only return names of users on these channels
 */
 void Server::NAMES(const Message &msgObj, Client &clientObj)
 {
-	//replies needs to get implemented -> check in the documentation
-	(void) clientObj;
 	if (M_DEBUG)
 		std::cout << "COMMAND: *NAMES* FUNCTION GOT TRIGGERT" << std::endl;
 	std::vector<std::string> vec = msgObj.getParameters();
-	std::string names;
-	if (msgObj.getParameters().empty())
+
+	//go through each channel and print all the names
+	if (!(this->_v_channels.empty()))
 	{
-		if (M_DEBUG)
-			std::cout << "No parameters got passed" << std::endl << std::endl;
-		//go through each channel and in each Channel through each clients list and print all the names
 		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
 		while (itChannel != this->_v_channels.end())
 		{
-			std::vector<Client *>::iterator itClient = (*itChannel)->_clients.begin();
-			while (itClient != (*itChannel)->_clients.end())
+			if (msgObj.getParameters().empty())
+				this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
+			else
 			{
-				// std::cout << (*itClient)->getNickname() << std::endl;
-				names = names + " " + (*itClient)->getNickname();
-				itClient++;
-			}
-			itChannel++;
-		}
-	}
-	else
-	{
-		if (M_DEBUG)
-			std::cout << "Parameters got passed" << std::endl << std::endl;
-		//loop through the channels that are specified and list all the nicknames
-		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
-		int i = 0;
-		while (itChannel != this->_v_channels.end())
-		{
-			i = 0;
-			while (!vec[i].empty())
-			{
-				if ((*itChannel)->getName() == vec[i])
+				int i = 0;
+				while (!vec[i].empty())
 				{
-					std::vector<Client *>::iterator itClient = (*itChannel)->_clients.begin();
-					while (itClient != (*itChannel)->_clients.end())
-					{
-						// std::cout << (*itClient)->getNickname() << std::endl;
-						names = names + " " + (*itClient)->getNickname();
-						itClient++;
-					}
+					if (vec[i] == (*itChannel)->getName())
+						this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
+					i++;
 				}
-				i++;
 			}
 			itChannel++;
 		}
+		this->sendMessage(&clientObj, RPL_ENDOFNAMES(&clientObj, *(--itChannel)));
 	}
-	//send a priv message to ClientObj with all the names stored in *itClient
-	// this->PRIVMSG()
-	if (M_DEBUG)
-		std::cout << names << std::endl;
 }
+
+void Server::LIST(const Message &msgObj, Client &clientObj)
+{
+	if (M_DEBUG)
+		std::cout << "COMMAND: *LIST* FUNCTION GOT TRIGGERT" << std::endl;
+	std::vector<std::string> vec = msgObj.getParameters();
+	this->sendMessage(&clientObj, RPL_LISTSTART());
+	//go through each channel and print all the topic
+	if (!(this->_v_channels.empty()))
+	{
+		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
+		while (itChannel != this->_v_channels.end())
+		{
+			if (msgObj.getParameters().empty())
+				this->sendMessage(&clientObj, RPL_LIST(*itChannel));
+			else
+			{
+				int i = 0;
+				while (!vec[i].empty())
+				{
+					if ((*itChannel)->getName() == vec[i])
+						this->sendMessage(&clientObj, RPL_LIST(*itChannel));
+					i++;
+				}
+			}
+			itChannel++;
+		}
+		this->sendMessage(&clientObj, RPL_LISTEND());
+	}
+}
+
 
 
 /*
@@ -384,14 +388,14 @@ void Server::PASS(const Message &msgObj, Client &clientObj)
 		return ;
 	}
 
-	if (msgObj.getParameters().empty())
+	std::vector<std::string> vec = msgObj.getParameters();
+	if (vec.empty() || vec[1] != "")
 	{
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "PASS"));
 		if (M_DEBUG)
 			std::cout << ERR_NEEDMOREPARAMS(&clientObj, "PASS") << std::endl;
 		return;
 	}
-	std::vector<std::string> vec = msgObj.getParameters();
 
 	if (vec[0] == this->_password)
 	{
@@ -732,6 +736,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 	std::string					target;
 	std::string					text;
 	Client *					toClient;
+	Channel *					toChannel;
 
 	if (msg.getParameters().empty())
 	{
@@ -763,6 +768,24 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 		if (target[0] == '#')
 		{
 			// target is a channel
+			if (!this->_mapChannels.count(target))
+			{
+				this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, target));
+				continue ;
+			}
+			toChannel = this->_mapChannels[target];
+			// check if Client is banned on that channel
+			if (!cl->isOnChannel(toChannel))
+			{
+				this->sendMessage(cl, ERR_CANNOTSENDTOCHAN(cl, target));
+				continue ;
+			}
+			//TODO: check to see if it works without a mask
+			text = msg.getParameters().back();
+			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
+			if (M_DEBUG)
+				std::cout << COLOR_GREEN << text << END;
+			toChannel->broadcast(*cl, text);
 		}
 		else
 		{
@@ -770,21 +793,17 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			text = msg.getParameters().back();
 			if (!this->_regClients.count(target))
 			{
-				sendMessage(cl, ERR_NOSUCHNICK(cl, target));
+				this->sendMessage(cl, ERR_NOSUCHNICK(cl, target));
 				continue ;
 			}
 			else
 			{
 			// send message to client
-				std::string message;
 				toClient = this->_regClients[target];
-				if (toClient->checkMode('a'))
-				// set prefix to include full client identifier
-				message += ":" + this->makeNickMask(*this, *cl);
-				// append target nickname to PRIVMSG cmd
-				message += " PRIVMSG " + toClient->getNickname();
-				message += ":" + text + "\r\n";
-				this->sendMessage(toClient, message);
+				// if (toClient->checkMode('a'))
+				if (M_DEBUG)
+					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
+				this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}
 		}
 	}

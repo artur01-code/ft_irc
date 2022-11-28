@@ -125,6 +125,7 @@ class Channel : public Noun
 		std::string						getEndBanLst() const;
 		void	broadcast(Client &caller, std::string msg);
 
+
 	// Getters and setters:
 		std::string	getName() const;
 		Channel(std::string name);
@@ -135,6 +136,7 @@ class Channel : public Noun
 
 		void	setClientRight( std::string username, char toAdd, bool active);
 		bool	isClientRight( std::string username, char right );
+		std::string getNickList(void);
 
 		// void	setChannelRule(char toAdd, bool active);
 		int	isChannelRule(char rule);
