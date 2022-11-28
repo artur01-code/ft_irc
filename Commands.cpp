@@ -579,6 +579,8 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						return ;
 					}
 				}
+				if (M_DEBUG)
+					std::cout << "Send TOPIC REPLY to the client" << std::endl;
 				sendMessage(&caller, RPL_TOPIC(&caller, chany));
 			}
 			else
@@ -594,6 +596,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 
 			// TAG
 			_v_channels[_v_channels.size() - 1]->addClient(_conClients[_fd_client]);
+			if (M_DEBUG)
+				std::cout << "Send TOPIC REPLY to the client" << std::endl;
+			sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 		}
 		key++;
 	}
