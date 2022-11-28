@@ -14,8 +14,20 @@
 #include <vector>
 #include <set>
 class Client;
-#include "ChannelAdditionals.hpp"
 
+#define CHANMODE_OPER				'o'
+#define CHANMODE_PRIV				'p'
+#define CHANMODE_SECRET				's'
+#define CHANMODE_INVONLY			'i'
+#define CHANMODE_TOPIC				't'
+#define CHANMODE_NOMSGFROMOUTSIDE	'n'
+#define CHANMODE_MOD				'm'
+#define CHANMODE_USERLIMIT			'l'
+#define CHANMODE_BANMASK			'b'
+#define CHANMODE_VOICE				'v'
+#define CHANMODE_PASSWD				'k'
+
+#include "ChannelAdditionals.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
 

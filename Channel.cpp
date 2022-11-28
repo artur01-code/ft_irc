@@ -350,7 +350,7 @@ int	Channel::isChannelRule(char rule) // tested
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
-	if (right == 'o') // The owner is also operator.
+	if (right == CHANMODE_OPER) // The owner is also operator.
 	{
 		if (isClientRight(nickname, 'x'))
 		{
@@ -462,7 +462,7 @@ static void	sendMessage(Client &to, std::string &msg)
 {
 	if (to.getSocket() == ERROR)
 		return ;
-	
+
 	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
 		throw Server::SendException();
 	send(to.getSocket(), msg.c_str(), msg.size(), 0);
