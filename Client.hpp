@@ -68,13 +68,13 @@ class Client : public Noun
 		void		setRegFlag(int regFlag);
 		int			getPwdFlag(void);
 		void		setPwdFlag(int n);
-		bool		checkMode(char c);  
+		bool		checkMode(char c);
 
 		std::map<std::string, Channel *>	getChannels(void) const;
 		void	addChannel(Channel *ptr);
 		void	subtractChannel(std::string name);
 		void	subtractChannel(Channel *ptr);
-
+		bool	isOnChannel(Channel *ch);
 		void printAttributes(void);
 		bool	addMode(int mode);
 		bool	removeMode(int mode);

@@ -13,7 +13,7 @@
 #include "Client.hpp"
 
 const std::string Client::_alphabet = "o";
-RuleSetter<char> Client::_charRuleSetter(Client::_alphabet); 
+RuleSetter<char> Client::_charRuleSetter(Client::_alphabet);
 
 std::string	Client::greet()
 {
@@ -178,6 +178,11 @@ void Client::subtractChannel(std::string name)
 void Client::subtractChannel(Channel *ptr)
 {
 	this->_channels.erase(ptr->getName());
+}
+
+bool	Client::isOnChannel(Channel *ch)
+{
+	return ( (this->_channels.count(ch->getName())) ? true : false );
 }
 
 void Client::printAttributes(void)
