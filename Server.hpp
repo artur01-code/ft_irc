@@ -237,6 +237,9 @@ std::string server_ipaddr);
     std::string RPL_LISTSTART();
     std::string RPL_LIST(Channel *channel);
     std::string RPL_LISTEND();
+    std::string RPL_MOTD(Client *client);
+    std::string RPL_MOTDSTART(Client *client);
+    std::string RPL_ENDOFMOTD(Client *client);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

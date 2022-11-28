@@ -665,6 +665,9 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 
 		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
+		this->sendMessage(&clientObj, RPL_MOTDSTART(&clientObj));
+		this->sendMessage(&clientObj, RPL_MOTD(&clientObj));
+		this->sendMessage(&clientObj, RPL_ENDOFMOTD(&clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
@@ -842,6 +845,9 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	if (clientObj.getRegFlag() == 1 && clientObj.getUsername() != "")
 	{
 		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
+		this->sendMessage(&clientObj, RPL_MOTDSTART(&clientObj));
+		this->sendMessage(&clientObj, RPL_MOTD(&clientObj));
+		this->sendMessage(&clientObj, RPL_ENDOFMOTD(&clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
