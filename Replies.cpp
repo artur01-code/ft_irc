@@ -209,7 +209,28 @@ std::string Server::RPL_ENDOFNAMES(Client *client, Channel *channel)
 	msg += " 366 ";
 	msg += client->getNickname() + " ";
 	msg += channel->getName();
-	msg += " :End of NAMES list";
+	msg += " :End of /NAMES list";
 	msg += "\r\n";
 	return (msg);
 }
+
+std::string Server::RPL_LISTSTART()
+{
+	return ("Channel :Users Name\r\n");
+}
+
+std::string Server::RPL_LIST(Channel *channel)
+{
+	std::string msg;
+	msg += channel->getName() + " :";
+	msg += channel->getTopic();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_LISTEND()
+{
+	return (":End of /LIST\r\n");
+}
+
+

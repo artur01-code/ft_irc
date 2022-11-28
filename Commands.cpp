@@ -28,14 +28,16 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->MODE(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->NAMES(msgObj, clientObj);
-	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->INVITE(msgObj, clientObj);
-	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->KICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->OPER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "WHO" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	else if (msgObj.getCommand() == "WHO" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->WHO(msgObj, clientObj);
+	else if (msgObj.getCommand() == "LIST" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
+		this->LIST(msgObj, clientObj);
 	//call channel commands
 }
 
@@ -321,7 +323,7 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 				int i = 0;
 				while (!vec[i].empty())
 				{
-					if ((*itChannel)->getName() == vec[0])
+					if (vec[i] == (*itChannel)->getName())
 						this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
 					i++;
 				}
@@ -329,6 +331,36 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 			itChannel++;
 		}
 		this->sendMessage(&clientObj, RPL_ENDOFNAMES(&clientObj, *(--itChannel)));
+	}
+}
+
+void Server::LIST(const Message &msgObj, Client &clientObj)
+{
+	if (M_DEBUG)
+		std::cout << "COMMAND: *LIST* FUNCTION GOT TRIGGERT" << std::endl;
+	std::vector<std::string> vec = msgObj.getParameters();
+	this->sendMessage(&clientObj, RPL_LISTSTART());
+	//go through each channel and print all the topic
+	if (!(this->_v_channels.empty()))
+	{
+		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
+		while (itChannel != this->_v_channels.end())
+		{
+			if (msgObj.getParameters().empty())
+				this->sendMessage(&clientObj, RPL_LIST(*itChannel));
+			else
+			{
+				int i = 0;
+				while (!vec[i].empty())
+				{
+					if ((*itChannel)->getName() == vec[i])
+						this->sendMessage(&clientObj, RPL_LIST(*itChannel));
+					i++;
+				}
+			}
+			itChannel++;
+		}
+		this->sendMessage(&clientObj, RPL_LISTEND());
 	}
 }
 
