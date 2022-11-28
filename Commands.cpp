@@ -3,6 +3,8 @@
 #include "Message.hpp"
 #include "Server.hpp"
 #include <set>
+#include <pthread.h>
+
 
 void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
@@ -15,9 +17,9 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	else if (msgObj.getCommand() == "NICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 		this->NICK(msgObj, clientObj);
 	else if (msgObj.getCommand() == "JOIN" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
-		this->JOIN(msgObj);
+		this->JOIN(msgObj, clientObj);
 	else if (msgObj.getCommand() == "PART" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
-		this->PART(msgObj);
+		this->PART(msgObj, clientObj);
 	else if (msgObj.getCommand() == "TOPIC" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->TOPIC(&clientObj, msgObj);
 	else if (msgObj.getCommand() == "PRIVMSG" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
@@ -26,7 +28,271 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 		this->MODE(msgObj, clientObj);
 	else if (msgObj.getCommand() == "NAMES" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0) && clientObj.getRegFlag() == 1)
 		this->NAMES(msgObj, clientObj);
+	else if (msgObj.getCommand() == "INVITE" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->INVITE(msgObj, clientObj);
+	else if (msgObj.getCommand() == "KICK" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->KICK(msgObj, clientObj);
+	else if (msgObj.getCommand() == "OPER" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->OPER(msgObj, clientObj);
+	else if (msgObj.getCommand() == "WHO" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+		this->WHO(msgObj, clientObj);
 	//call channel commands
+}
+
+void searchMatch(std::map<Client *, Channel *> &ret, std::map<Client *, Channel *> &commonClients, std::string &pattern, std::string whatName)
+{
+	std::map<Client *, Channel * >::iterator	toFilter(commonClients.begin());
+	for (std::map<Client *, Channel *>::iterator	toFilterEnd(commonClients.end()); toFilter != toFilterEnd; toFilter++)
+	{
+		if (whatName == "user")
+		{
+			if (strMatch((*toFilter).first->getUsername(), pattern))
+				ret.insert(*toFilter);
+		}
+		else if (whatName == "host")
+		{
+			if (strMatch((*toFilter).first->getHostname(), pattern))
+				ret.insert(*toFilter);
+		}
+		else if (whatName == "real")
+		{
+			if (strMatch((*toFilter).first->getRealname(), pattern))
+				ret.insert(*toFilter);
+		}
+		else if (whatName == "nick")
+		{
+			if (strMatch((*toFilter).first->getNickname(), pattern))
+				ret.insert(*toFilter);
+		}
+	}
+}
+
+void Server::WHO(const Message &obj, Client &caller)
+{
+	(void)obj;
+	std::set<Channel *> base = reduce(caller.getChannels());
+	if (base.size() == 0)
+	{
+		ERR_NOSUCHCHANNEL(&caller, "ANY");
+		return ;
+	}
+	if (M_DEBUG)
+	{
+		std::set<Channel *>::iterator	begin(base.begin());
+		for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
+		{
+			std::cout << "Base channels from WHO" << std::endl;
+			std::cout << **begin << std::endl;
+		}
+	}
+
+	std::map<Client *, Channel *>	commonClients;
+
+	std::set<Channel *>::iterator	channel(base.begin());
+	for (std::set<Channel *>::iterator	end(base.end()); channel != end; channel++)
+	{
+		std::vector<Client *>::iterator	eachClient((*channel)->_clients.begin());
+		for (std::vector<Client *>::iterator	eachClientEnd((*channel)->_clients.end()); eachClient < eachClientEnd; eachClient++)
+		{
+			if (!(*channel)->isClientRight((*eachClient)->getNickname(), 'i')) // only add the user if he is not marked as invisible on the common channel
+				commonClients.insert(std::pair<Client *, Channel *>(*eachClient, *channel));
+		}
+	}
+
+	commonClients.erase(&caller);
+	if (M_DEBUG)
+	{
+		std::map<Client *, Channel *>::iterator	commonClientsBegin(commonClients.begin());
+		for (std::map<Client *, Channel *>::iterator	commonClientsEnd(commonClients.end()); commonClientsBegin != commonClientsEnd; commonClientsBegin++)
+		{
+			std::cout << "WHO: common clients:" << std::endl;
+			std::cout << (*commonClientsBegin).first->getNickname() << std::endl;
+		}
+	}
+
+	// Parsing
+	std::vector<std::string> reduced_tree = reduce(getTree(obj));
+	if (reduced_tree.size() < 1 || reduced_tree.size() > 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return ;
+	}
+	// Filtering with operator flag
+	if (reduced_tree.size() == 2 && reduced_tree[1] == "o")
+	{
+		std::map<Client *, Channel *> cpy = commonClients;
+
+		std::map<Client *, Channel *>::iterator	allUsrsBeg(cpy.begin());
+		for (std::map<Client *, Channel *>::iterator	allUsrsEnd(cpy.end()); allUsrsBeg != allUsrsEnd; allUsrsBeg++)
+		{
+			if (!(*allUsrsBeg).first->checkMode('o'))
+				commonClients.erase((*allUsrsBeg).first);
+		}
+	}
+
+	std::map<Client *, Channel *>	ret;
+	std::string trys[4] = {"user", "host", "real", "nick"};
+	for (size_t i = 0; i < 4; i++)
+	{
+		searchMatch(ret, commonClients, reduced_tree[0], trys[i]);
+		if (ret.size() > 0)
+		{
+			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
+			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
+				sendMessage(&caller, RPL_WHOREPLY((*matchesBegin).second, (*matchesBegin).first));
+			sendMessage(&caller, RPL_ENDOFWHO(&caller));
+			return ;
+		}
+	}
+	sendMessage(&caller, RPL_ENDOFWHO(&caller));
+}
+
+void Server::OPER(const Message &obj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+
+	reduced_tree = reduce(getTree(obj));
+	if (reduced_tree.size() != 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return ;
+	}
+	if (reduced_tree[1] != _operPwd)
+	{
+		sendMessage(&caller, ERR_PASSWDMISMATCH(&caller));
+		return ;
+	}
+	Client *newOper;
+	try
+	{
+		newOper = _regClients.at(reduced_tree[0]);
+		newOper->setMeOperator();
+	}
+	catch(std::out_of_range &e)
+	{
+		sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+		return ;
+	}
+	sendMessage(newOper, RPL_YOUAREOPER());
+}
+
+void Server::KICK(const Message &msgObj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+	Channel *channel = NULL;
+	Client *snitch = NULL;
+	std::string	comment = "";
+
+	reduced_tree = reduce(getTree(msgObj));
+	if (reduced_tree.size() < 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
+		return ;
+	}
+	if (reduced_tree.size() > 2)
+	{
+		try
+		{
+			for (size_t i = 2; ; i++)
+			{
+				reduced_tree.at(i);
+				comment += reduced_tree[i] + " ";
+			}
+		}
+		catch(std::out_of_range)
+		{}
+	}
+	// string to objects
+	{
+		try
+		{
+			channel = _mapChannels.at(reduced_tree[1]);
+			if (!channel->contains(caller))
+			{
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				return ;
+			}
+			if (!channel->isClientRight(caller.getNickname(), 'o'))
+			{
+				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, reduced_tree[1]));
+			return ;
+		}
+		try
+		{
+			snitch = _regClients.at(reduced_tree[0]);
+			if (!channel->contains(*snitch))
+			{
+				sendMessage(&caller, ERR_USERNOTINCHANNEL(snitch, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+			return ;
+		}
+	}
+	PART(Message("PART " + channel->getName()), *snitch);
+	if (comment != "")
+		sendMessage(snitch, "Banned from " + channel->getName() + " reason: " + comment + "\r\n");
+}
+
+void Server::INVITE(const Message &msgObj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+	Channel *channel = NULL;
+	Client *guest = NULL;
+
+	reduced_tree = reduce(getTree(msgObj));
+	if (reduced_tree.size() != 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
+		return ;
+	}
+	// string to objects
+	{
+		try
+		{
+			channel = _mapChannels.at(reduced_tree[1]);
+			if (!channel->contains(caller))
+			{
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				return ;
+			}
+			if (channel->isChannelRule('i') && !channel->isClientRight(caller.getNickname(), 'o'))
+			{
+				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			return ;
+		}
+		try
+		{
+			guest = _regClients.at(reduced_tree[0]);
+			if (channel->contains(*guest))
+			{
+				sendMessage(&caller, ERR_USERONCHANNEL(guest, reduced_tree[1]));
+				return ;
+			}
+		}
+		catch(std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+			return ;
+		}
+	}
+	channel->addInvitedClients(guest->getNickname());
+	sendMessage(&caller, RPL_INVITING(guest, channel));
+	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
 }
 
 /*
@@ -38,71 +304,34 @@ if channels are specified, only return names of users on these channels
 */
 void Server::NAMES(const Message &msgObj, Client &clientObj)
 {
-	// if (!msgObj.getParameters().size())
-	// 	return ;
-	// std::string mask = msgObj.getParameters().front();
-	// if (mask.front() == '#')
-	// {
-	// 	if (!this->_mapChannels.count(mask))
-	// 		return ;
-	// 	Channel *channel = this->_mapChannels.at(mask);
-	// 	std::vector<Client *> clients = channel->_clients;
-	// 	for (std::vector<Client *>::iterator it = clients.begin(); it != clients.end(); it++)
-	// 		this->sendMessage(clients, RPL_WHOREPLY(clients, &it));
-	// }
-	// else if (this->_regClients.count(mask))
-	// 	this->sendMessage(&clients, RPL_WHOREPLY(&clients, this->_regClients.at(mask)));
-	// else
-	// {
-	// 	// for (std::map<std::string, Client*>::iterator it = this->_regClients.begin(); it != this->_regClients.end(); it++)
-	// 	// {
-	// 	// 	if (matchMask(mask, makeNickMask(this, it->second)))
-	// 	// 		this->sendMessage(clients, RPL_WHOREPLY(clients, it->second));
-	// 	// }
-	// }
-	// this->sendMessage(clients, RPL_ENDOFWHO(clients, mask));
-
-	//replies needs to get implemented -> check in the documentation
-	(void) clientObj;
 	if (M_DEBUG)
 		std::cout << "COMMAND: *NAMES* FUNCTION GOT TRIGGERT" << std::endl;
 	std::vector<std::string> vec = msgObj.getParameters();
 
-	if (M_DEBUG)
-		std::cout << "No parameters got passed" << std::endl << std::endl;
-	//go through each channel and in each Channel through each clients list and print all the names
-	std::vector<Channel>::iterator itChannel = this->_v_channels.begin();
-	while (itChannel != this->_v_channels.end())
+	//go through each channel and print all the names
+	if (!(this->_v_channels.empty()))
 	{
-		std::vector<Client *>::iterator itClient = itChannel->_clients.begin();
-		while (itClient != itChannel->_clients.end())
+		std::vector<Channel *>::iterator itChannel = this->_v_channels.begin();
+		while (itChannel != this->_v_channels.end())
 		{
 			if (msgObj.getParameters().empty())
-				this->sendMessage(&clientObj, RPL_WHOREPLY(&clientObj, *itClient));
+				this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
 			else
 			{
 				int i = 0;
 				while (!vec[i].empty())
 				{
-					std::cout << itChannel->getName() << " and " << vec[0] << std::endl;
-					if (itChannel->getName() == vec[0])
-						this->sendMessage(&clientObj, RPL_WHOREPLY(&clientObj, *itClient));
+					if ((*itChannel)->getName() == vec[0])
+						this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
 					i++;
 				}
 			}
-			itClient++;
+			itChannel++;
 		}
-		itChannel++;
+		this->sendMessage(&clientObj, RPL_ENDOFNAMES(&clientObj, *(--itChannel)));
 	}
-	this->sendMessage(&clientObj, RPL_ENDOFWHO(&clientObj, "test")); //send mask ?
-	// need to print all the other names that are not in a channel with *:
-	// send a priv message to ClientObj with all the names stored in *itClient
-	// Message reply;
-	// reply.setCommand("PRIVMSG");
-	// reply.setParameters(names);
-	// this->PRIVMSG(&clientObj, reply);
-	
 }
+
 
 
 /*
@@ -176,23 +405,46 @@ std::vector<std::vector<std::string> >	Server::getTree(const Message &obj)
 }
 
 // Very, very inefficent because I am not using maps... talk to your team mates
-void	Server::PART(const Message &obj)
+void	Server::PART(const Message &obj, Client &caller)
 {
-	typedef std::vector<Channel>::iterator	iterator;
+	// typedef std::vector<Channel>::iterator	iterator;
 	typedef	std::vector<std::string>::iterator	str_iterator;
 	if (M_DEBUG)
 		std::cout << "TRIGGERED PART" << std::endl;
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
-
-	iterator begin(_v_channels.begin());
-	for (iterator end(_v_channels.end()); begin < end; begin++)
+	if (tree.size() != 1)
 	{
-		str_iterator	param_begin(tree[0].begin());
-		for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return;
+	}
+
+	str_iterator	param_begin(tree[0].begin());
+	for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
+	{
+		try
 		{
-			if ( (*begin).getName() == *param_begin)
-				(*begin).rmClient(_conClients[_fd_client]);
+			try
+			{
+				_mapChannels.at(*param_begin)->rmClient(caller);
+			}
+			catch(const char *tunnel)
+			{
+				if (std::string(tunnel) == "rmClient")
+					sendMessage(&caller, ERR_NOTONCHANNEL(&caller, *param_begin));
+				else if (std::string(tunnel) == "destroyChannel")
+				{
+					apply(_v_channels, SignalEraseEqual<Channel *>(_mapChannels[*param_begin]));
+					delete _mapChannels[*param_begin];
+					_mapChannels.erase(*param_begin);
+					if (M_DEBUG)
+						apply(_mapChannels, printShit);
+				}
+			}
+		}
+		catch (std::out_of_range &e)
+		{
+			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, *param_begin));
 		}
 	}
 }
@@ -216,7 +468,7 @@ void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::strin
 	}
 }
 
-void	Server::JOIN(const Message &obj)
+void	Server::JOIN(const Message &obj, Client &caller)
 {
 	typedef std::vector<std::string>::iterator	viterator;
 	if (M_DEBUG)
@@ -224,6 +476,11 @@ void	Server::JOIN(const Message &obj)
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
 
+	if (tree.size() < 1 || tree.size() > 2)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return ;
+	}
 	// Add user to channel or create channel.
 	size_t key = 0;
 	viterator	chanelname2(tree[0].end());
@@ -231,12 +488,12 @@ void	Server::JOIN(const Message &obj)
 	{
 		Channel	*chany = NULL;
 		{
-			std::vector<Channel>::iterator chanel_list2(_v_channels.end());
-			for (std::vector<Channel>::iterator chanel_list1(_v_channels.begin()); chanel_list1 < chanel_list2; chanel_list1++)
+			std::vector<Channel *>::iterator chanel_list2(_v_channels.end());
+			for (std::vector<Channel *>::iterator chanel_list1(_v_channels.begin()); chanel_list1 < chanel_list2; chanel_list1++)
 			{
-				if ( (*chanel_list1).getName() == *chanelname1 )
+				if ( (*chanel_list1)->getName() == *chanelname1 )
 				{
-					chany = chanel_list1.base();
+					chany = (*chanel_list1.base());
 					break ;
 				}
 			}
@@ -261,31 +518,50 @@ void	Server::JOIN(const Message &obj)
 					return ;
 				}
 			}
-			if (chany->getInvite_only())
+			if (chany->isChannelRule('i'))
 			{
+				std::cout << "IS EXECUTED" << std::endl;
 				if (!chany->InviteContains(_conClients[_fd_client]))
 				{
-					send(_fd_client, "Server requires invite\n", 24, 0);
+					sendMessage(&caller, ERR_INVITEONLYCHAN(&caller, *chanelname1));
 					return ;
 				}
 			}
-			// check if banned
-			if (chany->isClientRight(_conClients[_fd_client].getUsername(), 'b'))
+			if (chany->getLimit() == chany->_clients.size())
 			{
-				send(_fd_client, "You are banned from this server\n", 33, 0);
+				sendMessage(&caller, ERR_CHANNELISFULL(&caller, *chanelname1));
 				return ;
 			}
 			// </Selection criteria>
 			if (!chany->contains(_conClients[_fd_client]))
-				chany->addClient(_conClients[_fd_client]);
+			{
+				try
+				{
+					chany->addClient(_conClients[_fd_client]);
+				}
+				catch(std::string &e)
+				{
+					if (e == "Banned (addClient)")
+					{
+						sendMessage(&caller, ERR_BANNEDFROMCHAN(&caller, chany->getName()));
+						return ;
+					}
+				}
+				sendMessage(&caller, RPL_TOPIC(&caller, chany));
+			}
 			else
 				send(_fd_client, "You are allready member of this server\n", 40, 0);
 		}
 		else
 		{
-			_v_channels.push_back(Channel(*chanelname1));
-			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, &_v_channels[_v_channels.size() - 1]));
-			_v_channels[_v_channels.size() - 1].addClient(_conClients[_fd_client]);
+			if (M_DEBUG)
+				std::cout << "Creating new channel" << std::endl;
+			// To have no pointers invalidated in case of reallocation I am allocting, freeing in ~Server();
+			_v_channels.push_back(new Channel(*chanelname1));
+			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
+
+			// TAG
+			_v_channels[_v_channels.size() - 1]->addClient(_conClients[_fd_client]);
 		}
 		key++;
 	}
@@ -297,9 +573,9 @@ void	Server::JOIN(const Message &obj)
 
 	if (M_DEBUG)
 	{
-		std::vector<Channel>::iterator	end(_v_channels.end());
-		for (std::vector<Channel>::iterator begin(_v_channels.begin()); begin < end; begin++)
-			std::cout << *begin << std::endl;
+		std::vector<Channel *>::iterator	end(_v_channels.end());
+		for (std::vector<Channel *>::iterator begin(_v_channels.begin()); begin < end; begin++)
+			std::cout << **begin << std::endl;
 	}
 }
 
@@ -376,11 +652,11 @@ void	Server::TOPIC(Client *cl, Message msg)
 	}
 	std::string channelName = msg.getParameters()[0];
 	std::string channelTopic = msg.getParameters()[1];
-	std::vector<Channel>::iterator itCh = this->_v_channels.begin();
+	std::vector<Channel *>::iterator itCh = this->_v_channels.begin();
 	bool	tmpChannelFlag = false;
 	while (itCh != this->_v_channels.end())
 	{
-		if (itCh->getName() == channelName)
+		if ((*itCh)->getName() == channelName)
 		{
 			tmpChannelFlag = true;
 			break ;
@@ -395,7 +671,7 @@ void	Server::TOPIC(Client *cl, Message msg)
 		this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, channelName));
 		return ;
 	}
-	Channel ch = *itCh;
+	Channel ch = **itCh;
 	if (!ch.contains(*cl))
 	{
 		this->sendMessage(cl, ERR_NOTONCHANNEL(cl, channelName));
