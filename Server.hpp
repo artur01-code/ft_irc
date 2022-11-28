@@ -240,6 +240,7 @@ std::string server_ipaddr);
     std::string RPL_MOTD(Client *client);
     std::string RPL_MOTDSTART(Client *client);
     std::string RPL_ENDOFMOTD(Client *client);
+    std::string JOINREPLY(Client *client, Channel *channel);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

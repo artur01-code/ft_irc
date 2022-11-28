@@ -267,5 +267,13 @@ std::string Server::RPL_ENDOFMOTD(Client *client)
 	return (msg);
 }
 
-
+std::string Server::JOINREPLY(Client *client, Channel *channel)
+{
+	std::string msg;
+	msg +=  ":" + makeNickMask(*this, *client);
+	msg += " JOIN :";
+	msg += channel->getName();
+	msg += "\r\n";
+	return (msg);
+}
 

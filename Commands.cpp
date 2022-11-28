@@ -597,23 +597,29 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			// TAG
 			_v_channels[_v_channels.size() - 1]->addClient(_conClients[_fd_client]);
 			if (M_DEBUG)
-				std::cout << "Send TOPIC REPLY to the client" << std::endl;
-			sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+				std::cout << "Send JOIN REPLY to the client" << std::endl;
+			sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
+				sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			else
+				sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
 		}
 		key++;
 	}
-	if (M_DEBUG)
-	{
-		std::cout << "The socketid of the caller: " << _fd_client << std::endl;
-		std::cout << "Through the map: " << _conClients[_fd_client].getSocket() << std::endl;
-	}
+	// if (M_DEBUG)
+	// {
+	// 	std::cout << "The socketid of the caller: " << _fd_client << std::endl;
+	// 	std::cout << "Through the map: " << _conClients[_fd_client].getSocket() << std::endl;
+	// }
 
-	if (M_DEBUG)
-	{
-		std::vector<Channel *>::iterator	end(_v_channels.end());
-		for (std::vector<Channel *>::iterator begin(_v_channels.begin()); begin < end; begin++)
-			std::cout << **begin << std::endl;
-	}
+	// if (M_DEBUG)
+	// {
+	// 	std::vector<Channel *>::iterator	end(_v_channels.end());
+	// 	for (std::vector<Channel *>::iterator begin(_v_channels.begin()); begin < end; begin++)
+	// 		std::cout << **begin << std::endl;
+	// }
 }
 
 /*
