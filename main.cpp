@@ -6,7 +6,7 @@
 /*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 02:51:29 by rkultaev          #+#    #+#             */
-/*   Updated: 2022/11/22 10:13:33 by jtomala          ###   ########.fr       */
+/*   Updated: 2022/11/23 14:46:39 by jtomala          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
         std::cerr << "bad port" << std::endl;
         return (1);
     }
-    Server server;
+    Server server(port);
     //check that we have 2 or 3 args
     //when we have 3 args there is a password
     if (argc == 3)

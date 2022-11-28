@@ -481,3 +481,17 @@ void	Channel::broadcast(Client &caller, std::string msg)
 		sendMessage(**aMemberBeg, msg);
 	}
 }
+
+std::string Channel::getNickList(void)
+{
+	std::string list;
+	std::vector<Client *>::iterator itClient = this->_clients.begin();
+	while (itClient != this->_clients.end())
+	{
+		// if (/*client is operator [@|+] */)
+		list = list + (*itClient)->getNickname();
+		list = list + " ";
+		*itClient++;
+	}
+	return (list);
+}

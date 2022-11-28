@@ -103,3 +103,22 @@ std::ostream &operator<<(std::ostream &os, const Message &message) {
     }
     return (os);
 }
+
+void Message::setPrefix(std::string prefix)
+{
+    this->_prefix = prefix;
+}
+
+void Message::setCommand(std::string command)
+{
+    this->_command = command;
+}
+
+void Message::setParameters(std::string rawParameters)
+{
+    size_t tmp;
+    while ((tmp = rawParameters.find(' ')) != rawParameters.npos) {
+        this->_parameters.push_back(rawParameters.substr(0, tmp));
+        rawParameters.erase(0, tmp + 1);
+    }
+}
