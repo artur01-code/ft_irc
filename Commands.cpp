@@ -13,39 +13,39 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj)
 	if (msgObj.getCommand() == "PASS")
 		this->PASS(msgObj, clientObj);
 	// check if user registered with password or if no password is set
-	if ((!clientObj.getPwdFlag() || this->getPwdFlag() != 0))
-		return ;
-
-	if (msgObj.getCommand() == "USER")
-		this->USER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NICK")
-		this->NICK(msgObj, clientObj);
-	// checkf if user registered correctly
-	if (clientObj.getRegFlag() != 1)
-		return ;
-
-	if (msgObj.getCommand() == "JOIN")
-		this->JOIN(msgObj, clientObj);
-	else if (msgObj.getCommand() == "PART")
-		this->PART(msgObj, clientObj);
-	else if (msgObj.getCommand() == "TOPIC")
-		this->TOPIC(&clientObj, msgObj);
-	else if (msgObj.getCommand() == "PRIVMSG")
-		this->PRIVMSG(&clientObj, msgObj);
-	else if (msgObj.getCommand() == "MODE")
-		this->MODE(msgObj, clientObj);
-	else if (msgObj.getCommand() == "NAMES")
-		this->NAMES(msgObj, clientObj);
-	else if (msgObj.getCommand() == "INVITE")
-		this->INVITE(msgObj, clientObj);
-	else if (msgObj.getCommand() == "KICK")
-		this->KICK(msgObj, clientObj);
-	else if (msgObj.getCommand() == "OPER")
-		this->OPER(msgObj, clientObj);
-	else if (msgObj.getCommand() == "WHO")
-		this->WHO(msgObj, clientObj);
-	else if (msgObj.getCommand() == "LIST")
-		this->LIST(msgObj, clientObj);
+	if ((clientObj.getPwdFlag() || this->getPwdFlag() == 0))
+	{
+		if (msgObj.getCommand() == "USER")
+			this->USER(msgObj, clientObj);
+		else if (msgObj.getCommand() == "NICK")
+			this->NICK(msgObj, clientObj);
+		// checkf if user registered correctly
+		if (clientObj.getRegFlag() == 1)
+		{
+			if (msgObj.getCommand() == "JOIN")
+				this->JOIN(msgObj, clientObj);
+			else if (msgObj.getCommand() == "PART")
+				this->PART(msgObj, clientObj);
+			else if (msgObj.getCommand() == "TOPIC")
+				this->TOPIC(&clientObj, msgObj);
+			else if (msgObj.getCommand() == "PRIVMSG")
+				this->PRIVMSG(&clientObj, msgObj);
+			else if (msgObj.getCommand() == "MODE")
+				this->MODE(msgObj, clientObj);
+			else if (msgObj.getCommand() == "NAMES")
+				this->NAMES(msgObj, clientObj);
+			else if (msgObj.getCommand() == "INVITE")
+				this->INVITE(msgObj, clientObj);
+			else if (msgObj.getCommand() == "KICK")
+				this->KICK(msgObj, clientObj);
+			else if (msgObj.getCommand() == "OPER")
+				this->OPER(msgObj, clientObj);
+			else if (msgObj.getCommand() == "WHO")
+				this->WHO(msgObj, clientObj);
+			else if (msgObj.getCommand() == "LIST")
+				this->LIST(msgObj, clientObj);
+		}
+	}
 	//call channel commands
 }
 
@@ -760,8 +760,6 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 	size_t		comma;
 	while ((comma = tmp.find(',')) != tmp.npos)
 	{
-		std::cout << tmp << std::endl;
-		std::cout << comma << std::endl;
 		recipients.push_back(tmp.substr(0, comma));
 		tmp.erase(0, comma + 1);
 	}
