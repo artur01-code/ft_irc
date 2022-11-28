@@ -255,10 +255,10 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 			os << channy._alphabet[log2(i)];
 	}
 	os << std::endl;
-	std::set<t_names> banLst = channy._banLst.getPatterns();
-	std::set<t_names>::iterator	begin(banLst.begin());
-	for (std::set<t_names>::iterator end(banLst.end()); begin != end; begin++)
-		os << "Banned nick: " << *begin << std::endl;
+	std::vector<std::string>	banids = channy.getBanLst();
+	std::vector<std::string>::iterator	begin(banids.begin());
+	for (std::vector<std::string>::iterator	end(banids.end()); begin < end; begin++)
+		os << *begin << std::endl;
 	os << "User limit: " << channy._limit << std::endl;
 	os << std::endl;
 	return (os);
