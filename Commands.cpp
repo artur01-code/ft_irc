@@ -8,7 +8,7 @@
 #include <pthread.h>
 
 
-void Server::checkCommands(const Message &msgObj, Client &clientObj, Server *serv)
+void Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
 	//when the server needs a pwd the flag is 1
 	//when the user has typed in the correct pwd or it's not needed the flag is 0
@@ -41,7 +41,7 @@ void Server::checkCommands(const Message &msgObj, Client &clientObj, Server *ser
     else if (msgObj.getCommand() == "QUIT" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
         this->QUIT(msgObj, clientObj);
 	else if (msgObj.getCommand() == "KILL" && (clientObj.getPwdFlag() || this->getPwdFlag() == 0))
-		this->KILL(msgObj, clientObj, serv);
+		this->KILL(msgObj, clientObj);
 	//call channel commands
 }
 
@@ -448,8 +448,10 @@ void	Server::PART(const Message &obj, Client &caller)
 		std::cout << "TRIGGERED PART" << std::endl;
 
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
+	std::cout << tree[1][1] << std::endl;
 	if (tree.size() != 1)
 	{
+		exit(1);
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return;
 	}
@@ -849,26 +851,111 @@ void Server::NICK(const Message &obj, Client &clientObj) {
         clientObj.setRegFlag(1);
 }
 
+// void Server::QUIT(const Message &obj, Client &clientObj) {
+//     std::string buff = "localhost: you have disconnected\r\n";
+//     sendMessage(&clientObj, buff.c_str());
+//     std::vector<s1td::string> vec = obj.getParameters();
+//     buff = ":" + clientObj.getNickname() + " QUIT :" + vec[0] + "\r\n";
+//     if (clientObj.getSocket() == _fd_client)
+//     {
+//         // if (!(clientObj.getNickname().empty()) && !(clientObj.getUsername().empty())) {
+// 			if (send(clientObj.getSocket(), buff.c_str(), strlen(buff.c_str()), 0) == ERROR)	
+// 				throw SendException();
+//             close(_fd_client);
+//             // if (_regClients.erase(clientObj.getNickname())) {
+// 			// 	std::cout << "send1\n";
+//             //     sendMessage(&clientObj, "Registered Client fd was successfully disconnected!");
+// 			// }
+//             if (_conClients.erase(clientObj.getSocket())) {
+// 				std::cout << "Registered client was disconnected\n";
+// 			}
+//         // }
+//     }
+// }
+
+void Server::sendConfirm(Client &client, std::string &cmd, std::string const &opt) {
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
+	std::string message(":" + client.getNickname() + "!" + "@" + ip_str);
+	if (opt.empty()) {
+		message += " " + cmd + " " + client.getNickname() + " " + opt + " " + message + "\r\n";
+	}
+	else
+		message += " " + cmd + " " + client.getNickname() + " " + message + "\r\n";
+	send(client.getSocket(), message.c_str(), message.length(), 0);
+	if (M_DEBUG)
+		std::cout << "Socket fd : " << client.getSocket() << "  |  " << ip_str << std::endl;
+}
+
+void Server::closeLink(Client const &client, std::string const &arg, std::string const &opt) {
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
+	std::string message;
+	message = arg + ": " + opt + "\r\n";
+	send(client.getSocket(), message.c_str(), message.length(), 0);
+	if (M_DEBUG) {
+		std::cout << "Socket fd : " << client.getSocket() << "  |  " << ip_str << std::endl;
+	}
+}
+
 void Server::QUIT(const Message &obj, Client &clientObj) {
-    std::string buff = "localhost: you have disconnected\r\n";
-    sendMessage(&clientObj, buff.c_str());
-    std::vector<std::string> vec = obj.getParameters();
-    buff = ":" + clientObj.getNickname() + " QUIT :" + vec[0] + "\r\n";
-    if (clientObj.getSocket() == _fd_client)
-    {
-        // if (!(clientObj.getNickname().empty()) && !(clientObj.getUsername().empty())) {
-			if (send(clientObj.getSocket(), buff.c_str(), strlen(buff.c_str()), 0) == ERROR)	
-				throw SendException();
-            close(_fd_client);
-            // if (_regClients.erase(clientObj.getNickname())) {
-			// 	std::cout << "send1\n";
-            //     sendMessage(&clientObj, "Registered Client fd was successfully disconnected!");
-			// }
-            if (_conClients.erase(clientObj.getSocket())) {
-				std::cout << "Registered client was disconnected\n";
+	std::vector<std::string> vec = obj.getParameters();
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
+	std::string quit = "Client Quit";
+	if (clientObj.getRegFlag() == 1) {
+		if (vec.size() > 1 && _conClients.count(_fd_client)) {
+			if (vec[1][0] == ':')
+				vec[1].erase(0, 1);
+			sendConfirm(clientObj, vec[0], vec[1]);
+		}
+		else if (_conClients.count(_fd_client)) {
+			sendConfirm(clientObj, vec[0], clientObj.getNickname());
+		// std::vector<Channel *>::iterator itCh = _v_channels.begin();
+			// std::vector<std::string>::iterator it = clientObj.getChannel().begin();
+			std::map<std::string, Channel *> stack_map = clientObj.getChannels();
+			std::map<std::string, Channel *>::iterator mapIt = stack_map.begin();
+			Channel *itrMap;
+			for (; mapIt != clientObj.getChannels().end(); mapIt++)
+			{
+				// std::vector<Client *>::iterator itCl = (*it)->_clients.begin();
+				itrMap = (*mapIt).second;
+				Message msg(std::string("PART " + itrMap->getName()));
+				std::cout << "HHHEEEEY\n";
+				PART(msg, clientObj);
+				// sendMessage(&clientObj, RPL_TOPIC(&clientObj, itrMap));
+				// if (mapIt->second._clients.empty()) {
+				// 	delete itrMap;
+				// 	mapIt.erase(*it);
+				// }
+				// std::cout << itrMap->getName() << std::endl;
+				// std::cout << clientObj.getNickname() << std::endl;
+				// std::string msg = "PART " + itrMap->getName() + " " + clientObj.getNickname();
+				// Message msg_obj = msg;
+				// PART(msg_obj, clientObj);
+				// std::vector<Client *> it = itrMap->_clients.begin();
+				// for (; it != itrMap->_clients.end(); it++) {
+				// 	if (*it == &clientObj) {
+				// 		itrMap->_clients.erase(it);
+				// 		break;
+				// 	}
+				// }
+				//need to 
+				std::cout << "END OF LOOP\n";
 			}
-        // }
-    }
+			std::cout << "HHHEEEEY1111111111\n";
+			if (_conClients.count(_fd_client))
+			closeLink(clientObj, "Close Link", ip_str + quit);
+			close(_conClients[_fd_client].getSocket());
+			_conClients.erase(_fd_client);
+		}
+	}
 }
 
 // void Server::QUIT(const Message& obj, Client &clientObj)
@@ -881,11 +968,12 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 // 	// it need to display a message reflecting on what happen
 // }
 
-void Server::KILL(const Message &obj, Client &clientObj, Server *serv)
+void Server::KILL(const Message &obj, Client &clientObj)
 {
-	// Server *serv = NULL;
+
 	std::string message;
 	std::vector<std::string> vec = obj.getParameters();
+	
 	if (clientObj.setFlag('o', reinterpret_cast<Noun *>(NULL), true, clientObj)) {
 		std::cout << "here\n";
 		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
@@ -893,20 +981,27 @@ void Server::KILL(const Message &obj, Client &clientObj, Server *serv)
 	else if (obj.getParameters().size() < 3) {
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
 	}
-	// else if (serv->findClientByName(vec[1]) == NULL) {
+	// else if () {
 	// 	sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, "NICK"));
 	// }
 	else {
-		Client *tmp = serv->findClientByName(vec[1]);
-		std::cout << "I AM HERE" << std::endl;
-		if (tmp->getNickname() == clientObj.getNickname())
-			sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, obj.getParameters()[1]));
-		else {
-			message = ":" + clientObj.getNickname() + "!" + clientObj.getUsername() + "127.0.0.1 " + "KILL " + ":" + vec[1] + "\r\n";
-			send(tmp->getSocket(), message.c_str(), message.length(), 0);
-			close(tmp->getSocket());
-			serv->deleteClient(tmp->getSocket());
+		std::map<std::string, Client *>::iterator m_cl = this->_regClients.begin();
+
+		while (m_cl != this->_regClients.end()) {
+			if (this->_regClients.count(clientObj.getNickname())) {
+				std::cout << m_cl->second->getNickname() << std::endl;
+				break;
+			}
 		}
+		message = ":" + clientObj.getNickname() + "!" + clientObj.getUsername() + "127.0.0.1 " + "KILL " + ":" + vec[0] + "\r\n";
+		sendMessage(&clientObj, message.c_str());
+		close(_conClients[_fd_client].getSocket());
+		_conClients.erase(_fd_client);
+
+		// if (tmp->getNickname() == clientObj.getNickname()) {
+		// 	sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, obj.getParameters()[1]));
+		// }
+			// std::cout << "I AM HERE" << std::endl;
 	}
 }
 

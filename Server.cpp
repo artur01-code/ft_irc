@@ -194,7 +194,7 @@ int Server::parsingMessages(std::string read)
 
 	while (itMsg != v_message.end())
 	{
-		this->checkCommands(*itMsg, itCli->second, this);
+		this->checkCommands(*itMsg, itCli->second);
 		itMsg++;
 	}
 	return (1);
@@ -266,79 +266,22 @@ void Server::kqueueEngine() {
     }
 }
 
-Client *Server::findClientByFd(int fd) {
-    std::map<int, Client>::iterator itrClient = _conClients.begin();
-
-    while (itrClient != _conClients.end()) {
-        if (itrClient->first == fd) {
-            break ;
-        }
-        itrClient++;
-    }
-    return reinterpret_cast<Client *>(itrClient->first);
-}
+// Client *Server::findClientByFd(int fd) {
+//     return _conClients[fd];
+// }
 
 Client *Server::findClientByName(std::string name) {
+    std::vector<Client *>::iterator it = this->_Client.begin();
+    std::vector<Client *>::iterator ite = this->_Client.end();
 
-    std::map<std::string, Client *>::iterator itrReg = _regClients.begin();
-    
-    while (itrReg != _regClients.end()) {
-        if (itrReg->first == name) {
-            break ;
-        }
-        itrReg++;
+    for ( ; it != ite ; it++) {
+        if ((*it)->getNickname() == name)
+            return (*it);
     }
-    // Client const *res = static_cast<Client const *>(itrReg->first);
-    // Client *ret = const_cast<std::string *>(itrReg->first);
-    Client *cl = reinterpret_cast<Client *>(itrReg->second);
-    return cl;
+    return NULL;
 }
 
-void Server::deleteClient(int fd) {
 
-    Client *tmp = findClientByFd(fd);
-
-    std::map<int, Client>::iterator itrClient = _conClients.begin();
-
-    while (itrClient++ != _conClients.end()) {
-        if (tmp == &itrClient->second)
-        {
-            this->_conClients.erase(fd);
-            delete tmp;
-            tmp = NULL;
-            return ;
-        }
-    }
-}
-
-// Channel *Server::findChannelByName(std::string name) {
-//     std::vector<Channel *>::iterator it = this->_v_channels.begin();
-//     std::vector<Channel *>::iterator ite = this->_v_channels.end();
-
-//     for ( ; it != ite; it++) {
-//         if ((*it)->getName() == name) {
-//             return (*it);
-//         }
-//     }
-//     return NULL;
-// }
-
-// void Server::deleteClient(int fd, Client *client) {
-//     std::map<int, Client>::iterator itReg = this->_regClients.begin();
-//     while(itReg != this->_regClients.end())
-//     {
-//         Client tmpClientReg = itReg->second;
-//         if (itReg->first == fd) {
-//             delete &itReg;
-//             tmpClientReg.getNickname().erase(itReg);
-//         }
-//     }
-// }
-
-// void Server::deleteUser(int fd) {
-//     std::vector<Client *>::iterator it =
-//     for (u_iterator it = )
-// }
 
 std::string Server::makeNickMask(Server server, Client client)
 {

@@ -15,10 +15,14 @@ std::string Server::RPL_ENDOFWHO(Client *caller)
 std::string	Server::RPL_WHOREPLY(Channel *foundOn, Client *found)
 {
 	std::string	msg;
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
 
 	msg += ":" + this->getServerName();
 	msg += " 352 ";
-	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("* ") : ("")) + ":0 " + found->getRealname();
+	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + ip_str + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("* ") : ("")) + ":0 " + found->getRealname();
 	msg += "\r\n";
 	return (msg);
 }

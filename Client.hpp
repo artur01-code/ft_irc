@@ -73,6 +73,8 @@ class Client : public Noun
 		bool		checkMode(char c);  
 
 		std::map<std::string, Channel *>	getChannels(void) const;
+		std::vector<std::string> channels;
+		std::vector<std::string> &getChannel() { return (channels) ;}
 		void	addChannel(Channel *ptr);
 		void	subtractChannel(std::string name);
 		void	subtractChannel(Channel *ptr);
@@ -89,6 +91,12 @@ class Client : public Noun
 
 		std::string	modeStr() const;
 		friend std::ostream	&operator<<(std::ostream &os, Client &obj);
+
+		// bool isOnChannel(Channel &ch) {
+		// 	if (_channels.count(ch.getName()))
+		// 		return true;
+		// 	return false;
+		// }
 };
 
 std::ostream	&operator<<(std::ostream &os, Client &obj);

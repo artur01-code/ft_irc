@@ -116,6 +116,7 @@ class Channel : public Noun
 			virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
 			virtual std::string greet() {return("Hello channel");}
 		std::vector<Client *>			_clients;
+		std::vector<Client *>			channel_oper;
 		// The clients for whom rights are set are a superset of the clients that
 		// are members of the server!
 		std::map<std::string, char>		client_rights; // nick in call
@@ -157,5 +158,7 @@ class Channel : public Noun
 
 std::string	getPrimer(std::string &pattern);
 bool	strMatch(std::string specific, std::string pattern);
+
+
 
 #endif

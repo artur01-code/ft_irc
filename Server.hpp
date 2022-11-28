@@ -52,6 +52,7 @@ class Server {
     std::string _password_operator;
 	std::vector<Channel *>	_v_channels;
     std::map<std::string, Channel *> _mapChannels;
+    // std::map<std::string, Channel> chanMap;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
@@ -93,6 +94,7 @@ class Server {
     int examineAndRead();
     int addConnection(int fd);
     void sendMessage(Client *client, std::string message);
+    void sendConfirm(Client &client, std::string &cmd, std::string const &opt);
     void addClient(int fd_client, sockaddr_in addrinfo_client,
                    std::string server_ipaddr);
     void deleteClient(int fd);
@@ -119,7 +121,7 @@ class Server {
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
-    void checkCommands(const Message &msgObj, Client &clientObj, Server *server);
+    void checkCommands(const Message &msgObj, Client &clientObj);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
 
@@ -129,7 +131,8 @@ class Server {
     void PART(const Message &obj, Client &caller);
 
     void QUIT(const Message &obj, Client &clientObj);
-    void KILL(const Message &obj, Client &clientObj, Server *serv);
+    void closeLink(Client const &client, std::string const &arg, std::string const &opt);
+    void KILL(const Message &obj, Client &clientObj);
 
 
 	// ------------ MODE MEMBER CLASS ------------------- //
