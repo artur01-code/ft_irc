@@ -192,10 +192,10 @@ std::string Server::RPL_NAMREPLY(Client *client, Channel *channel)
 	msg += ":" + this->getServerName();
 	msg += " 353 ";
 	msg += client->getNickname() + " ";
-	// if (channel->checkMode(CHANMODE_SECRET))
-	// 	msg += " @ ";
-	// else
-	// 	msg += " = ";
+	if (channel->isClientRight(client->getNickname(), 'i'))
+		msg += " @ ";
+	else
+		msg += " = ";
 	msg += channel->getName();
 	msg += " :" + channel->getNickList();
 	msg += "\r\n";
