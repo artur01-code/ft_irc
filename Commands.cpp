@@ -724,9 +724,9 @@ void	Server::TOPIC(Client *cl, Message msg)
 	if (msg.getParameters().size() == 1)
 	{
 		if (ch->getTopic() == "")
-			this->sendMessage(cl, RPL_NOTOPIC(cl, &ch));
+			this->sendMessage(cl, RPL_NOTOPIC(cl, ch));
 		else
-			this->sendMessage(cl, RPL_TOPIC(cl, &ch));
+			this->sendMessage(cl, RPL_TOPIC(cl, ch));
 	}
 	else
 	{
@@ -782,7 +782,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			}
 			toChannel = this->_mapChannels[target];
 			// check if Client is banned on that channel
-			if (!cl->isOnChannel(toChannel) || toChannel->)
+			if (!cl->isOnChannel(toChannel) || toChannel->matchBanLst(*cl))
 			{
 				this->sendMessage(cl, ERR_CANNOTSENDTOCHAN(cl, target));
 				continue ;
