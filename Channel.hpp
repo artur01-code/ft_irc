@@ -91,7 +91,7 @@ typedef struct	s_names
 		const virtual char *what() const throw();
 	};
 } t_names;
-
+#include "ChannelAdditionals.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
 
@@ -124,51 +124,55 @@ class Channel : public Noun
 				{return (_patterns);}
 		};
 		BanLst							_banLst;
+		std::map<std::string, char>		client_rights;
 	public:
-		size_t	getLimit() const;
-			virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
-			virtual std::string greet() {return("Hello channel");}
-		std::vector<Client *>			_clients;
-		// The clients for whom rights are set are a superset of the clients that
-		// are members of the server!
-		std::map<std::string, char>		client_rights; // nick in call
-		std::string	ModeStr();
-		std::string	channelUsrModes(Client *object);
-		std::vector<std::string>	getBanLst() const;
-		std::string						getEndBanLst() const;
-		void	broadcast(Client &caller, std::string msg);
-
-
-	// Getters and setters:
-		std::string	getName() const;
 		Channel(std::string name);
 		virtual ~Channel() {}
 
-		std::string	getTopic() const;
-		void		setTopic(std::string topic);
+		std::vector<Client *>			_clients;
+		void	broadcast(Client &caller, std::string msg);
+		bool	matchBanLst(const Client &request);
 
+
+		// CLIENT MODE INTERFACE
 		void	setClientRight( std::string username, char toAdd, bool active);
 		bool	isClientRight( std::string username, char right );
-		std::string getNickList(void);
 
-		// void	setChannelRule(char toAdd, bool active);
-		int	isChannelRule(char rule);
 
-		std::string getPwd() const;
-		bool	getHasPwd() const;
-		void	setPwd(const std::string &newPwd, bool active = true);
+		// CHANNEL MODE INTERFACE
+		void	setChannelRule(char toAdd, bool active);
+		int		isChannelRule(char rule);
 
+		// PASSWORD
+		std::string 	getPwd() const;
+		bool			getHasPwd() const;
+		void			setPwd(const std::string &newPwd, bool active = true);
+
+		// ADDING REMOVING CLIENT
 		const std::vector<std::string>	&getInvitedClients() const;
-		void	addInvitedClients(std::string newInvite);
+		void							addInvitedClients(std::string newInvite);
+		void							addClient(Client &obj);
+		void 							rmClient(Client &obj);
+
+		// BOOL:
+		bool contains(const Client &obj);
 		bool	InviteContains(const Client &obj);
 		bool    removeMode(int mode);
 
-		void addClient(Client &obj);
-		void rmClient(Client &obj);
 
-		// Contains reliant on socketid, good?
-		bool contains(const Client &obj);
+		// TRIVIAL
+		std::string getNickList(void);
 		friend std::ostream	&operator<<(std::ostream &os, Channel &channy);
+		size_t	getLimit() const;
+		virtual int setFlag(char flag, Noun *obj, bool active, Client &caller);
+		virtual std::string greet() {return("Hello channel");}
+		std::string	getName() const;
+		std::string	getTopic() const;
+		void		setTopic(std::string topic);
+		std::string	channelUsrModes(Client *object);
+		std::vector<std::string>	getBanLst() const;
+		std::string						getEndBanLst() const;
+		std::string	ModeStr();
 };
 
 std::string	getPrimer(std::string &pattern);
