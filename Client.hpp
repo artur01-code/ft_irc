@@ -16,11 +16,11 @@
 #include	"Channel.hpp"
 #include	"Colors.hpp"
 
-#define USERMODE_AWAY		1
-#define USERMODE_INVIS		2
-#define USERMODE_NOTICE		4
-#define USERMODE_WALLOPS	8
-#define USERMODE_OP			16
+#define USERMODE_AWAY		'a'
+#define USERMODE_INVIS		'i'
+#define USERMODE_NOTICE		's'
+#define USERMODE_WALLOPS	'w'
+#define USERMODE_OPER		'o'
 
 class Channel;
 
