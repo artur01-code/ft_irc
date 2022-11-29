@@ -41,13 +41,13 @@ void Client::setMeOperator()
 	_charRuleSetter(_globalClientMode, 'o', true);
 }
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1), _msgCounter(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname) : _nickname(nickname), _regFlag(0)
+Client::Client(std::string nickname) : _nickname(nickname), _regFlag(0), _msgCounter(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client nickname Constructor" << END << std::endl;
@@ -253,4 +253,41 @@ std::string	Client::modeStr() const
 			modes += this->_alphabet[log2(i)];
 	}
 	return (modes);
+}
+
+std::string Client::getHistoryString(void)
+{
+	std::string res;
+	std::vector<std::string>::iterator it = this->_history.begin();
+	while (it != this->_history.end())
+	{
+		res += *it;
+		it++;
+	}
+	return (res);
+}
+
+std::vector<std::string> Client::getHistory(void)
+{
+	return (this->_history);
+}
+
+void Client::addHistory(std::string string)
+{
+	this->_history.push_back(string);
+}
+
+void Client::increaseMsgCounter(int i)
+{
+	if (i == 1)
+		this->_msgCounter++;
+	else if (i == -1)
+		this->_msgCounter--;
+	else
+		this->_msgCounter = i;
+}
+
+int Client::getMsgCounter()
+{
+	return (this->_msgCounter);
 }

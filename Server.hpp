@@ -105,13 +105,13 @@ std::string server_ipaddr);
     // setter
     void setPassword(std::string password);
     void setKEvent();
-    std::string makeNickMask(Server server, Client client);
+    std::string makeNickMask(Server *server, Client *client);
     void setPwdFlag(int n);
     std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
-    void checkCommands(const Message &msgObj, Client &clientObj);
+    int checkCommands(const Message &msgObj, Client &clientObj);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
     void JOIN(const Message &obj, Client &clientObj);
@@ -240,6 +240,10 @@ std::string server_ipaddr);
     std::string RPL_LISTSTART();
     std::string RPL_LIST(Channel *channel);
     std::string RPL_LISTEND();
+    std::string RPL_MOTD(Client *client);
+    std::string RPL_MOTDSTART(Client *client);
+    std::string RPL_ENDOFMOTD(Client *client);
+    std::string JOINREPLY(Client *client, Channel *channel);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

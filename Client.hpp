@@ -16,11 +16,11 @@
 #include	"Channel.hpp"
 #include	"Colors.hpp"
 
-#define USERMODE_AWAY		1
-#define USERMODE_INVIS		2
-#define USERMODE_NOTICE		4
-#define USERMODE_WALLOPS	8
-#define USERMODE_OP			16
+#define USERMODE_AWAY		'a'
+#define USERMODE_INVIS		'i'
+#define USERMODE_NOTICE		's'
+#define USERMODE_WALLOPS	'w'
+#define USERMODE_OPER		'o'
 
 class Channel;
 
@@ -39,7 +39,9 @@ class Client : public Noun
 		std::string	_username;
 		int			_regFlag;
 		int			_pwdFlag;
+		int			_msgCounter;
 		std::map<std::string, Channel *> _channels;
+		std::vector<std::string> _history;
 		id_t		_modes;
 	public:
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
@@ -69,6 +71,11 @@ class Client : public Noun
 		int			getPwdFlag(void);
 		void		setPwdFlag(int n);
 		bool		checkMode(char c);
+		std::string getHistoryString(void);
+		std::vector<std::string> getHistory(void);
+		void		addHistory(std::string string);
+		void		increaseMsgCounter(int i);
+		int			getMsgCounter();
 
 		std::map<std::string, Channel *>	getChannels(void) const;
 		void	addChannel(Channel *ptr);
