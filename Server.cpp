@@ -166,6 +166,8 @@ int Server::receiveMessages(int fd)
 			break;
 		itCli++;
 	}
+	if (M_DEBUG)
+		std::cout << "Revieved: " << buffer << "!" << std::endl;
 	itCli->second.addHistory(buffer);
 	itCli->second.increaseMsgCounter(1);
 
