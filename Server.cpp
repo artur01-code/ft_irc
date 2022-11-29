@@ -235,32 +235,22 @@ int Server::parsingMessages(std::string read)
 		itCli++;
 	}
 
-	// if (M_DEBUG)
-	// 	std::cout << "cmd: " << buf_string << std::endl;
-	// itCli->second.addHistory(buf_string);
 	int counter = 0;
 	while (itMsg != v_message.end())
 	{
 		counter = this->checkCommands(*itMsg, itCli->second);
-		if (M_DEBUG)
-			std::cout << "counter: " << counter << std::endl; 
+		/*When the command is not found it tries to connect strings that got passed before
+		For handling CTRL + D */
 		if (counter > 0)
 		{
-			std::cout << "HISTORY: " << itCli->second.getHistory()[2];
-			std::cout << itCli->second.getHistory()[3] << std::endl;
-			std::cout << "size: " << itCli->second.getHistory().size() << std::endl;
 			std::string conString;
 			while (itCli->second.getMsgCounter() != 0)
 			{
 				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - itCli->second.getMsgCounter()];
 				itCli->second.increaseMsgCounter(-1);
 			}
-			// conString = conString.substr(0, conString.length() - 2);
 			if (M_DEBUG)
-				std::cout << "CONSTRING: " << conString << "!" << std::endl;
-			// itMsg->setCommand(conString);
-			// Message conMsg = Message(conString);
-			// counter = this->checkCommands(conMsg, itCli->second);
+				std::cout << "CONSTRING: " << conString << "(!)" << std::endl;
 			this->parsingMessages(conString);
 			counter = 0;
 		}
