@@ -93,6 +93,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->PING(msgObj, clientObj);
 				return 0;
 			}
+			else if (msgObj.getCommand() == "QUIT")
+			{
+				this->QUIT(msgObj, clientObj);
+				return 0;
+			}
 			else if (msgObj.getCommand() == "KILL")
 			{
 			this->KILL(msgObj, clientObj);
@@ -1015,56 +1020,57 @@ void Server::closeLink(Client const &client, std::string const &arg, std::string
 	}
 }
 
-// void Server::QUIT(const Message &obj, Client &clientObj) {
-// 	std::vector<std::string> vec = obj.getParameters();
-// 	char ip_str[INET_ADDRSTRLEN];
-// 	struct sockaddr_in client_address;
-// 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
-//               sizeof(client_address));
-// 	std::string quit = "Client Quit";
-// 	if (clientObj.getRegFlag() == 1) {
-// 		if (vec.size() > 1 && _conClients.count(_fd_client)) {
-// 			if (vec[1][0] == ':')
-// 				vec[1].erase(0, 1);
-// 			sendConfirm(clientObj, vec[0], vec[1]);
-// 		}
-// 		else if (_conClients.count(_fd_client)) {
-// 			sendConfirm(clientObj, vec[0], clientObj.getNickname());
-// 			const std::map<std::string, Channel *> copy = clientObj.getChannels();
-// 			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
-// 			Channel *itrMap;
-// 			for (; mapIt != copy.cend(); mapIt++)
-// 			{
-// 				itrMap = (*mapIt).second;
-// 				Message msg(std::string("PART " + itrMap->getName()));
-// 				PART(msg, clientObj);
-				
-// 				// if (mapIt->second._clients.empty()) {
-// 				// 	delete itrMap;
-// 				// 	mapIt.erase(*it);
-// 				// }
-// 				// std::cout << itrMap->getName() << std::endl;
-// 				// std::cout << clientObj.getNickname() << std::endl;
-				
-// 				// Message msg_obj = msg;
-// 				// PART(msg_obj, clientObj);
-// 				// std::vector<Client *> it = itrMap->_clients.begin();
-// 				// for (; it != itrMap->_clients.end(); it++) {
-// 				// 	if (*it == &clientObj) {
-// 				// 		itrMap->_clients.erase(it);
-// 				// 		break;
-// 				// 	}
-// 				// }
-// 				//need to 
+void Server::QUIT(const Message &obj, Client &clientObj) {
+	std::vector<std::string> vec = obj.getParameters();
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
+	std::string quit = "Client Quit";
+	if (clientObj.getRegFlag() == 1) {
+		if (vec.size() > 1 && _conClients.count(_fd_client)) {
+			if (vec[1][0] == ':')
+				vec[1].erase(0, 1);
+			sendConfirm(clientObj, vec[0], vec[1]);
+		}
+		else if (_conClients.count(_fd_client)) {
+			sendConfirm(clientObj, vec[0], clientObj.getNickname());
+			const std::map<std::string, Channel *> copy = clientObj.getChannels();
+			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
+			Channel *itrMap;
+			for (; mapIt != copy.cend(); mapIt++)
+			{
+				itrMap = (*mapIt).second;
+				Message msg(std::string("PART " + itrMap->getName()));
+				PART(msg, clientObj);
 
-// 			}
-// 			if (_conClients.count(_fd_client))
-// 			closeLink(clientObj, "Close Link", ip_str + quit);
-// 			close(_conClients[_fd_client].getSocket());
-// 			_conClients.erase(_fd_client);
-// 		}
-// 	}
-// }
+				// if (mapIt->second._clients.empty()) {
+				// 	delete itrMap;
+				// 	mapIt.erase(*it);
+				// }
+				// std::cout << itrMap->getName() << std::endl;
+				// std::cout << clientObj.getNickname() << std::endl;
+				
+				// Message msg_obj = msg;
+				// PART(msg_obj, clientObj);
+				// std::vector<Client *> it = itrMap->_clients.begin();
+				// for (; it != itrMap->_clients.end(); it++) {
+				// 	if (*it == &clientObj) {
+				// 		itrMap->_clients.erase(it);
+				// 		break;
+				// 	}
+				// }
+				//need to 
+
+			}
+			if (_conClients.count(_fd_client))
+			closeLink(clientObj, "Close Link", ip_str + quit);
+			close(_conClients[_fd_client].getSocket());
+			_conClients.erase(_fd_client);
+			_regClients.erase(clientObj.getNickname());
+		}
+	}
+}
 
 // void Server::QUIT(const Message& obj, Client &clientObj)
 // {
