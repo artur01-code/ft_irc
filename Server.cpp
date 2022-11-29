@@ -251,7 +251,8 @@ int Server::parsingMessages(std::string read)
 			int tmpcounter = counter + 1;
 			while (tmpcounter != 0)
 				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - tmpcounter--];
-			std::cout << "CONSTRING: " << conString << std::endl;
+			conString = conString.substr(0, conString.length() - 2);
+			std::cout << "CONSTRING: " << conString << "!" << std::endl;
 			itMsg->setCommand(conString);
 			std::cout << "itMsg->getCommand(): " << itMsg->getCommand() << std::endl;
 			counter += this->checkCommands(*itMsg, itCli->second);

@@ -10,7 +10,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
 	//when the server needs a pwd the flag is 1
 	//when the user has typed in the correct pwd or it's not needed the flag is 0
-	std::cout << "msgObj.getCOmmand(): " << msgObj.getCommand() << std::endl;
+	std::cout << "msgObj.getCOmmand(): " << msgObj.getCommand() << "!" << std::endl;
 	if (msgObj.getCommand() == "PASS")
 	{
 		this->PASS(msgObj, clientObj);
