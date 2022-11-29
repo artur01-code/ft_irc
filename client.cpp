@@ -41,13 +41,13 @@ void Client::setMeOperator()
 	_charRuleSetter(_globalClientMode, 'o', true);
 }
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1), _msgCounter(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname) : _nickname(nickname), _regFlag(0)
+Client::Client(std::string nickname) : _nickname(nickname), _regFlag(0), _msgCounter(0)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client nickname Constructor" << END << std::endl;
@@ -275,4 +275,19 @@ std::vector<std::string> Client::getHistory(void)
 void Client::addHistory(std::string string)
 {
 	this->_history.push_back(string);
+}
+
+void Client::increaseMsgCounter(int i)
+{
+	if (i == 1)
+		this->_msgCounter++;
+	else if (i == -1)
+		this->_msgCounter--;
+	else
+		this->_msgCounter = i;
+}
+
+int Client::getMsgCounter()
+{
+	return (this->_msgCounter);
 }

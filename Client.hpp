@@ -39,6 +39,7 @@ class Client : public Noun
 		std::string	_username;
 		int			_regFlag;
 		int			_pwdFlag;
+		int			_msgCounter;
 		std::map<std::string, Channel *> _channels;
 		std::vector<std::string> _history;
 		id_t		_modes;
@@ -73,6 +74,8 @@ class Client : public Noun
 		std::string getHistoryString(void);
 		std::vector<std::string> getHistory(void);
 		void		addHistory(std::string string);
+		void		increaseMsgCounter(int i);
+		int			getMsgCounter();
 
 		std::map<std::string, Channel *>	getChannels(void) const;
 		void	addChannel(Channel *ptr);

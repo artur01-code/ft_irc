@@ -167,6 +167,8 @@ int Server::receiveMessages(int fd)
 		itCli++;
 	}
 	itCli->second.addHistory(buffer);
+	itCli->second.increaseMsgCounter(1);
+
 
 	/*END SAVE HISTORY*/
 	this->parsingMessages(buffer);
@@ -248,15 +250,19 @@ int Server::parsingMessages(std::string read)
 			std::cout << itCli->second.getHistory()[3] << std::endl;
 			std::cout << "size: " << itCli->second.getHistory().size() << std::endl;
 			std::string conString;
-			int tmpcounter = counter + 1;
-			while (tmpcounter != 0)
-				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - tmpcounter--];
-			conString = conString.substr(0, conString.length() - 2);
-			std::cout << "CONSTRING: " << conString << "!" << std::endl;
-			itMsg->setCommand(conString);
-			std::cout << "itMsg->getCommand(): " << itMsg->getCommand() << std::endl;
-			counter += this->checkCommands(*itMsg, itCli->second);
-			std::cout << "counter: " << counter << std::endl;
+			while (itCli->second.getMsgCounter() != 0)
+			{
+				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - itCli->second.getMsgCounter()];
+				itCli->second.increaseMsgCounter(-1);
+			}
+			// conString = conString.substr(0, conString.length() - 2);
+			if (M_DEBUG)
+				std::cout << "CONSTRING: " << conString << "!" << std::endl;
+			// itMsg->setCommand(conString);
+			// Message conMsg = Message(conString);
+			// counter = this->checkCommands(conMsg, itCli->second);
+			this->parsingMessages(conString);
+			counter = 0;
 		}
 		itMsg++;
 	}
