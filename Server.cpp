@@ -204,6 +204,9 @@ void Server::sendMessage(Client *client, std::string message)
 		throw SendException();
 }
 
+/// @brief 
+/// @param read 
+/// @return 
 int Server::parsingMessages(std::string read)
 {
 	/*--- PARSIND START ---*/
@@ -235,13 +238,12 @@ int Server::parsingMessages(std::string read)
 		itCli++;
 	}
 
-	int counter = 0;
 	while (itMsg != v_message.end())
 	{
-		counter = this->checkCommands(*itMsg, itCli->second);
+		// this->checkCommands(*itMsg, itCli->second);
 		/*When the command is not found it tries to connect strings that got passed before
 		For handling CTRL + D */
-		if (counter > 0)
+		if (this->checkCommands(*itMsg, itCli->second))
 		{
 			std::string conString;
 			while (itCli->second.getMsgCounter() != 0)
@@ -252,7 +254,6 @@ int Server::parsingMessages(std::string read)
 			if (M_DEBUG)
 				std::cout << "CONSTRING: " << conString << "(!)" << std::endl;
 			this->parsingMessages(conString);
-			counter = 0;
 		}
 		itMsg++;
 	}
