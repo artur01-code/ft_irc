@@ -1110,25 +1110,28 @@ void Server::KILL(const Message &obj, Client &clientObj)
 		sendMessage(&clientObj, message);
 
 	
-	// Copy of all the channels the target was in
-	const std::map<std::string, Channel *> copy = target->getChannels();
-	std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
-	for (; mapIt != copy.end(); mapIt++)
-	{
-		Message msg(std::string("PART " + mapIt->second->getName()));
-		PART(msg, clientObj);
+		// Copy of all the channels the target was in
+		const std::map<std::string, Channel *> copy = target->getChannels();
+		std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
+		for (; mapIt != copy.end(); mapIt++)
+		{
+			Message msg(std::string("PART " + mapIt->second->getName()));
+			PART(msg, clientObj);
+		}
+		close(target->getSocket());
+		_conClients.erase(target->getSocket());
+		_regClients.erase(target->getNickname());
+		// std::map<std::string, Client *>::iterator it = _regClients.begin();
+		// while (it != _regClients.end()) {
+		// 	if (it != _regClients.end())
+		// 		delete (it->second);
+		// 		_regClients.erase(it);
+		// }
 	}
-	close(target->getSocket());
-	_conClients.erase(target->getSocket());
-	_regClients.erase(target->getNickname());
-	// std::map<std::string, Client *>::iterator it = _regClients.begin();
-	// while (it != _regClients.end()) {
-	// 	if (it != _regClients.end())
-	// 		delete (it->second);
-	// 		_regClients.erase(it);
-	// }
+	else {
+		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
+		return;
 	}
-
 
 // 	// std::cout << "SEGFAULT\n";
 	
