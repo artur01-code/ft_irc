@@ -3,18 +3,15 @@
 //--------------DEFAULT CONSTRUCTOR-------------//
 Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 {
-	_operPwd = "6969";
-	std::string ip_address = "127.0.0.1";
-	int port = 6969;
-	setupConnection(_ip_address, port);
-	setKqueue();
+	/*
+	FOBIDDEN because we need to specify the port
+	*/
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
+Server::Server(int port) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), MODE(*this)
 {
 	_operPwd = "6969";
-	std::cout << "hey1\n";
 	std::string tmp = "127.0.0.1";
 	setupConnection(tmp, port);
 	setKqueue();
@@ -100,51 +97,84 @@ int Server::setListen() {
 }
 
 //-*-*-*-*-*-*-*-*-*-* ACCEPT FUNCTION //-*-*-*-*-*-*-*-*-*-*
-int Server::setAccept() {
-    struct sockaddr_in client_address;
-    socklen_t socket_length;
-    int client_fd;
-    char buffer[2048];
-    char ip_str[INET_ADDRSTRLEN];
-    client_fd = accept(this->_server_fd, (struct sockaddr *)&client_address,
-                       (socklen_t *)&socket_length);
-    if (client_fd == ERROR) throw Server::AcceptException();
+int Server::setAccept()
+{
+	struct sockaddr_in client_address;
+	socklen_t socket_length;
+	int client_fd;
+	char buffer[2048];
+	char ip_str[INET_ADDRSTRLEN];
+	client_fd = accept(this->_server_fd, (struct sockaddr *)&client_address,
+					   (socklen_t *)&socket_length);
+	if (client_fd == ERROR)
+		throw Server::AcceptException();
 
-    ////////////ADD CLIENT////////////
-    // AddClient(client_fd, client_address, _ip_address);
-    // addConnection(client_fd);
-    Client *new_client = new Client(client_fd);
-    this->_conClients.insert(std::make_pair(client_fd, *new_client));
-    std::cout << "new client_fd : " << client_fd << " was accepted\n";
-    inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
-              sizeof(client_address));
-    inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
-              sizeof(client_address));
-    std::string message = std::string("IPv4 address is : ") + ip_str;
-    std::cout << message << std::endl;
-    return client_fd;
+	////////////ADD CLIENT////////////
+	// AddClient(client_fd, client_address, _ip_address);
+	// addConnection(client_fd);
+	Client *new_client = new Client(client_fd);
+	this->_conClients.insert(std::make_pair(client_fd, *new_client));
+	if (M_DEBUG)
+		std::cout << "new client : " << client_fd << " was accepted\n";
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
+			  sizeof(client_address));
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+			  sizeof(client_address));
+	std::string message = std::string("IPv4 address is : ") + ip_str;
+	if (M_DEBUG)
+		std::cout << message << std::endl;
+	return client_fd;
 }
 
 //-*-*-*-*-*-*-*-*-*-* RECEIVE FUNCTION//-*-*-*-*-*-*-*-*-*-*
-int Server::receiveMessages(int fd) {
-    char buffer[2048];
-    int bytes_read;
+int Server::receiveMessages(int fd)
+{
+	char buffer[2048];
+	int bytes_read;
 
-    // std::cout << "ruslan\n";
-    bzero(buffer, sizeof(buffer));
-    bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
-    if (bytes_read <= 0) {
-        if (bytes_read < 0)
-            throw Server::ReceiveException();
-        else {
-            throw Server::ReceiveSockHungUpException();
-        }
-    }
+	// std::cout << "ruslan\n";
+	bzero(buffer, sizeof(buffer));
+	bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes_read <= 0)
+	{
+		if (bytes_read < 0)
+			throw Server::ReceiveException();
+		else
+		{
+			throw Server::ReceiveSockHungUpException();
+		}
+	}
 
-    buffer[bytes_read] = 0;
-    std::cout << buffer << std::endl;
-    this->parsingMessages(buffer);
-    return 1;
+	buffer[bytes_read] = 0;
+
+	/*START SAVE HISTORY*/
+	std::map<int, Client>::iterator itCli = this->_conClients.begin();
+	while (itCli != this->_conClients.end())
+	{
+		if (itCli->first == this->_fd_client)
+			break;
+		itCli++;
+	}
+	if (M_DEBUG)
+		std::cout << "Revieved: " << buffer << "!" << std::endl;
+	itCli->second.addHistory(buffer);
+	itCli->second.increaseMsgCounter(1);
+
+
+	/*END SAVE HISTORY*/
+	this->parsingMessages(buffer);
+	return 1;
+}
+
+std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string text)
+{
+	std::string msg;
+	// set prefix to include full client identifier
+	msg += ":" + this->makeNickMask(this, cl);
+	// append target nickname to PRIVMSG cmd
+	msg += " PRIVMSG " + receiver;
+	msg += " :" + text + "\r\n";
+	return (msg);
 }
 
 //-*-*-*-*-*-*-*-*-*-* SEND MESSAGE //-*-*-*-*-*-*-*-*-*-*
@@ -152,7 +182,11 @@ void Server::sendMessage(Client *client, std::string message)
 {
 	int nb_of_bytes_sent;
 	if (client->getSocket() == ERROR)
+	{
+		if (M_DEBUG)
+			std::cout << "ERROR: sendMessage() unsuccessfull" << std::endl;
 		return;
+	}
 	if (M_DEBUG)
 		std::cout << "sendMessage() : " << message << std::endl;
 	nb_of_bytes_sent =
@@ -161,6 +195,9 @@ void Server::sendMessage(Client *client, std::string message)
 		throw SendException();
 }
 
+/// @brief 
+/// @param read 
+/// @return 
 int Server::parsingMessages(std::string read)
 {
 	/*--- PARSIND START ---*/
@@ -194,7 +231,21 @@ int Server::parsingMessages(std::string read)
 
 	while (itMsg != v_message.end())
 	{
-		this->checkCommands(*itMsg, itCli->second);
+		// this->checkCommands(*itMsg, itCli->second);
+		/*When the command is not found it tries to connect strings that got passed before
+		For handling CTRL + D */
+		if (this->checkCommands(*itMsg, itCli->second))
+		{
+			std::string conString;
+			while (itCli->second.getMsgCounter() != 0)
+			{
+				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - itCli->second.getMsgCounter()];
+				itCli->second.increaseMsgCounter(-1);
+			}
+			if (M_DEBUG)
+				std::cout << "CONSTRING: " << conString << "(!)" << std::endl;
+			this->parsingMessages(conString);
+		}
 		itMsg++;
 	}
 	return (1);
@@ -282,13 +333,13 @@ Client *Server::findClientByName(std::string name) {
 }
 
 
-
-std::string Server::makeNickMask(Server server, Client client)
+std::string Server::makeNickMask(Server *server, Client *client)
 {
-	// std::string mask;
-	// mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
-	// return (mask);
-	return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
+	std::string mask;
+	std::cout << server->getHost() << std::endl;
+	mask += client->getNickname() + "!" + client->getUsername() + "@" + server->getHost();
+	return (mask);
+	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {
@@ -459,3 +510,6 @@ const char *Server::NoSuchChannelException::what() const throw() {
     return ("NoSuchChannel ERROR: ");
 }
 
+const char *Server::KillingServerException::what() const throw () {
+    return ("KillingServerException ERROR: ");
+}

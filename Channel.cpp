@@ -255,10 +255,10 @@ std::ostream	&operator<<(std::ostream &os, Channel &channy)
 			os << channy._alphabet[log2(i)];
 	}
 	os << std::endl;
-	std::set<t_names> banLst = channy._banLst.getPatterns();
-	std::set<t_names>::iterator	begin(banLst.begin());
-	for (std::set<t_names>::iterator end(banLst.end()); begin != end; begin++)
-		os << "Banned nick: " << *begin << std::endl;
+	std::vector<std::string>	banids = channy.getBanLst();
+	std::vector<std::string>::iterator	begin(banids.begin());
+	for (std::vector<std::string>::iterator	end(banids.end()); begin < end; begin++)
+		os << *begin << std::endl;
 	os << "User limit: " << channy._limit << std::endl;
 	os << std::endl;
 	return (os);
@@ -321,10 +321,11 @@ void	Channel::addInvitedClients(std::string newInvite)
 	_listInvitedClients.push_back(newInvite);
 }
 
-void Channel::rmClient(const Client &obj)
+void Channel::rmClient(Client &obj)
 {
-	std::vector<Client *>::iterator	begin(_clients.begin());
+	obj.subtractChannel(this->getName()); // Change what channels obj is a member of.
 
+	std::vector<Client *>::iterator	begin(_clients.begin());
 	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
 		if (M_DEBUG)
@@ -332,6 +333,8 @@ void Channel::rmClient(const Client &obj)
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
 			_clients.erase(begin);
+			if (_clients.size() == 0) // No more clients left
+				throw("destroyChannel");
 			return ;
 		}
 	}
@@ -347,7 +350,7 @@ int	Channel::isChannelRule(char rule) // tested
 
 bool	Channel::isClientRight( std::string nickname, char right )
 {
-	if (right == 'o') // The owner is also operator.
+	if (right == CHANMODE_OPER) // The owner is also operator.
 	{
 		if (isClientRight(nickname, 'x'))
 		{
@@ -453,4 +456,44 @@ std::string	Channel::channelUsrModes(Client *object)
 			msg += _clientAlphabet[log2(i)];
 	}
 	return (msg);
+}
+
+static void	sendMessage(Client &to, std::string &msg)
+{
+	if (to.getSocket() == ERROR)
+		return ;
+
+	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
+		throw Server::SendException();
+	send(to.getSocket(), msg.c_str(), msg.size(), 0);
+}
+
+void	Channel::broadcast(Client &caller, std::string msg)
+{
+	std::vector<Client *>::iterator	aMemberBeg(_clients.begin());
+	for (std::vector<Client *>::iterator aMemberEnd(_clients.end()); aMemberBeg < aMemberEnd; aMemberBeg++)
+	{
+		if (*aMemberBeg == &caller)
+			continue ;
+		sendMessage(**aMemberBeg, msg);
+	}
+}
+
+std::string Channel::getNickList(void)
+{
+	std::string list;
+	std::vector<Client *>::iterator itClient = this->_clients.begin();
+	while (itClient != this->_clients.end())
+	{
+		// if (/*client is operator [@|+] */)
+		list = list + (*itClient)->getNickname();
+		list = list + " ";
+		*itClient++;
+	}
+	return (list);
+}
+
+bool	Channel::matchBanLst(const Client &request)
+{
+	return (_banLst.match(request));
 }

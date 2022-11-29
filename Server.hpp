@@ -70,9 +70,9 @@ class Server {
     // returned events are places in event_list
     struct kevent _event_list[20];
     struct sockaddr_in _server_address;
+    Server();
 
    public:
-    Server();
     Server(int port);
     Server(int port, std::string ip_address);
     ~Server();
@@ -114,14 +114,14 @@ class Server {
     void setPassword(std::string password);
     void setKEvent();
 
-    std::string makeNickMask(Server server, Client client);
+    std::string makeNickMask(Server *server, Client *client);
     void setPwdFlag(int n);
 
     std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
-    void checkCommands(const Message &msgObj, Client &clientObj);
+    int checkCommands(const Message &msgObj, Client &clientObj);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
 
@@ -130,22 +130,20 @@ class Server {
 	void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj, Client &caller);
 
+
     void QUIT(const Message &obj, Client &clientObj);
     void closeLink(Client const &client, std::string const &arg, std::string const &opt);
     void KILL(const Message &obj, Client &clientObj);
 
 
+
+    void LIST(const Message &obj, Client &clientObj);
+
 	// ------------ MODE MEMBER CLASS ------------------- //
 
 	// Implementation in: Mode.cpp
 	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
-	template <class Iter>
-	static void apply(Iter i, void (*func)(typename Iter::value_type))
-	{
-		typename Iter::iterator	begin(i.begin());
-		for (typename Iter::iterator end(i.end()); begin != end; begin++)
-			func(*begin);
-	}
+
 	template <class Data>
 	static std::vector<Data> reduce(std::vector<std::vector<Data> > vector) // Fields are not comma separated, therefore we can reduce them
 	{
@@ -197,7 +195,7 @@ class Server {
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
 
-
+		std::string buildPRIVMSG(Client *cl, std::string toClient, std::string text);
 
     void PASS(const Message &msgObj, Client &clientObj);
     void NAMES(const Message &msgObj, Client &clientObj);
@@ -205,9 +203,11 @@ class Server {
 	void KICK(const Message &msgObj, Client &clientObj);
 	void OPER(const Message &msgObj, Client &clientObj);
 	void WHO(const Message &obj, Client &caller);
+	void PING(const Message &obj, Client &caller);
 
 
     /*---ERRORS---*/
+	std::string	ERR_BADCHANMASK(std::string channel_name);
 	std::string	ERR_KEYSET(std::string channelName);
 	std::string	ERR_NOOPERHOST(); // WILD
     std::string ERR_NOSUCHNICK(Client *client, std::string nick);
@@ -257,6 +257,15 @@ class Server {
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
 	std::string	RPL_TOPIC(Client *client, Channel *channel);
+    std::string RPL_ENDOFNAMES(Client *client, Channel *channel);
+    std::string RPL_NAMREPLY(Client *client, Channel *channel);
+    std::string RPL_LISTSTART();
+    std::string RPL_LIST(Channel *channel);
+    std::string RPL_LISTEND();
+    std::string RPL_MOTD(Client *client);
+    std::string RPL_MOTDSTART(Client *client);
+    std::string RPL_ENDOFMOTD(Client *client);
+    std::string JOINREPLY(Client *client, Channel *channel);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{
@@ -316,6 +325,9 @@ class Server {
     class KeventDeleteException : public std::exception {
         virtual const char *what() const throw();
     };
+    class KillingServerException : public std::exception {
+        virtual const char *what() const throw();
+    };
 
    private:
     /*
@@ -327,5 +339,93 @@ class Server {
     // Server(const Server &rhs);
     // Server &operator=(const Server &rhs);
 };
+
+// <Some experimental stuff>
+
+template <class Iter>
+void apply(Iter &i, void (*func)(typename Iter::value_type))
+{
+	typename Iter::iterator	begin(i.begin());
+	for (typename Iter::iterator end(i.end()); begin != end; begin++)
+	{
+		try
+		{
+			func(*begin);
+		}
+		catch(const char *str)
+		{
+			if (std::string(str) == "erase")
+			{
+				i.erase(begin);
+			}
+		}
+	}
+}
+
+template <class Iter, class CallableObj>
+void apply(Iter &i, CallableObj obj)
+{
+	typename Iter::iterator	begin(i.begin());
+	for (typename Iter::iterator end(i.end()); begin != end; begin++)
+	{
+		try
+		{
+			obj(*begin);
+		}
+		catch(const char *str)
+		{
+			if (std::string(str) == "erase")
+				i.erase(begin);
+		}
+	}
+}
+
+template <class ValueType>
+class SignalEraseEqual
+{
+	private:
+		ValueType _compVal;
+	public:
+		SignalEraseEqual(const SignalEraseEqual &ref) : _compVal(ref._compVal) {}
+		SignalEraseEqual(ValueType compVal) : _compVal(compVal){}
+
+		void	operator()(ValueType &val)
+		{
+			if (val == _compVal)
+				throw ("erase");
+		}
+};
+
+template <class First, class Second>
+bool	operator==(First someVal ,std::pair<First, Second> pair)
+{
+	if (someVal == pair.first)
+		return (true);
+	return (false);
+}
+
+template <class First, class Second>
+bool	operator==(Second someVal ,std::pair<First, Second> pair)
+{
+	if (someVal == pair.second)
+		return (true);
+	return (false);
+}
+// </Some experimental stuff>
+
+// For debugging
+template <class First, class Second>
+std::ostream	&operator<<(std::ostream &os, std::pair<First, Second> pair)
+{
+	os << pair.first;
+	return (os);
+}
+
+template <class ValueType>
+void printShit(ValueType v)
+{
+	std::cout << v << std::endl;
+}
+
 
 #endif
