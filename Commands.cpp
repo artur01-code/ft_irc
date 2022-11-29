@@ -6,46 +6,90 @@
 #include <pthread.h>
 
 
-void Server::checkCommands(const Message &msgObj, Client &clientObj)
+int Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
 	//when the server needs a pwd the flag is 1
 	//when the user has typed in the correct pwd or it's not needed the flag is 0
+	std::cout << "msgObj.getCOmmand(): " << msgObj.getCommand() << std::endl;
 	if (msgObj.getCommand() == "PASS")
+	{
 		this->PASS(msgObj, clientObj);
+		return (0);
+	}
 	// check if user registered with password or if no password is set
 	if ((clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 	{
 		if (msgObj.getCommand() == "USER")
+		{
 			this->USER(msgObj, clientObj);
+			return (0);
+		}
 		else if (msgObj.getCommand() == "NICK")
+		{
 			this->NICK(msgObj, clientObj);
+			return (0);
+		}
 		// checkf if user registered correctly
 		if (clientObj.getRegFlag() == 1)
 		{
 			if (msgObj.getCommand() == "JOIN")
+			{
 				this->JOIN(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "PART")
+			{
 				this->PART(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "TOPIC")
+			{
 				this->TOPIC(&clientObj, msgObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "PRIVMSG")
+			{
 				this->PRIVMSG(&clientObj, msgObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "MODE")
+			{
 				this->MODE(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "NAMES")
+			{
 				this->NAMES(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "INVITE")
+			{
 				this->INVITE(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "KICK")
+			{
 				this->KICK(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "OPER")
+			{
 				this->OPER(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "WHO")
+			{
 				this->WHO(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "LIST")
+			{
 				this->LIST(msgObj, clientObj);
+			}
 		}
+		return (1);
 	}
+	return (1);
 	//call channel commands
 }
 

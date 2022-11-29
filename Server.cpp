@@ -125,13 +125,15 @@ int Server::setAccept()
 	// addConnection(client_fd);
 	Client *new_client = new Client(client_fd);
 	this->_conClients.insert(std::make_pair(client_fd, *new_client));
-	std::cout << "new client : " << client_fd << " was accepted\n";
+	if (M_DEBUG)
+		std::cout << "new client : " << client_fd << " was accepted\n";
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
 			  sizeof(client_address));
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
 			  sizeof(client_address));
 	std::string message = std::string("IPv4 address is : ") + ip_str;
-	std::cout << message << std::endl;
+	if (M_DEBUG)
+		std::cout << message << std::endl;
 	return client_fd;
 }
 
@@ -155,7 +157,18 @@ int Server::receiveMessages(int fd)
 	}
 
 	buffer[bytes_read] = 0;
-	std::cout << buffer << std::endl;
+
+	/*START SAVE HISTORY*/
+	std::map<int, Client>::iterator itCli = this->_conClients.begin();
+	while (itCli != this->_conClients.end())
+	{
+		if (itCli->first == this->_fd_client)
+			break;
+		itCli++;
+	}
+	itCli->second.addHistory(buffer);
+
+	/*END SAVE HISTORY*/
 	this->parsingMessages(buffer);
 	return 1;
 }
@@ -220,9 +233,30 @@ int Server::parsingMessages(std::string read)
 		itCli++;
 	}
 
+	// if (M_DEBUG)
+	// 	std::cout << "cmd: " << buf_string << std::endl;
+	// itCli->second.addHistory(buf_string);
+	int counter = 0;
 	while (itMsg != v_message.end())
 	{
-		this->checkCommands(*itMsg, itCli->second);
+		counter = this->checkCommands(*itMsg, itCli->second);
+		if (M_DEBUG)
+			std::cout << "counter: " << counter << std::endl; 
+		if (counter > 0)
+		{
+			std::cout << "HISTORY: " << itCli->second.getHistory()[2];
+			std::cout << itCli->second.getHistory()[3] << std::endl;
+			std::cout << "size: " << itCli->second.getHistory().size() << std::endl;
+			std::string conString;
+			int tmpcounter = counter + 1;
+			while (tmpcounter != 0)
+				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - tmpcounter--];
+			std::cout << "CONSTRING: " << conString << std::endl;
+			itMsg->setCommand(conString);
+			std::cout << "itMsg->getCommand(): " << itMsg->getCommand() << std::endl;
+			counter += this->checkCommands(*itMsg, itCli->second);
+			std::cout << "counter: " << counter << std::endl;
+		}
 		itMsg++;
 	}
 	return (1);

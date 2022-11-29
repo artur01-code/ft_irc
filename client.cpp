@@ -254,3 +254,25 @@ std::string	Client::modeStr() const
 	}
 	return (modes);
 }
+
+std::string Client::getHistoryString(void)
+{
+	std::string res;
+	std::vector<std::string>::iterator it = this->_history.begin();
+	while (it != this->_history.end())
+	{
+		res += *it;
+		it++;
+	}
+	return (res);
+}
+
+std::vector<std::string> Client::getHistory(void)
+{
+	return (this->_history);
+}
+
+void Client::addHistory(std::string string)
+{
+	this->_history.push_back(string);
+}
