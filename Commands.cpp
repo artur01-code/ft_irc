@@ -85,10 +85,10 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			{
 				this->LIST(msgObj, clientObj);
 			}
-      else if (msgObj.getCommand() == "PING")
-      {
-        this->PING(msgObj, clientObj);
-      }
+			else if (msgObj.getCommand() == "PING")
+			{
+				this->PING(msgObj, clientObj);
+			}
 		}
 		return (1);
 	}
