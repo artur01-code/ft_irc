@@ -86,14 +86,17 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			else if (msgObj.getCommand() == "LIST")
 			{
 				this->LIST(msgObj, clientObj);
+				return 0;
 			}
 			else if (msgObj.getCommand() == "PING")
 			{
-			this->PING(msgObj, clientObj);
+				this->PING(msgObj, clientObj);
+				return 0;
 			}
 			else if (msgObj.getCommand() == "KILL")
 			{
 			this->KILL(msgObj, clientObj);
+				return 0;
 			}
 		return (1);
 		}
@@ -1076,57 +1079,64 @@ void Server::closeLink(Client const &client, std::string const &arg, std::string
 void Server::KILL(const Message &obj, Client &clientObj)
 {
 
-// 	std::string message;
-// 	std::vector<std::string> vec = obj.getParameters();
+	std::string message;
+	std::vector<std::string> vec = obj.getParameters();
 	
-// 	// if (clientObj.setFlag('o', reinterpret_cast<Noun *>(NULL), true, clientObj)) {
+	// if (clientObj.setFlag('o', reinterpret_cast<Noun *>(NULL), true, clientObj)) {
 
-// 	// 	sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
-// 	// }
-// 	// std::cout << clientObj.getHostname() << std::endl;
+	// 	sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
+	// }
+	// std::cout << clientObj.getHostname() << std::endl;
 
-// 	if (obj.getParameters().size() < 3) {
-// 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
-// 		return;
-// 	}
-// 	// if (vec[1].compare(clientObj.getHostname()) == 0 && (!_regClients.count(clientObj.getNickname()))) {
-// 	// 	std::cout << "HERE\n";
-// 	// 	throw KillingServerException();
-// 	// }
-// 	if (!_regClients.count(vec[0])) {
-// 		sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
-// 		return;
-// 	}
-// 	Client * target = _regClients[vec[0]];
-// 	if (vec[0] == clientObj.getNickname() || clientObj.checkMode('o')) {
-// 		// Client *tmp = _regClients.count(clientObj.getNickname());
-// 		// if (tmp->getNickname() == _regClients.count(vec[0])) {
-// 		// 	sendMessage(&clientObj, (&clientObj, "You cannot kill yourself"));
-// 		// }
+	if (obj.getParameters().size() < 3) {
+		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
+		return;
+	}
+	// if (vec[1].compare(clientObj.getHostname()) == 0 && (!_regClients.count(clientObj.getNickname()))) {
+	// 	std::cout << "HERE\n";
+	// 	throw KillingServerException();
+	// }
+	if (!_regClients.count(vec[0])) {
+		sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
+		return;
+	}
+	Client * target = _regClients[vec[0]];
+	if (vec[0] == clientObj.getNickname() || clientObj.checkMode('o')) {
+		// Client *tmp = _regClients.count(clientObj.getNickname());
+		// if (tmp->getNickname() == _regClients.count(vec[0])) {
+		// 	sendMessage(&clientObj, (&clientObj, "You cannot kill yourself"));
+		// }
+		message = ": " + clientObj.getNickname() + "!  |  " + clientObj.getUsername() + "  |  127.0.0.1 |  " + "KILL " + ":" + vec[0] + "\r\n";
+		sendMessage(&clientObj, message);
+
 	
-// 		message = ": " + clientObj.getNickname() + "!  |  " + clientObj.getUsername() + "  |  127.0.0.1 |  " + "KILL " + ":" + vec[0] + "\r\n";
-// 		sendMessage(&clientObj, message);
+	// Copy of all the channels the target was in
+	const std::map<std::string, Channel *> copy = target->getChannels();
+	std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
+	for (; mapIt != copy.end(); mapIt++)
+	{
+		Message msg(std::string("PART " + mapIt->second->getName()));
+		PART(msg, clientObj);
+	}
+	close(target->getSocket());
+	_conClients.erase(target->getSocket());
+	_regClients.erase(target->getNickname());
+	// std::map<std::string, Client *>::iterator it = _regClients.begin();
+	// while (it != _regClients.end()) {
+	// 	if (it != _regClients.end())
+	// 		delete (it->second);
+	// 		_regClients.erase(it);
+	// }
+	}
 
-// 	if (target->getChannels().count(clientObj))
-// 	// Copy of all the channels the target was in
-// 	const std::map<std::string, Channel *> copy = target->getChannels();
-// 	std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
-// 	for (; mapIt != copy.end(); mapIt++)
-// 	{
-// 		Message msg(std::string("PART " + mapIt->second->getName()));
-// 		PART(msg, clientObj);
-// 	}
-// 	// close(target->getSocket());
-// 	// _conClients.erase(target->getSocket());
-// 	// for (std::map<std::string, Client *>::iterator itr = )
 
 // 	// std::cout << "SEGFAULT\n";
+	
+		// if (tmp->getNickname() == clientObj.getNickname()) {
+		// 	sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, obj.getParameters()[1]));
+		// }
+			// std::cout << "I AM HERE" << std::endl;
 
-// 	}
-// 		// if (tmp->getNickname() == clientObj.getNickname()) {
-// 		// 	sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, obj.getParameters()[1]));
-// 		// }
-// 			// std::cout << "I AM HERE" << std::endl;
 }
 
 
