@@ -85,27 +85,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			{
 				this->LIST(msgObj, clientObj);
 			}
-      else if (msgObj.getCommand() == "PING")
-      {
-        this->PING(msgObj, clientObj);
-      }
 		}
 		return (1);
 	}
 	return (1);
 	//call channel commands
-}
-
-void Server::PING(const Message &obj, Client &caller)
-{
-	std::vector<std::string>	reduced_tree;
-	reduced_tree = reduce(getTree(obj));
-	if (reduced_tree.size() != 1)
-	{
-		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
-		return ;
-	}
-	sendMessage(&caller, ":" + this->getServerName() + " PONG " + reduced_tree[0] + "\r\n");
 }
 
 void searchMatch(std::map<Client *, Channel *> &ret, std::map<Client *, Channel *> &commonClients, std::string &pattern, std::string whatName)
@@ -145,15 +129,15 @@ void Server::WHO(const Message &obj, Client &caller)
 		ERR_NOSUCHCHANNEL(&caller, "ANY");
 		return ;
 	}
-	if (M_DEBUG)
-	{
-		std::set<Channel *>::iterator	begin(base.begin());
-		for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
-		{
-			std::cout << "Base channels from WHO" << std::endl;
-			std::cout << **begin << std::endl;
-		}
-	}
+	// if (M_DEBUG)
+	// {
+	// 	std::set<Channel *>::iterator	begin(base.begin());
+	// 	for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
+	// 	{
+	// 		std::cout << "Base channels from WHO" << std::endl;
+	// 		std::cout << **begin << std::endl;
+	// 	}
+	// }
 
 	std::map<Client *, Channel *>	commonClients;
 
@@ -637,6 +621,13 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				try
 				{
 					chany->addClient(_conClients[_fd_client]);
+					if (M_DEBUG)
+						std::cout << "Send JOIN REPLY to the client" << std::endl;
+					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
+						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					else
+						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
