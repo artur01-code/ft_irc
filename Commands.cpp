@@ -86,22 +86,27 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			else if (msgObj.getCommand() == "LIST")
 			{
 				this->LIST(msgObj, clientObj);
-				return 0;
+				return (0);
 			}
 			else if (msgObj.getCommand() == "PING")
 			{
 				this->PING(msgObj, clientObj);
-				return 0;
+				return (0);
 			}
 			else if (msgObj.getCommand() == "QUIT")
 			{
 				this->QUIT(msgObj, clientObj);
-				return 0;
+				return (0);
 			}
 			else if (msgObj.getCommand() == "KILL")
 			{
 			this->KILL(msgObj, clientObj);
-				return 0;
+				return (0);
+			}
+			else if (msgObj.getCommand() == "DIE")
+			{
+				this->DIE(msgObj, clientObj);
+				return (0);
 			}
 		return (1);
 		}
@@ -1146,6 +1151,22 @@ void Server::KILL(const Message &obj, Client &clientObj)
 		// }
 			// std::cout << "I AM HERE" << std::endl;
 
+}
+
+void Server::DIE(const Message &obj, Client &clientObj) {
+	(void)obj;
+	(void)clientObj;
+	if (M_DEBUG)
+		std::cout << "DIE() FUNCTION TRIGGERED" << std::endl;
+	if (clientObj.checkMode('o')) {
+		std::cout << "Server is shutting down" << std::endl;
+		exit(1);
+	}
+	else {
+		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
+		std::cout << "DIE() COMMAND : " << clientObj.getNickname() << " doesn't have privileges" << std::endl;
+		return;
+	}
 }
 
 

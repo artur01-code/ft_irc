@@ -134,6 +134,7 @@ class Server {
     void QUIT(const Message &obj, Client &clientObj);
     void closeLink(Client const &client, std::string const &arg, std::string const &opt);
     void KILL(const Message &obj, Client &clientObj);
+    void DIE(const Message &obj, Client &clientObj);
 
 
 
