@@ -158,11 +158,13 @@ int Server::receiveMessages(int fd)
 	if (M_DEBUG)
 		std::cout << "Revieved: " << buffer << "!" << std::endl;
 	itCli->second.addHistory(buffer);
-	itCli->second.increaseMsgCounter(1);
-
-
-	/*END SAVE HISTORY*/
-	this->parsingMessages(buffer);
+	// itCli->second.increaseMsgCounter(1);
+	if (buffer[strlen(buffer) - 1] == '\n')
+	{
+		/*END SAVE HISTORY*/
+		this->parsingMessages(buffer);
+		itCli->second.flushHistory();
+	}
 	return 1;
 }
 
@@ -193,6 +195,18 @@ void Server::sendMessage(Client *client, std::string message)
 		send(client->getSocket(), message.c_str(), message.size(), 0);
 	if (nb_of_bytes_sent == ERROR)
 		throw SendException();
+}
+
+std::string	concat(std::vector<std::string> veci)
+{
+	std::string ret;
+
+	std::vector<std::string>::iterator begin(veci.begin());
+	for (std::vector<std::string>::iterator end(veci.end()); begin < end; begin++)
+	{
+		ret += *begin;
+	}
+	return (ret);
 }
 
 /// @brief 
@@ -237,11 +251,7 @@ int Server::parsingMessages(std::string read)
 		if (this->checkCommands(*itMsg, itCli->second))
 		{
 			std::string conString;
-			while (itCli->second.getMsgCounter() != 0)
-			{
-				conString += itCli->second.getHistory()[itCli->second.getHistory().size() - itCli->second.getMsgCounter()];
-				itCli->second.increaseMsgCounter(-1);
-			}
+			conString = concat(itCli->second.getHistory());
 			if (M_DEBUG)
 				std::cout << "CONSTRING: " << conString << "(!)" << std::endl;
 			this->parsingMessages(conString);
@@ -512,4 +522,14 @@ const char *Server::NoSuchChannelException::what() const throw() {
 
 const char *Server::KillingServerException::what() const throw () {
     return ("KillingServerException ERROR: ");
+}
+
+std::ostream	&operator<<(std::ostream &os, std::vector<std::string>	veci)
+{
+	std::vector<std::string>::iterator	begin(veci.begin());
+	for (std::vector<std::string>::iterator	end(veci.end()); begin < end; begin++)
+	{
+		os << *begin << std::endl;
+	}
+	return (os);
 }

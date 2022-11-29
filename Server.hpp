@@ -427,5 +427,6 @@ void printShit(ValueType v)
 	std::cout << v << std::endl;
 }
 
+std::ostream	&operator<<(std::ostream &os, std::vector<std::string>	veci);
 
 #endif

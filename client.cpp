@@ -293,3 +293,8 @@ int Client::getMsgCounter()
 {
 	return (this->_msgCounter);
 }
+
+void	Client::flushHistory()
+{
+	_history = std::vector<std::string>();
+}
