@@ -602,7 +602,8 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			}
 			if (chany->isChannelRule('i'))
 			{
-				std::cout << "IS EXECUTED" << std::endl;
+				if (M_DEBUG)
+					std::cout << "IS EXECUTED" << std::endl;
 				if (!chany->InviteContains(_conClients[_fd_client]))
 				{
 					sendMessage(&caller, ERR_INVITEONLYCHAN(&caller, *chanelname1));

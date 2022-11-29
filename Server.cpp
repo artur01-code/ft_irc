@@ -6,15 +6,10 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 	/*
 	FOBIDDEN because we need to specify the port
 	*/
-	_operPwd = "6969";
-	std::string ip_address = "127.0.0.1";
-	int port = 6969;
-	setupConnection(_ip_address, port);
-	setKqueue();
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _v_channels(), _mapChannels(), MODE(*this)
+Server::Server(int port) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), MODE(*this)
 {
 	_operPwd = "6969";
 	std::string tmp = "127.0.0.1";
@@ -181,7 +176,7 @@ std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string t
 {
 	std::string msg;
 	// set prefix to include full client identifier
-	msg += ":" + this->makeNickMask(*this, *cl);
+	msg += ":" + this->makeNickMask(this, cl);
 	// append target nickname to PRIVMSG cmd
 	msg += " PRIVMSG " + receiver;
 	msg += " :" + text + "\r\n";
@@ -342,10 +337,11 @@ void Server::kqueueEngine()
 	}
 }
 
-std::string Server::makeNickMask(Server server, Client client)
+std::string Server::makeNickMask(Server *server, Client *client)
 {
 	std::string mask;
-	mask += client.getNickname() + "!" + client.getUsername() + "@" + server.getHost();
+	std::cout << server->getHost() << std::endl;
+	mask += client->getNickname() + "!" + client->getUsername() + "@" + server->getHost();
 	return (mask);
 	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }

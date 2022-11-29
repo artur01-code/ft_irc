@@ -270,7 +270,7 @@ std::string Server::RPL_ENDOFMOTD(Client *client)
 std::string Server::JOINREPLY(Client *client, Channel *channel)
 {
 	std::string msg;
-	msg +=  ":" + makeNickMask(*this, *client);
+	msg +=  ":" + makeNickMask(this, client);
 	msg += " JOIN :";
 	msg += channel->getName();
 	msg += "\r\n";

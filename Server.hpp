@@ -105,7 +105,7 @@ std::string server_ipaddr);
     // setter
     void setPassword(std::string password);
     void setKEvent();
-    std::string makeNickMask(Server server, Client client);
+    std::string makeNickMask(Server *server, Client *client);
     void setPwdFlag(int n);
     std::vector<Client *> _Client;
 
