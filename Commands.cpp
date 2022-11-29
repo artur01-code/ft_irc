@@ -458,7 +458,6 @@ void	Server::PART(const Message &obj, Client &caller)
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return;
 	}
-
 	str_iterator	param_begin(tree[0].begin());
 	for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
 	{
@@ -597,7 +596,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 		else
 		{
 			if (M_DEBUG)
-				std::cout << "Creating new channel" << std::endl;
+				std::cout << "Creating new channel: " << *chanelname1 << std::endl;
 			if ((*chanelname1)[0] != '#')
 			{
 				sendMessage(&caller, ERR_BADCHANMASK(*chanelname1));
@@ -622,18 +621,18 @@ void	Server::JOIN(const Message &obj, Client &caller)
 		}
 		key++;
 	}
-	// if (M_DEBUG)
-	// {
-	// 	std::cout << "The socketid of the caller: " << _fd_client << std::endl;
-	// 	std::cout << "Through the map: " << _conClients[_fd_client].getSocket() << std::endl;
-	// }
+	if (M_DEBUG)
+	{
+		std::cout << "The socketid of the caller: " << _fd_client << std::endl;
+		std::cout << "Through the map: " << _conClients[_fd_client].getSocket() << std::endl;
+	}
 
-	// if (M_DEBUG)
-	// {
-	// 	std::vector<Channel *>::iterator	end(_v_channels.end());
-	// 	for (std::vector<Channel *>::iterator begin(_v_channels.begin()); begin < end; begin++)
-	// 		std::cout << **begin << std::endl;
-	// }
+	if (M_DEBUG)
+	{
+		std::vector<Channel *>::iterator	end(_v_channels.end());
+		for (std::vector<Channel *>::iterator begin(_v_channels.begin()); begin < end; begin++)
+			std::cout << **begin << std::endl;
+	}
 }
 
 /*
