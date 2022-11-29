@@ -6,46 +6,89 @@
 #include <pthread.h>
 
 
-void Server::checkCommands(const Message &msgObj, Client &clientObj)
+int Server::checkCommands(const Message &msgObj, Client &clientObj)
 {
 	//when the server needs a pwd the flag is 1
 	//when the user has typed in the correct pwd or it's not needed the flag is 0
 	if (msgObj.getCommand() == "PASS")
+	{
 		this->PASS(msgObj, clientObj);
+		return (0);
+	}
 	// check if user registered with password or if no password is set
 	if ((clientObj.getPwdFlag() || this->getPwdFlag() == 0))
 	{
 		if (msgObj.getCommand() == "USER")
+		{
 			this->USER(msgObj, clientObj);
+			return (0);
+		}
 		else if (msgObj.getCommand() == "NICK")
+		{
 			this->NICK(msgObj, clientObj);
+			return (0);
+		}
 		// checkf if user registered correctly
 		if (clientObj.getRegFlag() == 1)
 		{
 			if (msgObj.getCommand() == "JOIN")
+			{
 				this->JOIN(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "PART")
+			{
 				this->PART(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "TOPIC")
+			{
 				this->TOPIC(&clientObj, msgObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "PRIVMSG")
+			{
 				this->PRIVMSG(&clientObj, msgObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "MODE")
+			{
 				this->MODE(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "NAMES")
+			{
 				this->NAMES(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "INVITE")
+			{
 				this->INVITE(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "KICK")
+			{
 				this->KICK(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "OPER")
+			{
 				this->OPER(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "WHO")
+			{
 				this->WHO(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "LIST")
+			{
 				this->LIST(msgObj, clientObj);
+			}
 		}
+		return (1);
 	}
+	return (1);
 	//call channel commands
 }
 
@@ -331,7 +374,7 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 				int i = 0;
 				while (!vec[i].empty())
 				{
-					if (vec[i] == (*itChannel)->getName())
+					if (vec[i] == (*itChannel)->getName() && (!(*itChannel)->isChannelRule('i') || ((*itChannel)->isChannelRule('i') && (*itChannel)->contains(clientObj))))
 						this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
 					i++;
 				}
@@ -458,7 +501,6 @@ void	Server::PART(const Message &obj, Client &caller)
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return;
 	}
-
 	str_iterator	param_begin(tree[0].begin());
 	for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
 	{
@@ -560,7 +602,8 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			}
 			if (chany->isChannelRule('i'))
 			{
-				std::cout << "IS EXECUTED" << std::endl;
+				if (M_DEBUG)
+					std::cout << "IS EXECUTED" << std::endl;
 				if (!chany->InviteContains(_conClients[_fd_client]))
 				{
 					sendMessage(&caller, ERR_INVITEONLYCHAN(&caller, *chanelname1));
@@ -587,6 +630,8 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						return ;
 					}
 				}
+				if (M_DEBUG)
+					std::cout << "Send TOPIC REPLY to the client" << std::endl;
 				sendMessage(&caller, RPL_TOPIC(&caller, chany));
 			}
 			else
@@ -595,7 +640,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 		else
 		{
 			if (M_DEBUG)
-				std::cout << "Creating new channel" << std::endl;
+				std::cout << "Creating new channel: " << *chanelname1 << std::endl;
 			if ((*chanelname1)[0] != '#')
 			{
 				sendMessage(&caller, ERR_BADCHANMASK(*chanelname1));
@@ -603,10 +648,18 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			}
 			// To have no pointers invalidated in case of reallocation I am allocting, freeing in ~Server();
 			_v_channels.push_back(new Channel(*chanelname1));
+			 
 			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
 
 			// TAG
 			_v_channels[_v_channels.size() - 1]->addClient(_conClients[_fd_client]);
+			if (M_DEBUG)
+				std::cout << "Send JOIN REPLY to the client" << std::endl;
+			sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
+				sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			else
+				sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 		}
 		key++;
 	}
@@ -678,6 +731,9 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 
 		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
+		this->sendMessage(&clientObj, RPL_MOTDSTART(&clientObj));
+		this->sendMessage(&clientObj, RPL_MOTD(&clientObj));
+		this->sendMessage(&clientObj, RPL_ENDOFMOTD(&clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}
@@ -773,7 +829,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 		if (target[0] == '#')
 		{
 			// target is a channel
-			if (!this->_mapChannels.count(target))
+			if (!this->_mapChannels.count(target)) 
 			{
 				this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, target));
 				continue ;
@@ -867,6 +923,9 @@ void Server::NICK(const Message &obj, Client &clientObj)
 	if (clientObj.getRegFlag() == 1 && clientObj.getUsername() != "")
 	{
 		this->_regClients.insert(std::make_pair(clientObj.getNickname(), &clientObj));
+		this->sendMessage(&clientObj, RPL_MOTDSTART(&clientObj));
+		this->sendMessage(&clientObj, RPL_MOTD(&clientObj));
+		this->sendMessage(&clientObj, RPL_ENDOFMOTD(&clientObj));
 		if (M_DEBUG)
 			std::cout << "Client successfully registered!" << std::endl;
 	}

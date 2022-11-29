@@ -39,7 +39,9 @@ class Client : public Noun
 		std::string	_username;
 		int			_regFlag;
 		int			_pwdFlag;
+		int			_msgCounter;
 		std::map<std::string, Channel *> _channels;
+		std::vector<std::string> _history;
 		id_t		_modes;
 	public:
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
@@ -69,6 +71,11 @@ class Client : public Noun
 		int			getPwdFlag(void);
 		void		setPwdFlag(int n);
 		bool		checkMode(char c);
+		std::string getHistoryString(void);
+		std::vector<std::string> getHistory(void);
+		void		addHistory(std::string string);
+		void		increaseMsgCounter(int i);
+		int			getMsgCounter();
 
 		std::map<std::string, Channel *>	getChannels(void) const;
 		void	addChannel(Channel *ptr);

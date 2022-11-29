@@ -233,4 +233,47 @@ std::string Server::RPL_LISTEND()
 	return (":End of /LIST\r\n");
 }
 
+/*MOTD*/
+std::string Server::RPL_MOTD(Client *client)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 372 ";
+	msg += client->getNickname() + " ";
+	msg += ":" + this->getMotd();
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_MOTDSTART(Client *client)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 375 ";
+	msg += client->getNickname() + " ";
+	msg += ":- " + this->getServerName() + " Message of the day - ";
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::RPL_ENDOFMOTD(Client *client)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 376 ";
+	msg += client->getNickname() + " ";
+	msg += ":End of /MOTD command.";
+	msg += "\r\n";
+	return (msg);
+}
+
+std::string Server::JOINREPLY(Client *client, Channel *channel)
+{
+	std::string msg;
+	msg +=  ":" + makeNickMask(this, client);
+	msg += " JOIN :";
+	msg += channel->getName();
+	msg += "\r\n";
+	return (msg);
+}
 
