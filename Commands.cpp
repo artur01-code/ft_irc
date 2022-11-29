@@ -331,7 +331,7 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 				int i = 0;
 				while (!vec[i].empty())
 				{
-					if (vec[i] == (*itChannel)->getName())
+					if (vec[i] == (*itChannel)->getName() && (!(*itChannel)->isChannelRule('i') || ((*itChannel)->isChannelRule('i') && (*itChannel)->contains(clientObj))))
 						this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
 					i++;
 				}
