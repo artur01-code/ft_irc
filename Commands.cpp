@@ -84,10 +84,12 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			else if (msgObj.getCommand() == "LIST")
 			{
 				this->LIST(msgObj, clientObj);
+				return (0);
 			}
 			else if (msgObj.getCommand() == "PING")
 			{
 				this->PING(msgObj, clientObj);
+				return (0);
 			}
 		}
 		return (1);
@@ -644,6 +646,8 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 					else
 						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
@@ -683,6 +687,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 			else
 				sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+
 		}
 		key++;
 	}
