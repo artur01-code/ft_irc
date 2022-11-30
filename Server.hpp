@@ -176,6 +176,8 @@ std::string server_ipaddr);
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
 		std::string buildPRIVMSG(Client *cl, std::string toClient, std::string text);
+	void NOTICE(Client *cl, const Message &msg);
+		std::string buildNOTICE(Client *cl, std::string toClient, std::string text);
     void PASS(const Message &msgObj, Client &clientObj);
     void NAMES(const Message &msgObj, Client &clientObj);
 	void INVITE(const Message &msgObj, Client &clientObj);
