@@ -93,7 +93,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			}
 			else if (msgObj.getCommand() == "AWAY")
 			{
-				// this->AWAY(msgObj, clientObj);
+				this->AWAY(msgObj, clientObj);
 				return (0);
 			}
 		}
@@ -101,6 +101,32 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 	}
 	return (1);
 	//call channel commands
+}
+
+void Server::AWAY(const Message &obj, Client &caller)
+{
+	if (M_DEBUG)
+		std::cout << "Away got triggered" << std::endl;
+	std::vector<std::string>	reduced_tree;
+	reduced_tree = reduce(getTree(obj));
+
+	if (reduced_tree.size() == 0)
+	{
+		caller.awayMsg = "";
+		caller.changeMode('a', false);
+		sendMessage(&caller, RPL_UNAWAY(&caller));
+		return ;
+	}
+
+	caller.changeMode('a', true);
+	std::string message;
+	{
+		std::vector<std::string>::iterator begin(reduced_tree.begin());
+		for (std::vector<std::string>::iterator end(reduced_tree.end()); begin < end; begin++)
+			message += *begin;
+	}
+	caller.awayMsg = message;
+	sendMessage(&caller, RPL_AWAY(&caller, message));
 }
 
 void Server::PING(const Message &obj, Client &caller)
@@ -369,6 +395,10 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	channel->addInvitedClients(guest->getNickname());
 	sendMessage(&caller, RPL_INVITING(guest, channel));
 	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
+	if (guest->checkMode('a'))
+	{
+		sendMessage(&caller, RPL_AWAY(guest, guest->awayMsg));
+	}
 }
 
 /*

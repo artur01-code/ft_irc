@@ -183,6 +183,7 @@ std::string server_ipaddr);
 	void OPER(const Message &msgObj, Client &clientObj);
 	void WHO(const Message &obj, Client &caller);
 	void PING(const Message &obj, Client &caller);
+	void AWAY(const Message &obj, Client &caller);
 
     /*---ERRORS---*/
 	std::string	ERR_BADCHANMASK(std::string channel_name);
