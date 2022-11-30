@@ -126,7 +126,7 @@ void Server::AWAY(const Message &obj, Client &caller)
 			message += *begin;
 	}
 	caller.awayMsg = message;
-	sendMessage(&caller, RPL_AWAY(&caller, message));
+	sendMessage(&caller, RPL_AWAY(&caller));
 }
 
 void Server::PING(const Message &obj, Client &caller)
@@ -397,7 +397,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
 	if (guest->checkMode('a'))
 	{
-		sendMessage(&caller, RPL_AWAY(guest, guest->awayMsg));
+		sendMessage(&caller, RPL_AWAY(guest));
 	}
 }
 

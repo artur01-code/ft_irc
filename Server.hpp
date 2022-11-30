@@ -231,7 +231,7 @@ std::string server_ipaddr);
 	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
 	void		RPL_BANLIST(Client *caller, Channel *channel);
 	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
-	std::string	RPL_AWAY(Client *client, std::string message);
+	std::string	RPL_AWAY(Client *client);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
