@@ -44,6 +44,7 @@ class Client : public Noun
 		std::vector<std::string> _history;
 		id_t		_modes;
 	public:
+			std::string	awayMsg;
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
 			void setMeOperator();
 			virtual std::string greet();
@@ -84,8 +85,7 @@ class Client : public Noun
 		void	subtractChannel(Channel *ptr);
 		bool	isOnChannel(Channel *ch);
 		void printAttributes(void);
-		bool	addMode(int mode);
-		bool	removeMode(int mode);
+		bool	changeMode(char mode, bool active);
 		bool	operator==(const Client &obj) const
 		{
 			return (_socket == obj.getSocket());

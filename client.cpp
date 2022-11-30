@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-const std::string Client::_alphabet = "o";
+const std::string Client::_alphabet = "oa"; // a for away
 RuleSetter<char> Client::_charRuleSetter(Client::_alphabet);
 
 std::string	Client::greet()
@@ -218,22 +218,11 @@ void		Channel::setTopic(std::string topic)
 
 // MODE section
 
-bool	Client::addMode(int mode)
+bool	Client::changeMode(char mode, bool active)
 {
 	if (!(this->_modes & mode))
 	{
-		this->_modes |= mode;
-		return (true);
-	}
-	return (false);
-}
-
-bool	Client::removeMode(int mode)
-{
-	if (this->_modes & mode)
-	{
-		// if mode found, unset it
-		this->_modes &= ~mode;
+		_charRuleSetter(_globalClientMode, mode, active);
 		return (true);
 	}
 	return (false);
