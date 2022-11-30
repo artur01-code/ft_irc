@@ -247,6 +247,7 @@ std::string server_ipaddr);
     std::string RPL_MOTDSTART(Client *client);
     std::string RPL_ENDOFMOTD(Client *client);
     std::string JOINREPLY(Client *client, Channel *channel);
+    std::string PARTREPLY(Client *client, Channel *channel, std::string reason);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{
