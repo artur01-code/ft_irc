@@ -123,14 +123,14 @@ std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
 	return (msg);
 }
 
-std::string	Server::RPL_AWAY(Client *client, std::string message)
+std::string	Server::RPL_AWAY(Client *client)
 {
 	std::string msg;
 
 	msg += ":" + this->getServerName();
 	msg += " 301 ";
 	msg += client->getNickname() + " ";
-	msg += ":" + message;
+	msg += ":" + client->awayMsg;
 	msg += "\r\n";
 	return (msg);
 }
