@@ -12,13 +12,36 @@ std::string Server::RPL_ENDOFWHO(Client *caller)
 	return (msg);
 }
 
-std::string	Server::RPL_WHOREPLY(Channel *foundOn, Client *found)
+std::string	Server::RPL_WHOREPLY(Client *client, Client *target)
 {
-	std::string	msg;
+	// std::string	msg;
 
+	// msg += ":" + this->getServerName();
+	// msg += " 352 ";
+	// Client->checkMode('a');
+	// msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("G*") : ("G")) + " :0 " + found->getRealname();
+	// msg += "\r\n";
+	// return (msg);
+
+	std::string msg;
 	msg += ":" + this->getServerName();
 	msg += " 352 ";
-	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("G*") : ("G")) + " :0 " + found->getRealname();
+	msg += client->getNickname() + " ";
+	if (!target->getChannels().size())
+		msg += "*";
+	else
+		msg += target->getChannels().begin()->second->getName();
+	msg += " " + target->getUsername() + " ";
+	msg += this->_host + " ";
+	msg += target->getNickname() + " ";
+	if (target->checkMode('a'))
+		msg += "G";
+	else
+		msg += "H";
+	if (target->checkMode('o'))
+		msg += "*";
+	msg += " :0 ";
+	msg += target->getRealname();
 	msg += "\r\n";
 	return (msg);
 }

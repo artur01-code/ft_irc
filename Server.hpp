@@ -224,7 +224,7 @@ std::string server_ipaddr);
 
     /*---REPLIES---*/
 	std::string RPL_ENDOFWHO(Client *caller);
-	std::string	RPL_WHOREPLY(Channel *foundOn, Client *found);
+	std::string	RPL_WHOREPLY(Client *client, Client *target);
 	std::string	RPL_YOUAREOPER();
 	std::string	RPL_INVITINGOBJECT(Client *caller, Channel *channel); // costume (not in protocol but usefull)
 	std::string	RPL_INVITING(Client *invited, Channel *invitedTo);
