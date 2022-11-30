@@ -85,11 +85,27 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			{
 				this->LIST(msgObj, clientObj);
 			}
+			else if (msgObj.getCommand() == "PING")
+			{
+				this->PING(msgObj, clientObj);
+			}
 		}
 		return (1);
 	}
 	return (1);
 	//call channel commands
+}
+
+void Server::PING(const Message &obj, Client &caller)
+{
+	std::vector<std::string>	reduced_tree;
+	reduced_tree = reduce(getTree(obj));
+	if (reduced_tree.size() != 1)
+	{
+		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
+		return ;
+	}
+	sendMessage(&caller, ":" + this->getServerName() + " PONG " + reduced_tree[0] + "\r\n");
 }
 
 void searchMatch(std::map<Client *, Channel *> &ret, std::map<Client *, Channel *> &commonClients, std::string &pattern, std::string whatName)

@@ -74,6 +74,7 @@ class Client : public Noun
 		std::string getHistoryString(void);
 		std::vector<std::string> getHistory(void);
 		void		addHistory(std::string string);
+		void		flushHistory();
 		void		increaseMsgCounter(int i);
 		int			getMsgCounter();
 
