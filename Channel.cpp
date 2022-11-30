@@ -470,8 +470,7 @@ static void	sendMessage(Client &to, std::string &msg)
 
 void	Channel::broadcast(Client &caller, std::string msg)
 {
-	std::vector<Client *>::iterator	aMemberBeg(_clients.begin());
-	for (std::vector<Client *>::iterator aMemberEnd(_clients.end()); aMemberBeg < aMemberEnd; aMemberBeg++)
+	for (std::vector<Client *>::iterator	aMemberBeg = this->_clients.begin(); aMemberBeg != this->_clients.end(); aMemberBeg++)
 	{
 		if (*aMemberBeg == &caller)
 			continue ;

@@ -164,7 +164,7 @@ int Server::receiveMessages(int fd)
 	if (M_DEBUG)
 		std::cout << "Revieved: " << buffer << "!" << std::endl;
 	itCli->second.addHistory(buffer);
-	// itCli->second.increaseMsgCounter(1);
+	itCli->second.increaseMsgCounter(1);
 	if (buffer[strlen(buffer) - 1] == '\n')
 	{
 		/*END SAVE HISTORY*/
@@ -256,6 +256,9 @@ int Server::parsingMessages(std::string read)
 		For handling CTRL + D */
 		if (this->checkCommands(*itMsg, itCli->second))
 		{
+			if (itCli->second.getMsgCounter() == 0)
+				return (1);
+			itCli->second.increaseMsgCounter(-1);
 			std::string conString;
 			conString = concat(itCli->second.getHistory());
 			if (M_DEBUG)

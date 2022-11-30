@@ -84,10 +84,17 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			else if (msgObj.getCommand() == "LIST")
 			{
 				this->LIST(msgObj, clientObj);
+				return (0);
 			}
 			else if (msgObj.getCommand() == "PING")
 			{
 				this->PING(msgObj, clientObj);
+				return (0);
+			}
+			else if (msgObj.getCommand() == "AWAY")
+			{
+				// this->AWAY(msgObj, clientObj);
+				return (0);
 			}
 		}
 		return (1);
@@ -145,15 +152,15 @@ void Server::WHO(const Message &obj, Client &caller)
 		ERR_NOSUCHCHANNEL(&caller, "ANY");
 		return ;
 	}
-	if (M_DEBUG)
-	{
-		std::set<Channel *>::iterator	begin(base.begin());
-		for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
-		{
-			std::cout << "Base channels from WHO" << std::endl;
-			std::cout << **begin << std::endl;
-		}
-	}
+	// if (M_DEBUG)
+	// {
+	// 	std::set<Channel *>::iterator	begin(base.begin());
+	// 	for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
+	// 	{
+	// 		std::cout << "Base channels from WHO" << std::endl;
+	// 		std::cout << **begin << std::endl;
+	// 	}
+	// }
 
 	std::map<Client *, Channel *>	commonClients;
 
@@ -637,6 +644,18 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				try
 				{
 					chany->addClient(_conClients[_fd_client]);
+					if (M_DEBUG)
+						std::cout << "Send JOIN REPLY to the client" << std::endl;
+
+					//send Join reply to everyone in the channel
+					// chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
+						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					else
+						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
@@ -676,6 +695,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 			else
 				sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+
 		}
 		key++;
 	}
