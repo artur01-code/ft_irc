@@ -91,6 +91,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->PING(msgObj, clientObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "AWAY")
+			{
+				// this->AWAY(msgObj, clientObj);
+				return (0);
+			}
 		}
 		return (1);
 	}
@@ -641,6 +646,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 					chany->addClient(_conClients[_fd_client]);
 					if (M_DEBUG)
 						std::cout << "Send JOIN REPLY to the client" << std::endl;
+
+					//send Join reply to everyone in the channel
+					// chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
 						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
