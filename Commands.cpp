@@ -53,6 +53,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->PRIVMSG(&clientObj, msgObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "NOTICE")
+			{
+				this->NOTICE(&clientObj, msgObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "MODE")
 			{
 				this->MODE(msgObj, clientObj);
@@ -93,19 +98,10 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->PING(msgObj, clientObj);
 				return (0);
 			}
-			else if (msgObj.getCommand() == "QUIT")
+			else if (msgObj.getCommand() == "AWAY")
 			{
-				this->QUIT(msgObj, clientObj);
-				return (0);
-			}
-			else if (msgObj.getCommand() == "KILL")
-			{
-			this->KILL(msgObj, clientObj);
-				return (0);
-			}
-			else if (msgObj.getCommand() == "DIE")
-			{
-				this->DIE(msgObj, clientObj);
+				this->AWAY(msgObj, clientObj);
+
 				return (0);
 			}
 		return (1);
@@ -113,6 +109,32 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 	}
 	return (1);
 	//call channel commands
+}
+
+void Server::AWAY(const Message &obj, Client &caller)
+{
+	if (M_DEBUG)
+		std::cout << "Away got triggered" << std::endl;
+	std::vector<std::string>	reduced_tree;
+	reduced_tree = reduce(getTree(obj));
+
+	if (reduced_tree.size() == 0)
+	{
+		caller.awayMsg = "";
+		caller.changeMode('a', false);
+		sendMessage(&caller, RPL_UNAWAY(&caller));
+		return ;
+	}
+
+	caller.changeMode('a', true);
+	std::string message;
+	{
+		std::vector<std::string>::iterator begin(reduced_tree.begin());
+		for (std::vector<std::string>::iterator end(reduced_tree.end()); begin < end; begin++)
+			message += *begin;
+	}
+	caller.awayMsg = message;
+	sendMessage(&caller, RPL_AWAY(&caller));
 }
 
 void Server::PING(const Message &obj, Client &caller)
@@ -164,15 +186,15 @@ void Server::WHO(const Message &obj, Client &caller)
 		ERR_NOSUCHCHANNEL(&caller, "ANY");
 		return ;
 	}
-	if (M_DEBUG)
-	{
-		std::set<Channel *>::iterator	begin(base.begin());
-		for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
-		{
-			std::cout << "Base channels from WHO" << std::endl;
-			std::cout << **begin << std::endl;
-		}
-	}
+	// if (M_DEBUG)
+	// {
+	// 	std::set<Channel *>::iterator	begin(base.begin());
+	// 	for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
+	// 	{
+	// 		std::cout << "Base channels from WHO" << std::endl;
+	// 		std::cout << **begin << std::endl;
+	// 	}
+	// }
 
 	std::map<Client *, Channel *>	commonClients;
 
@@ -227,7 +249,7 @@ void Server::WHO(const Message &obj, Client &caller)
 		{
 			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
 			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
-				sendMessage(&caller, RPL_WHOREPLY((*matchesBegin).second, (*matchesBegin).first));
+				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first));
 			sendMessage(&caller, RPL_ENDOFWHO(&caller));
 			return ;
 		}
@@ -381,6 +403,10 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	channel->addInvitedClients(guest->getNickname());
 	sendMessage(&caller, RPL_INVITING(guest, channel));
 	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
+	if (guest->checkMode('a'))
+	{
+		sendMessage(&caller, RPL_AWAY(guest));
+	}
 }
 
 /*
@@ -545,7 +571,10 @@ void	Server::PART(const Message &obj, Client &caller)
 		{
 			try
 			{
+				std::string reason = (obj.getParameters().size() > 1 ? obj.getParameters().back() : "");
 				_mapChannels.at(*param_begin)->rmClient(caller);
+				_mapChannels.at(*param_begin)->broadcast(caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
+				// _mapChannels.at(*param_begin)->broadcast(caller, RPL_ENDOFNAMES(&caller, _mapChannels.at(*param_begin)));
 			}
 			catch(const char *tunnel)
 			{
@@ -658,7 +687,18 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				try
 				{	std::cout << "ADDCLIENT IN JOIN\n";
 					chany->addClient(_conClients[_fd_client]);
+					if (M_DEBUG)
+						std::cout << "Send JOIN REPLY to the client" << std::endl;
 
+					//send Join reply to everyone in the channel
+					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
+						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					else
+						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+					chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
@@ -686,7 +726,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			}
 			// To have no pointers invalidated in case of reallocation I am allocting, freeing in ~Server();
 			_v_channels.push_back(new Channel(*chanelname1));
-			 
+
 			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
 
 			// TAG
@@ -699,6 +739,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 			else
 				sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+
 		}
 		key++;
 	}
@@ -876,11 +919,13 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 	// - if user, send privmsg to that user
 	for (size_t i = 0; i < recipients.size(); i++)
 	{
+		if (M_DEBUG)
+			std::cout << "Recipient[" << i << "]: " << recipients[i] << std::endl;
 		target = recipients[i];
 		if (target[0] == '#')
 		{
 			// target is a channel
-			if (!this->_mapChannels.count(target)) 
+			if (!this->_mapChannels.count(target))
 			{
 				this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, target));
 				continue ;
@@ -917,6 +962,36 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
 				this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}
+		}
+	}
+}
+
+// similar to PRIVMSG, but there can never be replies to NOTICE
+void	Server::NOTICE(Client *cl, const Message &msg)
+{
+	Client		*toClient;
+	Channel		*toChannel;
+	std::string	text;
+	std::string	target;
+
+	if (msg.getParameters().empty())
+		return ;
+
+	for (size_t i = 0; i < msg.getParameters().size() - 1; i++)
+	{
+		target = msg.getParameters()[i];
+		if (target[0] == '#')
+		{
+			toChannel = this->_mapChannels[target];
+			text = msg.getParameters().back();
+			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
+			toChannel->broadcast(*cl, text);
+		}
+		else
+		{
+			toClient = this->_regClients[target];
+			text = msg.getParameters().back();
+			this->sendMessage(toClient, this->buildNOTICE(cl, toClient->getNickname(), text));
 		}
 	}
 }

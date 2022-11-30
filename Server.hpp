@@ -197,7 +197,8 @@ class Server {
 	void PRIVMSG(Client *cl, const Message &msg);
 
 		std::string buildPRIVMSG(Client *cl, std::string toClient, std::string text);
-
+	void NOTICE(Client *cl, const Message &msg);
+		std::string buildNOTICE(Client *cl, std::string toClient, std::string text);
     void PASS(const Message &msgObj, Client &clientObj);
     void NAMES(const Message &msgObj, Client &clientObj);
 	void INVITE(const Message &msgObj, Client &clientObj);
@@ -205,6 +206,7 @@ class Server {
 	void OPER(const Message &msgObj, Client &clientObj);
 	void WHO(const Message &obj, Client &caller);
 	void PING(const Message &obj, Client &caller);
+	void AWAY(const Message &obj, Client &caller);
 
 
     /*---ERRORS---*/
@@ -244,7 +246,7 @@ class Server {
 
     /*---REPLIES---*/
 	std::string RPL_ENDOFWHO(Client *caller);
-	std::string	RPL_WHOREPLY(Channel *foundOn, Client *found);
+	std::string	RPL_WHOREPLY(Client *client, Client *target);
 	std::string	RPL_YOUAREOPER();
 	std::string	RPL_INVITINGOBJECT(Client *caller, Channel *channel); // costume (not in protocol but usefull)
 	std::string	RPL_INVITING(Client *invited, Channel *invitedTo);
@@ -253,7 +255,7 @@ class Server {
 	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
 	void		RPL_BANLIST(Client *caller, Channel *channel);
 	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
-	std::string	RPL_AWAY(Client *client, std::string message);
+	std::string	RPL_AWAY(Client *client);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
@@ -267,6 +269,7 @@ class Server {
     std::string RPL_MOTDSTART(Client *client);
     std::string RPL_ENDOFMOTD(Client *client);
     std::string JOINREPLY(Client *client, Channel *channel);
+    std::string PARTREPLY(Client *client, Channel *channel, std::string reason);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

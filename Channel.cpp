@@ -468,15 +468,15 @@ static void	sendMessage(Client &to, std::string &msg)
 	if (to.getSocket() == ERROR)
 		return ;
 
+	if (M_DEBUG)
+			std::cout << "sending message to " << to.getNickname() << std::endl;
 	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
 		throw Server::SendException();
-	send(to.getSocket(), msg.c_str(), msg.size(), 0);
 }
 
 void	Channel::broadcast(Client &caller, std::string msg)
 {
-	std::vector<Client *>::iterator	aMemberBeg(_clients.begin());
-	for (std::vector<Client *>::iterator aMemberEnd(_clients.end()); aMemberBeg < aMemberEnd; aMemberBeg++)
+	for (std::vector<Client *>::iterator	aMemberBeg = this->_clients.begin(); aMemberBeg != this->_clients.end(); aMemberBeg++)
 	{
 		if (*aMemberBeg == &caller)
 			continue ;

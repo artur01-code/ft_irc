@@ -9,7 +9,7 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), MODE(*this)
+Server::Server(int port) : _host("defaulthost"), _servername("defaultservername"), _motd("defaultmotd"), _v_channels(), _mapChannels(), MODE(*this)
 {
 	_operPwd = "6969";
 	std::string tmp = "127.0.0.1";
@@ -112,8 +112,7 @@ int Server::setAccept()
 	////////////ADD CLIENT////////////
 	// AddClient(client_fd, client_address, _ip_address);
 	// addConnection(client_fd);
-	Client *new_client = new Client(client_fd);
-	this->_conClients.insert(std::make_pair(client_fd, *new_client));
+	this->_conClients.insert(std::make_pair(client_fd, Client(client_fd)));
 	if (M_DEBUG)
 		std::cout << "new client : " << client_fd << " was accepted\n";
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
@@ -158,7 +157,7 @@ int Server::receiveMessages(int fd)
 	if (M_DEBUG)
 		std::cout << "Revieved: " << buffer << "!" << std::endl;
 	itCli->second.addHistory(buffer);
-	// itCli->second.increaseMsgCounter(1);
+	itCli->second.increaseMsgCounter(1);
 	if (buffer[strlen(buffer) - 1] == '\n')
 	{
 		/*END SAVE HISTORY*/
@@ -175,6 +174,17 @@ std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string t
 	msg += ":" + this->makeNickMask(this, cl);
 	// append target nickname to PRIVMSG cmd
 	msg += " PRIVMSG " + receiver;
+	msg += " :" + text + "\r\n";
+	return (msg);
+}
+
+std::string Server::buildNOTICE(Client *cl, std::string receiver, std::string text)
+{
+	std::string msg;
+	// set prefix to include full client identifier
+	msg += ":" + this->makeNickMask(this, cl);
+	// append target nickname to NOTICE cmd
+	msg += " NOTICE " + receiver;
 	msg += " :" + text + "\r\n";
 	return (msg);
 }
@@ -209,9 +219,9 @@ std::string	concat(std::vector<std::string> veci)
 	return (ret);
 }
 
-/// @brief 
-/// @param read 
-/// @return 
+/// @brief
+/// @param read
+/// @return
 int Server::parsingMessages(std::string read)
 {
 	/*--- PARSIND START ---*/
@@ -250,6 +260,9 @@ int Server::parsingMessages(std::string read)
 		For handling CTRL + D */
 		if (this->checkCommands(*itMsg, itCli->second))
 		{
+			if (itCli->second.getMsgCounter() == 0)
+				return (1);
+			itCli->second.increaseMsgCounter(-1);
 			std::string conString;
 			conString = concat(itCli->second.getHistory());
 			if (M_DEBUG)
@@ -346,10 +359,8 @@ Client *Server::findClientByName(std::string name) {
 std::string Server::makeNickMask(Server *server, Client *client)
 {
 	std::string mask;
-	std::cout << server->getHost() << std::endl;
 	mask += client->getNickname() + "!" + client->getUsername() + "@" + server->getHost();
 	return (mask);
-	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {
