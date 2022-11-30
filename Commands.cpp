@@ -868,6 +868,8 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 	// - if user, send privmsg to that user
 	for (size_t i = 0; i < recipients.size(); i++)
 	{
+		if (M_DEBUG)
+			std::cout << "Recipient[" << i << "]: " << recipients[i] << std::endl;
 		target = recipients[i];
 		if (target[0] == '#')
 		{
