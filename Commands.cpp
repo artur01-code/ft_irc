@@ -1117,8 +1117,8 @@ void Server::KILL(const Message &obj, Client &clientObj)
 		// if (tmp->getNickname() == _regClients.count(vec[0])) {
 		// 	sendMessage(&clientObj, (&clientObj, "You cannot kill yourself"));
 		// }
-		message = ": " + clientObj.getNickname() + "!  |  " + clientObj.getUsername() + "  |  127.0.0.1 |  " + "KILL " + ":" + vec[0] + "\r\n";
-		sendMessage(&clientObj, message);
+		message = ": " + target->getNickname() + "!  |  " + target->getUsername() + "  |  127.0.0.1 |  " + "KILL " + ":" + vec[0] + "\r\n";
+		sendMessage(target, message);
 
 	
 		// Copy of all the channels the target was in
