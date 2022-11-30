@@ -18,7 +18,7 @@ std::string	Server::RPL_WHOREPLY(Channel *foundOn, Client *found)
 
 	msg += ":" + this->getServerName();
 	msg += " 352 ";
-	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("* ") : ("")) + ":0 " + found->getRealname();
+	msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("G*") : ("G")) + " :0 " + found->getRealname();
 	msg += "\r\n";
 	return (msg);
 }
@@ -191,7 +191,7 @@ std::string Server::RPL_NAMREPLY(Client *client, Channel *channel)
 	std::string msg;
 	msg += ":" + this->getServerName();
 	msg += " 353 ";
-	msg += client->getNickname() + " ";
+	msg += client->getNickname();
 	if (channel->isClientRight(client->getNickname(), 'i'))
 		msg += " @ ";
 	else

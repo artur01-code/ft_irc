@@ -51,6 +51,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->PRIVMSG(&clientObj, msgObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "NOTICE")
+			{
+				this->NOTICE(&clientObj, msgObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "MODE")
 			{
 				this->MODE(msgObj, clientObj);
@@ -91,9 +96,9 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->PING(msgObj, clientObj);
 				return (0);
 			}
-			else if (msgObj.getCommand() == "NOTICE")
+			else if (msgObj.getCommand() == "AWAY")
 			{
-				this->NOTICE(msgObj, clientObj);
+				// this->AWAY(msgObj, clientObj);
 				return (0);
 			}
 		}
@@ -152,15 +157,15 @@ void Server::WHO(const Message &obj, Client &caller)
 		ERR_NOSUCHCHANNEL(&caller, "ANY");
 		return ;
 	}
-	if (M_DEBUG)
-	{
-		std::set<Channel *>::iterator	begin(base.begin());
-		for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
-		{
-			std::cout << "Base channels from WHO" << std::endl;
-			std::cout << **begin << std::endl;
-		}
-	}
+	// if (M_DEBUG)
+	// {
+	// 	std::set<Channel *>::iterator	begin(base.begin());
+	// 	for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
+	// 	{
+	// 		std::cout << "Base channels from WHO" << std::endl;
+	// 		std::cout << **begin << std::endl;
+	// 	}
+	// }
 
 	std::map<Client *, Channel *>	commonClients;
 
@@ -644,6 +649,18 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				try
 				{
 					chany->addClient(_conClients[_fd_client]);
+					if (M_DEBUG)
+						std::cout << "Send JOIN REPLY to the client" << std::endl;
+
+					//send Join reply to everyone in the channel
+					// chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
+						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					else
+						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
@@ -683,6 +700,9 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 			else
 				sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
+			sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+
 		}
 		key++;
 	}
@@ -894,7 +914,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 }
 
 // similar to PRIVMSG, but there can never be replies to NOTICE
-void	Server::NOTICE(Client *cl, Message msg)
+void	Server::NOTICE(Client *cl, const Message &msg)
 {
 	Client		*toClient;
 	Channel		*toChannel;
@@ -906,8 +926,8 @@ void	Server::NOTICE(Client *cl, Message msg)
 
 	for (size_t i = 0; i < msg.getParameters().size() - 1; i++)
 	{
-		target = msg[i];
-		if (target[0] == "#")
+		target = msg.getParameters()[i];
+		if (target[0] == '#')
 		{
 			toChannel = this->_mapChannels[target];
 			text = msg.getParameters().back();
