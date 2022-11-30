@@ -84,10 +84,17 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			else if (msgObj.getCommand() == "LIST")
 			{
 				this->LIST(msgObj, clientObj);
+				return (0);
 			}
 			else if (msgObj.getCommand() == "PING")
 			{
 				this->PING(msgObj, clientObj);
+				return (0);
+			}
+			else if (msgObj.getCommand() == "NOTICE")
+			{
+				this->NOTICE(msgObj, clientObj);
+				return (0);
 			}
 		}
 		return (1);
@@ -664,7 +671,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			}
 			// To have no pointers invalidated in case of reallocation I am allocting, freeing in ~Server();
 			_v_channels.push_back(new Channel(*chanelname1));
-			 
+
 			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
 
 			// TAG
@@ -845,7 +852,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 		if (target[0] == '#')
 		{
 			// target is a channel
-			if (!this->_mapChannels.count(target)) 
+			if (!this->_mapChannels.count(target))
 			{
 				this->sendMessage(cl, ERR_NOSUCHCHANNEL(cl, target));
 				continue ;
@@ -882,6 +889,36 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
 				this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}
+		}
+	}
+}
+
+// similar to PRIVMSG, but there can never be replies to NOTICE
+void	Server::NOTICE(Client *cl, Message msg)
+{
+	Client		*toClient;
+	Channel		*toChannel;
+	std::string	text;
+	std::string	target;
+
+	if (msg.getParameters().empty())
+		return ;
+
+	for (size_t i = 0; i < msg.getParameters().size() - 1; i++)
+	{
+		target = msg[i];
+		if (target[0] == "#")
+		{
+			toChannel = this->_mapChannels[target];
+			text = msg.getParameters().back();
+			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
+			toChannel->broadcast(*cl, text);
+		}
+		else
+		{
+			toClient = this->_regClients[target];
+			text = msg.getParameters().back();
+			this->sendMessage(toClient, this->buildNOTICE(cl, toClient->getNickname(), text));
 		}
 	}
 }

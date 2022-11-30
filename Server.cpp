@@ -185,6 +185,17 @@ std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string t
 	return (msg);
 }
 
+std::string Server::buildNOTICE(Client *cl, std::string receiver, std::string text)
+{
+	std::string msg;
+	// set prefix to include full client identifier
+	msg += ":" + this->makeNickMask(this, cl);
+	// append target nickname to NOTICE cmd
+	msg += " NOTICE " + receiver;
+	msg += " :" + text + "\r\n";
+	return (msg);
+}
+
 //-*-*-*-*-*-*-*-*-*-* SEND MESSAGE //-*-*-*-*-*-*-*-*-*-*
 void Server::sendMessage(Client *client, std::string message)
 {
@@ -215,9 +226,9 @@ std::string	concat(std::vector<std::string> veci)
 	return (ret);
 }
 
-/// @brief 
-/// @param read 
-/// @return 
+/// @brief
+/// @param read
+/// @return
 int Server::parsingMessages(std::string read)
 {
 	/*--- PARSIND START ---*/
