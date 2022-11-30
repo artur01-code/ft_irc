@@ -246,7 +246,7 @@ void Server::WHO(const Message &obj, Client &caller)
 		{
 			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
 			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
-				sendMessage(&caller, RPL_WHOREPLY((*matchesBegin).second, (*matchesBegin).first));
+				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first));
 			sendMessage(&caller, RPL_ENDOFWHO(&caller));
 			return ;
 		}
@@ -683,7 +683,6 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						std::cout << "Send JOIN REPLY to the client" << std::endl;
 
 					//send Join reply to everyone in the channel
-					// chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
 						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
@@ -691,6 +690,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+					chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
