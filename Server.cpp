@@ -9,7 +9,7 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), MODE(*this)
+Server::Server(int port) : _host("defaulthost"), _servername("defaultservername"), _motd("defaultmotd"), _v_channels(), _mapChannels(), MODE(*this)
 {
 	_operPwd = "6969";
 	std::string tmp = "127.0.0.1";
@@ -363,10 +363,8 @@ void Server::kqueueEngine()
 std::string Server::makeNickMask(Server *server, Client *client)
 {
 	std::string mask;
-	std::cout << server->getHost() << std::endl;
 	mask += client->getNickname() + "!" + client->getUsername() + "@" + server->getHost();
 	return (mask);
-	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {

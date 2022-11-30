@@ -300,3 +300,14 @@ std::string Server::JOINREPLY(Client *client, Channel *channel)
 	return (msg);
 }
 
+std::string Server::PARTREPLY(Client *client, Channel *channel, std::string reason)
+{
+	std::string msg;
+	msg += ":" + makeNickMask(this, client);
+	msg += " PART ";
+	msg += channel->getName();
+	if (reason != "")
+		msg += " :" + reason;
+	msg += "\r\n";
+	return (msg);
+}
