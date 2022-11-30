@@ -257,7 +257,7 @@ int Server::parsingMessages(std::string read)
 		if (this->checkCommands(*itMsg, itCli->second))
 		{
 			if (itCli->second.getMsgCounter() == 0)
-				return 1;
+				return (1);
 			itCli->second.increaseMsgCounter(-1);
 			std::string conString;
 			conString = concat(itCli->second.getHistory());
