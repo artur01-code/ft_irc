@@ -497,3 +497,10 @@ bool	Channel::matchBanLst(const Client &request)
 {
 	return (_banLst.match(request));
 }
+
+void	Channel::setClientRight( std::string username, char toAdd, bool active)
+{
+	if (_clientAlphabet.find(toAdd) == std::string::npos)
+		return ;
+	charRuleSetter(client_rights[username], toAdd, active);
+}

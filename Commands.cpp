@@ -251,7 +251,7 @@ void Server::WHO(const Message &obj, Client &caller)
 		{
 			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
 			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
-				sendMessage(&caller, RPL_WHOREPLY((*matchesBegin).second, (*matchesBegin).first));
+				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first));
 			sendMessage(&caller, RPL_ENDOFWHO(&caller));
 			return ;
 		}
@@ -571,7 +571,10 @@ void	Server::PART(const Message &obj, Client &caller)
 		{
 			try
 			{
+				std::string reason = (obj.getParameters().size() > 1 ? obj.getParameters().back() : "");
 				_mapChannels.at(*param_begin)->rmClient(caller);
+				_mapChannels.at(*param_begin)->broadcast(caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
+				// _mapChannels.at(*param_begin)->broadcast(caller, RPL_ENDOFNAMES(&caller, _mapChannels.at(*param_begin)));
 			}
 			catch(const char *tunnel)
 			{
@@ -688,7 +691,6 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						std::cout << "Send JOIN REPLY to the client" << std::endl;
 
 					//send Join reply to everyone in the channel
-					// chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					if (_v_channels[_v_channels.size() - 1]->getTopic() == "")
 						sendMessage(&caller, RPL_NOTOPIC(&caller, _v_channels[_v_channels.size() - 1]));
@@ -696,6 +698,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 						sendMessage(&caller, RPL_TOPIC(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, RPL_NAMREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
+					chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 				}
 				catch(std::string &e)
 				{
@@ -927,6 +930,16 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			if (M_DEBUG)
 				std::cout << COLOR_GREEN << text << END;
 			toChannel->broadcast(*cl, text);
+			if (this->isClientOnChannel(cl, toChannel) && this->_bethBot->checkBethaviour(msg.getParameters().back()))
+			{
+				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toChannel->getName(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				if (M_DEBUG)
+				{
+					std::cout << "BethBot should say something" << std::endl;
+					std::cout << text << std::endl;
+				}
+				toChannel->broadcast(*(this->_bethBot->getBotClient()), text);
+			}
 		}
 		else
 		{
@@ -1060,8 +1073,10 @@ void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
 	Client		*botCl;
 	std::string text;
 
+	if (msg.getParameters().size() < 1)
+		return ;
 	channelName = msg.getParameters()[0];
-	if (channelName[0] != '#' && !(this->_mapChannels.count(channelName)))
+	if (channelName[0] != '#' || !(this->_mapChannels.count(channelName)))
 	{
 		this->sendMessage(&cl, ERR_NOSUCHCHANNEL(&cl, channelName));
 		return ;
@@ -1073,8 +1088,11 @@ void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
 		send hello message from BOThan
 		Make BOThan choper so it can KICK people
 	*/
-	if (toCh->getNickList().find("BOThan"))
+	std::cout << "BEFORE IF ELSE" << std::endl;
+	if (toCh->getNickList().find("BOThan") != std::string::npos)
 	{
+		std::cout << "INSIDE IF" << std::endl;
+		std::cout << toCh->getNickList() << std::endl;
 		for (std::vector<Client *>::iterator it = toCh->_clients.begin(); it != toCh->_clients.end(); it++)
 		{
 			if ((*it) == this->_bethBot->getBotClient())
@@ -1087,9 +1105,14 @@ void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
 		return ;
 	}
 	else
+	{
+		std::cout << "INSIDE ELSE" << std::endl;
 		botCl = this->_bethBot->getBotClient();
 		toCh->addClient(*botCl);
-		text = this->buildNOTICE(botCl, toCh->getName(), "What's up mothertruckers?!");
+		text = this->buildPRIVMSG(botCl, toCh->getName(), "What's up mothertruckers?!");
+		if (M_DEBUG)
+			std::cout << text << std::endl;
 		toCh->broadcast(*botCl, text);
-		toCh->setClientRight(botCl->getNickname(), CHANMODE_OPER, true);
+		toCh->setClientRight(botCl->getNickname(), CHANMODE_OWNER, true);
+	}
 }

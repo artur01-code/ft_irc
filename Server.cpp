@@ -119,8 +119,7 @@ int Server::setAccept()
 	////////////ADD CLIENT////////////
 	// AddClient(client_fd, client_address, _ip_address);
 	// addConnection(client_fd);
-	Client *new_client = new Client(client_fd);
-	this->_conClients.insert(std::make_pair(client_fd, *new_client));
+	this->_conClients.insert(std::make_pair(client_fd, Client(client_fd)));
 	if (M_DEBUG)
 		std::cout << "new client : " << client_fd << " was accepted\n";
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), buffer,
@@ -232,7 +231,7 @@ std::string	concat(std::vector<std::string> veci)
 /// @return
 int Server::parsingMessages(std::string read)
 {
-	/*--- PARSIND START ---*/
+	/*--- PARSING START ---*/
 	/*
 		create a vector(list) of all the possible messages;
 		every message is seperated by "\r\n" and gets their own Message obj
@@ -365,10 +364,8 @@ void Server::kqueueEngine()
 std::string Server::makeNickMask(Server *server, Client *client)
 {
 	std::string mask;
-	std::cout << server->getHost() << std::endl;
 	mask += client->getNickname() + "!" + client->getUsername() + "@" + server->getHost();
 	return (mask);
-	// return (client.getNickname() + "!" + client.getUsername() + "@" + server.getHost());
 }
 
 // int Server::get_connection(int fd) {
@@ -565,4 +562,14 @@ std::ostream	&operator<<(std::ostream &os, std::vector<std::string>	veci)
 		os << *begin << std::endl;
 	}
 	return (os);
+}
+
+bool	Server::isClientOnChannel(Client *cl, Channel *ch)
+{
+	for (std::vector<Client *>::iterator it = ch->_clients.begin(); it != ch->_clients.end(); it++)
+	{
+		if (*it == cl)
+			return (true);
+	}
+	return (false);
 }
