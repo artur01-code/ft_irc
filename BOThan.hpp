@@ -15,7 +15,7 @@
 #include	"Colors.hpp"
 #include	"Client.hpp"
 
-Class Client;
+class Client;
 
 class BOThan
 {
@@ -29,6 +29,7 @@ class BOThan
 		bool		removeFromDict(std::string word);
 		std::string	getPhraseFromDict(std::string word);
 		bool		checkBethaviour(std::string text);
+
 	private:
 		BOThan(const BOThan &rhs);
 		BOThan &operator=(const BOThan &rhs);

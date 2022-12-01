@@ -101,6 +101,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->AWAY(msgObj, clientObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "SUMMONBOTHAN")
+			{
+				this->SUMMONBOTHAN(msgObj, clientObj);
+				return (0);
+			}
 		}
 		return (1);
 	}
@@ -963,7 +968,7 @@ void	Server::NOTICE(Client *cl, const Message &msg)
 		{
 			toChannel = this->_mapChannels[target];
 			text = msg.getParameters().back();
-			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
+			text = this->buildNOTICE(cl, toChannel->getName(), text);
 			toChannel->broadcast(*cl, text);
 		}
 		else
@@ -997,7 +1002,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 		return;
 	}
 	std::vector<std::string> vec = obj.getParameters();
-	if (vec[0].size() > 9 || !isalpha(vec[0][0]))
+	if (vec[0].size() > 9 || !isalpha(vec[0][0]) || vec[0] == "BOThan")
 	{
 		std::string msg = ERR_ERRONEUSNICKNAME(&clientObj);
 		sendMessage(&clientObj, msg);
@@ -1047,3 +1052,44 @@ void Server::NICK(const Message &obj, Client &clientObj)
 // 	//if the client connection is closed without the Quit command
 // 	// it need to display a message reflecting on what happen
 // }
+
+void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
+{
+	std::string	channelName;
+	Channel		*toCh;
+	Client		*botCl;
+	std::string text;
+
+	channelName = msg.getParameters()[0];
+	if (channelName[0] != '#' && !(this->_mapChannels.count(channelName)))
+	{
+		this->sendMessage(&cl, ERR_NOSUCHCHANNEL(&cl, channelName));
+		return ;
+	}
+	toCh = this->_mapChannels[channelName];
+	/*
+		Steps:
+		Check if BOThan is already on the channel
+		send hello message from BOThan
+		Make BOThan choper so it can KICK people
+	*/
+	if (toCh->getNickList().find("BOThan"))
+	{
+		for (std::vector<Client *>::iterator it = toCh->_clients.begin(); it != toCh->_clients.end(); it++)
+		{
+			if ((*it) == this->_bethBot->getBotClient())
+			{
+				text = this->buildNOTICE(*it, toCh->getName(), "I'm already on the channel, bruh.");
+				toCh->broadcast(*(*it), text);
+
+			}
+		}
+		return ;
+	}
+	else
+		botCl = this->_bethBot->getBotClient();
+		toCh->addClient(*botCl);
+		text = this->buildNOTICE(botCl, toCh->getName(), "What's up mothertruckers?!");
+		toCh->broadcast(*botCl, text);
+		toCh->setClientRight(botCl->getNickname(), CHANMODE_OPER, true);
+}

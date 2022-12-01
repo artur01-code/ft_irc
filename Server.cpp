@@ -9,10 +9,11 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 }
 
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
-Server::Server(int port) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), MODE(*this)
+Server::Server(int port, BOThan *bethbot) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), _bethBot(bethbot), MODE(*this)
 {
 	_operPwd = "6969";
 	std::string tmp = "127.0.0.1";
+
 	setupConnection(tmp, port);
 	setKqueue();
 }

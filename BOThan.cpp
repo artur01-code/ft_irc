@@ -5,7 +5,7 @@ BOThan::BOThan()
 
 }
 
-BOThan::BOThan(Client *cl): _botClient(cl), _dictionary(std::map<std::string, std::string>)
+BOThan::BOThan(Client *cl): _botClient(cl)
 {
 	this->_botClient->setNickname("BOThan");
 	this->_botClient->setRealname("BOTh4n Will-1-4MS");
@@ -28,7 +28,7 @@ Client *BOThan::getBotClient()
 
 bool	BOThan::addToDict(std::string word, std::string phrase)
 {
-	if (!(this->_dictionary.insert(std::pair<std::string, std::string>(word, phrase)).second()))
+	if (!(this->_dictionary.insert(std::pair<std::string, std::string>(word, phrase)).second))
 		return (false);
 	return (true);
 }
@@ -45,7 +45,7 @@ std::string	BOThan::getPhraseFromDict(std::string word)
 	return (_dictionary[word]);
 }
 
-bool BOThan::checkBethavious(std::string text)
+bool BOThan::checkBethaviour(std::string text)
 {
 	if (!(this->_dictionary.count(text)))
 		return (false);
