@@ -104,6 +104,24 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 
 				return (0);
 			}
+			else if (msgObj.getCommand() == "QUIT")
+			{
+				this->QUIT(msgObj, clientObj);
+
+				return (0);
+			}
+			else if (msgObj.getCommand() == "KILL")
+			{
+				this->KILL(msgObj, clientObj);
+
+				return (0);
+			}
+			else if (msgObj.getCommand() == "DIE")
+			{
+				this->DIE(msgObj, clientObj);
+
+				return (0);
+			}
 		return (1);
 		}
 	}
@@ -1107,13 +1125,18 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
               sizeof(client_address));
 	std::string quit = "Client Quit";
+	if (vec.empty())
+		return;
 	if (clientObj.getRegFlag() == 1) {
-		if (vec.size() > 1 && _conClients.count(_fd_client)) {
-			if (vec[1][0] == ':')
-				vec[1].erase(0, 1);
-			sendConfirm(clientObj, vec[0], vec[1]);
+		std::string msg = "REASON";
+		if (!vec.back().empty()) {
+			msg += ": " + vec.back();
 		}
-		else if (_conClients.count(_fd_client)) {
+		if (msg == "REASON")
+			msg += " WAS NOT PROVIDED";
+		msg += "\r\n";
+		sendMessage(&clientObj, msg);
+		if (_conClients.count(_fd_client)) {
 			sendConfirm(clientObj, vec[0], clientObj.getNickname());
 			const std::map<std::string, Channel *> copy = clientObj.getChannels();
 			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
@@ -1123,31 +1146,13 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 				itrMap = (*mapIt).second;
 				Message msg(std::string("PART " + itrMap->getName()));
 				PART(msg, clientObj);
-
-				// if (mapIt->second._clients.empty()) {
-				// 	delete itrMap;
-				// 	mapIt.erase(*it);
-				// }
-				// std::cout << itrMap->getName() << std::endl;
-				// std::cout << clientObj.getNickname() << std::endl;
-				
-				// Message msg_obj = msg;
-				// PART(msg_obj, clientObj);
-				// std::vector<Client *> it = itrMap->_clients.begin();
-				// for (; it != itrMap->_clients.end(); it++) {
-				// 	if (*it == &clientObj) {
-				// 		itrMap->_clients.erase(it);
-				// 		break;
-				// 	}
-				// }
-				//need to 
-
 			}
-			if (_conClients.count(_fd_client))
-			closeLink(clientObj, "Close Link", ip_str + quit);
-			close(_conClients[_fd_client].getSocket());
-			_conClients.erase(_fd_client);
-			_regClients.erase(clientObj.getNickname());
+			if (_conClients.count(_fd_client)) {
+				closeLink(clientObj, "Close Link", ip_str + quit);
+				close(_conClients[_fd_client].getSocket());
+				_conClients.erase(_fd_client);
+				_regClients.erase(clientObj.getNickname());
+			}
 		}
 	}
 }
@@ -1162,70 +1167,132 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 // 	// it need to display a message reflecting on what happen
 // }
 
-void Server::KILL(const Message &obj, Client &clientObj)
-{
+// void Server::KILL(const Message &obj, Client &clientObj)
+// {
 
-	std::string message;
-	std::vector<std::string> vec = obj.getParameters();
+// 	std::string message;
+// 	std::vector<std::string> vec = obj.getParameters();
 	
-	// if (clientObj.setFlag('o', reinterpret_cast<Noun *>(NULL), true, clientObj)) {
+// 	// if (clientObj.setFlag('o', reinterpret_cast<Noun *>(NULL), true, clientObj)) {
 
-	// 	sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
-	// }
-	// std::cout << clientObj.getHostname() << std::endl;
+// 	// 	sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
+// 	// }
+// 	// std::cout << clientObj.getHostname() << std::endl;
 
-	if (obj.getParameters().size() < 3) {
+// 	if (obj.getParameters().size() < 3) {
+// 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
+// 		return;
+// 	}
+// 	// if (vec[1].compare(clientObj.getHostname()) == 0 && (!_regClients.count(clientObj.getNickname()))) {
+// 	// 	std::cout << "HERE\n";
+// 	// 	throw KillingServerException();
+// 	// }
+// 	if (!_regClients.count(vec[0])) {
+// 		sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
+// 		return;
+// 	}
+// 	Client * target = _regClients[vec[0]];
+// 	if (vec[0] == clientObj.getNickname() || clientObj.checkMode('o')) {
+// 		// Client *tmp = _regClients.count(clientObj.getNickname());
+// 		// if (tmp->getNickname() == _regClients.count(vec[0])) {
+// 		// 	sendMessage(&clientObj, (&clientObj, "You cannot kill yourself"));
+// 		// }
+// 		message = ": " + clientObj.getNickname() + "!  |  " + clientObj.getUsername() + "  |  127.0.0.1 |  " + "KILL " + ":" + vec[0] + "\r\n";
+// 		sendMessage(&clientObj, message);
+
+	
+// 		// Copy of all the channels the target was in
+// 		const std::map<std::string, Channel *> copy = target->getChannels();
+// 		std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
+// 		for (; mapIt != copy.end(); mapIt++)
+// 		{
+// 			Message msg(std::string("PART " + mapIt->second->getName()));
+// 			PART(msg, clientObj);
+// 		}
+// 		close(target->getSocket());
+// 		_conClients.erase(target->getSocket());
+// 		_regClients.erase(target->getNickname());
+// 		// std::map<std::string, Client *>::iterator it = _regClients.begin();
+// 		// while (it != _regClients.end()) {
+// 		// 	if (it != _regClients.end())
+// 		// 		delete (it->second);
+// 		// 		_regClients.erase(it);
+// 		// }
+// 	}
+// 	else {
+// 		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
+// 		return;
+// 	}
+// }
+
+// void Server::transmitServer(const std::string &message) {
+// 	for ()
+// }
+
+void Server::KILL(const Message &obj, Client &clientObj) {
+	std::vector<std::string> vec = obj.getParameters();
+	std::cout << obj << std::endl;
+	if (obj.getParameters().size() < 2) {
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
 		return;
 	}
-	// if (vec[1].compare(clientObj.getHostname()) == 0 && (!_regClients.count(clientObj.getNickname()))) {
-	// 	std::cout << "HERE\n";
-	// 	throw KillingServerException();
-	// }
-	if (!_regClients.count(vec[0])) {
+
+	if (clientObj.checkMode('o') == false) {
+		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
+		return;
+	}
+	std::string msg = "REASON";
+	if (!vec.back().empty()) {
+		msg += ": " + vec.back();
+	}
+	if (msg == "REASON")
+		msg += " WAS NOT PROVIDED";
+	msg += "\r\n";
+
+	Client *target = _regClients[vec[0]];
+	if (!target) {
 		sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
 		return;
 	}
-	Client * target = _regClients[vec[0]];
-	if (vec[0] == clientObj.getNickname() || clientObj.checkMode('o')) {
-		// Client *tmp = _regClients.count(clientObj.getNickname());
-		// if (tmp->getNickname() == _regClients.count(vec[0])) {
-		// 	sendMessage(&clientObj, (&clientObj, "You cannot kill yourself"));
-		// }
-		message = ": " + target->getNickname() + "!  |  " + target->getUsername() + "  |  127.0.0.1 |  " + "KILL " + ":" + vec[0] + "\r\n";
-		sendMessage(target, message);
-
-	
-		// Copy of all the channels the target was in
+ 	else {
 		const std::map<std::string, Channel *> copy = target->getChannels();
 		std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
 		for (; mapIt != copy.end(); mapIt++)
 		{
 			Message msg(std::string("PART " + mapIt->second->getName()));
-			PART(msg, clientObj);
+			PART(msg, *target);
 		}
-		close(target->getSocket());
+		// target->getChannels().clear();
+		sendMessage(&clientObj, msg);
+		if (!_regClients.empty()) {
+			std::cerr << target->getNickname() << ": disconnected" << std::endl;
+		}
+		// std::string tmp = vec[0];
+		// std::string target_user;
+		// std::map<std::string, Client *> users;
+		// Client *toClient;
+		// users->first .push_back(tmp);
+		// for (int i = 0; i < users.size(); i++) {
+		// 	target_user = users[i];
+		// 	if (!_regClients.count(target_user)) {
+		// 		sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, target_user));
+		// 		continue ;
+		// 	}
+		// 	else {
+		// 		toClient = this->_regClients[target_user];
+		// 		users.pop_back(this->_regClients[target_user]);
+		// 	}
+		// }
+		// for (std::map<std::string, Client *>::iterator itr = _regClients.begin(); itr != _regClients.end(); itr++) {
+		// 		_regClients.erase(_regClients[vec[0]]->getNickname());
+		// 		break ;
+		// }
 		_conClients.erase(target->getSocket());
+		close(target->getSocket());
+		// std::cout << _regClients.count(clientObj.getNickname()) << std::endl;
 		_regClients.erase(target->getNickname());
-		// std::map<std::string, Client *>::iterator it = _regClients.begin();
-		// while (it != _regClients.end()) {
-		// 	if (it != _regClients.end())
-		// 		delete (it->second);
-		// 		_regClients.erase(it);
-		// }
+		// std::cout << _regClients.count(clientObj.getNickname()) << std::endl;
 	}
-	else {
-		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
-		return;
-	}
-
-// 	// std::cout << "SEGFAULT\n";
-	
-		// if (tmp->getNickname() == clientObj.getNickname()) {
-		// 	sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, obj.getParameters()[1]));
-		// }
-			// std::cout << "I AM HERE" << std::endl;
-
 }
 
 void Server::DIE(const Message &obj, Client &clientObj) {

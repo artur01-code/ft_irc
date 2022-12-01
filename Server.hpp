@@ -122,6 +122,7 @@ class Server {
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
     int checkCommands(const Message &msgObj, Client &clientObj);
+    void transmitServer(const std::string &message);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
 
