@@ -573,6 +573,7 @@ void	Server::PART(const Message &obj, Client &caller)
 			{
 				std::string reason = (obj.getParameters().size() > 1 ? obj.getParameters().back() : "");
 				_mapChannels.at(*param_begin)->rmClient(caller);
+				sendMessage(&caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
 				_mapChannels.at(*param_begin)->broadcast(caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
 				// _mapChannels.at(*param_begin)->broadcast(caller, RPL_ENDOFNAMES(&caller, _mapChannels.at(*param_begin)));
 			}
