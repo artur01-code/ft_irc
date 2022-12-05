@@ -819,7 +819,10 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 				//check if user is connected by it's fd
 		// this->_regClients.find(vec[0])->second->getSocket() //this is the socketaddress of the registered client
-		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()))
+		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()) && \
+		 (this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getNickname() != clientObj.getNickname() || \
+		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getHostname() != clientObj.getHostname() || \
+		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getRealname() != clientObj.getRealname())) 
 		{
 			this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
 			sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
@@ -1057,8 +1060,13 @@ void Server::NICK(const Message &obj, Client &clientObj)
     {
 		//check if user is connected by it's fd
 		// this->_regClients.find(vec[0])->second->getSocket() //this is the socketaddress of the registered client
-		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()))
+		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()) && \
+		 (this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getNickname() != clientObj.getNickname() || \
+		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getHostname() != clientObj.getHostname() || \
+		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getRealname() != clientObj.getRealname())) 
 		{
+			if (M_DEBUG)
+				std::cout << "here" << std::endl;
 			this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
 			sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
 			if (M_DEBUG)
@@ -1077,7 +1085,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 			{
 				std::cout << "Assigned the new connected client on an disconnected client" << std::endl;
 				clientObj.printAttributes();
-			}	
+			}
 		}
     }
     /*FUNCTINALITY*/

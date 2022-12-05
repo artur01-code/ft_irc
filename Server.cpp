@@ -206,7 +206,7 @@ void Server::sendMessage(Client *client, std::string message)
 		return;
 	}
 	if (M_DEBUG)
-		std::cout << "sendMessage() : " << message << std::endl;
+		std::cout << "sendMessage(" << client->getSocket()  << ") : " << message << std::endl;
 	nb_of_bytes_sent =
 		send(client->getSocket(), message.c_str(), message.size(), 0);
 	if (nb_of_bytes_sent == ERROR)
@@ -345,6 +345,8 @@ void Server::kqueueEngine()
 				// RemoveClient(_fd_client);
 				if (_conClients[_fd_client].getSocket()) 
 				{
+					if (M_DEBUG)
+						std::cout << "earse client from conclients" << std::endl;
 					close(_conClients[_fd_client].getSocket());
 					_conClients.erase(_fd_client);
 				}
