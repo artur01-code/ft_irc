@@ -313,35 +313,35 @@ void Server::KICK(const Message &msgObj, Client &caller)
 	{
 		try
 		{
-			channel = _mapChannels.at(reduced_tree[1]);
+			channel = _mapChannels.at(reduced_tree[0]);
 			if (!channel->contains(caller))
 			{
-				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[0]));
 				return ;
 			}
 			if (!channel->isClientRight(caller.getNickname(), 'o'))
 			{
-				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
 				return ;
 			}
 		}
 		catch(std::out_of_range &e)
 		{
-			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, reduced_tree[1]));
+			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, reduced_tree[0]));
 			return ;
 		}
 		try
 		{
-			snitch = _regClients.at(reduced_tree[0]);
+			snitch = _regClients.at(reduced_tree[1]);
 			if (!channel->contains(*snitch))
 			{
-				sendMessage(&caller, ERR_USERNOTINCHANNEL(snitch, reduced_tree[1]));
+				sendMessage(&caller, ERR_USERNOTINCHANNEL(snitch, reduced_tree[0]));
 				return ;
 			}
 		}
 		catch(std::out_of_range &e)
 		{
-			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[1]));
 			return ;
 		}
 	}
