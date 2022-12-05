@@ -1,7 +1,5 @@
-#include <set>
-
-#include "Channel.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
 #include "Message.hpp"
 #include "Server.hpp"
 #include <set>
@@ -25,7 +23,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			this->USER(msgObj, clientObj);
 			return (0);
 		}
-		if (msgObj.getCommand() == "NICK")
+		else if (msgObj.getCommand() == "NICK")
 		{
 			this->NICK(msgObj, clientObj);
 			return (0);
@@ -101,29 +99,20 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			else if (msgObj.getCommand() == "AWAY")
 			{
 				this->AWAY(msgObj, clientObj);
-
-				return (0);
-			}
-			else if (msgObj.getCommand() == "QUIT")
-			{
-				this->QUIT(msgObj, clientObj);
-
 				return (0);
 			}
 			else if (msgObj.getCommand() == "KILL")
 			{
 				this->KILL(msgObj, clientObj);
-
 				return (0);
 			}
-			else if (msgObj.getCommand() == "DIE")
+			else if (msgObj.getCommand() == "QUIT")
 			{
-				this->DIE(msgObj, clientObj);
-
+				this->QUIT(msgObj, clientObj);
 				return (0);
 			}
-		return (1);
 		}
+		return (1);
 	}
 	return (1);
 	//call channel commands
@@ -502,7 +491,6 @@ can be sent multiple times, but only last one is used for verification
 can NOT be changed once registered
 must be sent before any attempt to register the connection
 */
-
 void Server::PASS(const Message &msgObj, Client &clientObj)
 {
 	//first check if there is a pwd passed
@@ -578,7 +566,6 @@ void	Server::PART(const Message &obj, Client &caller)
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
 	if (tree.size() != 1)
 	{
-		exit(1);
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return;
 	}
@@ -703,7 +690,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			if (!chany->contains(_conClients[_fd_client]))
 			{
 				try
-				{	std::cout << "ADDCLIENT IN JOIN\n";
+				{
 					chany->addClient(_conClients[_fd_client]);
 					if (M_DEBUG)
 						std::cout << "Send JOIN REPLY to the client" << std::endl;
@@ -748,7 +735,6 @@ void	Server::JOIN(const Message &obj, Client &caller)
 			_mapChannels.insert(std::pair<std::string, Channel *>(*chanelname1, _v_channels[_v_channels.size() - 1]));
 
 			// TAG
-			std::cout << "ADDCLIENT IN JOIN1\n";
 			_v_channels[_v_channels.size() - 1]->addClient(_conClients[_fd_client]);
 			if (M_DEBUG)
 				std::cout << "Send JOIN REPLY to the client" << std::endl;
@@ -777,17 +763,6 @@ void	Server::JOIN(const Message &obj, Client &caller)
 	}
 }
 
-// void Server::JOIN(const Message &obj) {
-//     if (M_DEBUG) std::cout << "TRIGGERED JOIN" << std::endl;
-//     typedef std::vector<std::string>::iterator iterator;
-//     std::vector<std::string> ret = obj.getParameters();
-
-//     iterator end(ret.end());
-//     for (iterator begin(ret.begin()); begin < end; begin++) {
-//         std::cout << "This is a param: " << *begin << std::endl;
-//     }
-// }
-
 /*
 create new Client and save it in the map of the server
 set the value that got passed for the user
@@ -800,7 +775,6 @@ Parameters:
         [2]     localhost
         [3]     Jorit
 */
-
 void Server::USER(const Message &obj, Client &clientObj)
 {
 	if (M_DEBUG)
@@ -1023,7 +997,8 @@ Parameters:
         [0]     second
 */
 
-void Server::NICK(const Message &obj, Client &clientObj) {
+void Server::NICK(const Message &obj, Client &clientObj) 
+{
     if (M_DEBUG)
         std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
     if (obj.getParameters().empty())
@@ -1088,60 +1063,6 @@ void Server::sendConfirm(Client &client, std::string &cmd, std::string const &op
 	else
 		message += " " + cmd + " " + client.getNickname() + " " + message + "\r\n";
 	send(client.getSocket(), message.c_str(), message.length(), 0);
-	if (M_DEBUG)
-		std::cout << "Socket fd : " << client.getSocket() << "  |  " << ip_str << std::endl;
-}
-
-void Server::closeLink(Client const &client, std::string const &arg, std::string const &opt) {
-	char ip_str[INET_ADDRSTRLEN];
-	struct sockaddr_in client_address;
-	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
-              sizeof(client_address));
-	std::string message;
-	message = arg + ":   |  " + client.getNickname() + "  |  " + opt + "\r\n";
-	send(client.getSocket(), message.c_str(), message.length(), 0);
-	if (M_DEBUG) {
-		std::cout << "Socket fd : " << client.getSocket() << "  |  " << ip_str << std::endl;
-	}
-}
-
-void Server::QUIT(const Message &obj, Client &clientObj) {
-	std::vector<std::string> vec = obj.getParameters();
-	char ip_str[INET_ADDRSTRLEN];
-	struct sockaddr_in client_address;
-	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
-              sizeof(client_address));
-	std::string quit = "Client Quit";
-	if (vec.empty())
-		return;
-	if (clientObj.getRegFlag() == 1) {
-		std::string msg = "REASON";
-		if (!vec.back().empty()) {
-			msg += ": " + vec.back();
-		}
-		if (msg == "REASON")
-			msg += " WAS NOT PROVIDED";
-		msg += "\r\n";
-		sendMessage(&clientObj, msg);
-		if (_conClients.count(_fd_client)) {
-			sendConfirm(clientObj, vec[0], clientObj.getNickname());
-			const std::map<std::string, Channel *> copy = clientObj.getChannels();
-			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
-			Channel *itrMap;
-			for (; mapIt != copy.cend(); mapIt++)
-			{
-				itrMap = (*mapIt).second;
-				Message msg(std::string("PART " + itrMap->getName()));
-				PART(msg, clientObj);
-			}
-			if (_conClients.count(_fd_client)) {
-				closeLink(clientObj, "Close Link", ip_str + quit);
-				close(_conClients[_fd_client].getSocket());
-				_conClients.erase(_fd_client);
-				_regClients.erase(clientObj.getNickname());
-			}
-		}
-	}
 }
 
 void Server::KILL(const Message &obj, Client &clientObj) {
@@ -1203,4 +1124,54 @@ void Server::DIE(const Message &obj, Client &clientObj) {
 	}
 }
 
+void Server::closeLink(Client const &client, std::string const &arg, std::string const &opt) {
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
+	std::string message;
+	message = arg + ":   |  " + client.getNickname() + "  |  " + opt + "\r\n";
+	send(client.getSocket(), message.c_str(), message.length(), 0);
+	if (M_DEBUG) {
+		std::cout << "Socket fd : " << client.getSocket() << "  |  " << ip_str << std::endl;
+	}
+}
 
+void Server::QUIT(const Message &obj, Client &clientObj) {
+	std::vector<std::string> vec = obj.getParameters();
+	char ip_str[INET_ADDRSTRLEN];
+	struct sockaddr_in client_address;
+	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+              sizeof(client_address));
+	std::string quit = "Client Quit";
+	if (vec.empty())
+		return;
+	if (clientObj.getRegFlag() == 1) {
+		std::string msg = "REASON";
+		if (!vec.back().empty()) {
+			msg += ": " + vec.back();
+		}
+		if (msg == "REASON")
+			msg += " WAS NOT PROVIDED";
+		msg += "\r\n";
+		sendMessage(&clientObj, msg);
+		if (_conClients.count(_fd_client)) {
+			sendConfirm(clientObj, vec[0], clientObj.getNickname());
+			const std::map<std::string, Channel *> copy = clientObj.getChannels();
+			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
+			Channel *itrMap;
+			for (; mapIt != copy.cend(); mapIt++)
+			{
+				itrMap = (*mapIt).second;
+				Message msg(std::string("PART " + itrMap->getName()));
+				PART(msg, clientObj);
+			}
+			if (_conClients.count(_fd_client)) {
+				closeLink(clientObj, "Close Link", ip_str + quit);
+				close(_conClients[_fd_client].getSocket());
+				_conClients.erase(_fd_client);
+				_regClients.erase(clientObj.getNickname());
+			}
+		}
+	}
+}

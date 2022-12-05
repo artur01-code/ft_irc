@@ -52,7 +52,6 @@ class Server {
     std::string _password_operator;
 	std::vector<Channel *>	_v_channels;
     std::map<std::string, Channel *> _mapChannels;
-    // std::map<std::string, Channel> chanMap;
     std::map<int, Client> _bots;
 
     std::string _ip_address;
@@ -61,9 +60,7 @@ class Server {
     int _kq_fd;
     int _port;
     int _server_fd;
-
     int _pwdFlag;
-
     // kevent data struct info
     // changes that should be applied to kqueue() are given in change_list
     struct kevent _change_list;
@@ -94,53 +91,39 @@ class Server {
     int examineAndRead();
     int addConnection(int fd);
     void sendMessage(Client *client, std::string message);
-    void sendConfirm(Client &client, std::string &cmd, std::string const &opt);
-    void addClient(int fd_client, sockaddr_in addrinfo_client,
-                   std::string server_ipaddr);
-    void deleteClient(int fd);
+	void addClient(int fd_client, sockaddr_in addrinfo_client,
+std::string server_ipaddr);
 
-    Client *findClientByFd(int fd);
-    Client *findClientByName(std::string name);
-    Channel *findChannelByName(std::string name);
+    // Client *getClientFd(int fd);
 
     // getter
     std::string getPassword(void) const;
     std::string getServerName();
     std::string getHost();
     std::string getMotd();
-
     int getPwdFlag(void);
     // setter
     void setPassword(std::string password);
     void setKEvent();
-
     std::string makeNickMask(Server *server, Client *client);
     void setPwdFlag(int n);
-
     std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/
     int parsingMessages(std::string read);
     int checkCommands(const Message &msgObj, Client &clientObj);
-    void transmitServer(const std::string &message);
     void USER(const Message &obj, Client &clientObj);
     void NICK(const Message &obj, Client &clientObj);
-
     void JOIN(const Message &obj, Client &clientObj);
-	static std::vector<std::vector<std::string> >	getTree(const Message &obj);
-	void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
-    void PART(const Message &obj, Client &caller);
-
-
     void QUIT(const Message &obj, Client &clientObj);
-    void closeLink(Client const &client, std::string const &arg, std::string const &opt);
+			static std::vector<std::vector<std::string> >	getTree(const Message &obj);
+			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
+    void PART(const Message &obj, Client &caller);
+    void LIST(const Message &obj, Client &clientObj);
+    void sendConfirm(Client &client, std::string &cmd, std::string const &opt);
     void KILL(const Message &obj, Client &clientObj);
     void DIE(const Message &obj, Client &clientObj);
-
-
-
-    void LIST(const Message &obj, Client &clientObj);
-
+    void closeLink(Client const &client, std::string const &arg, std::string const &opt);
 	// ------------ MODE MEMBER CLASS ------------------- //
 
 	// Implementation in: Mode.cpp
@@ -196,7 +179,6 @@ class Server {
 		bool	zero_param();
 	void TOPIC(Client *cl, Message msg);
 	void PRIVMSG(Client *cl, const Message &msg);
-
 		std::string buildPRIVMSG(Client *cl, std::string toClient, std::string text);
 	void NOTICE(Client *cl, const Message &msg);
 		std::string buildNOTICE(Client *cl, std::string toClient, std::string text);
@@ -208,7 +190,6 @@ class Server {
 	void WHO(const Message &obj, Client &caller);
 	void PING(const Message &obj, Client &caller);
 	void AWAY(const Message &obj, Client &caller);
-
 
     /*---ERRORS---*/
 	std::string	ERR_BADCHANMASK(std::string channel_name);
@@ -331,9 +312,6 @@ class Server {
         virtual const char *what() const throw();
     };
     class KeventDeleteException : public std::exception {
-        virtual const char *what() const throw();
-    };
-    class KillingServerException : public std::exception {
         virtual const char *what() const throw();
     };
 
