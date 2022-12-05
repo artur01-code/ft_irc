@@ -337,6 +337,7 @@ void Channel::rmClient(Client &obj)
 			_clients.erase(begin);
 			if (_clients.size() == 0) // No more clients left
 				throw("destroyChannel");
+			client_rights.erase(obj.getNickname());
 			return ;
 		}
 	}
