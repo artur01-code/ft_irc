@@ -404,7 +404,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	}
 	channel->addInvitedClients(guest->getNickname());
 	sendMessage(&caller, RPL_INVITING(guest, channel));
-	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
+	// sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
 	if (guest->checkMode('a'))
 	{
 		sendMessage(&caller, RPL_AWAY(guest));
