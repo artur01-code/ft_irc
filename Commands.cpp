@@ -323,37 +323,42 @@ void Server::KICK(const Message &msgObj, Client &caller)
 	{
 		try
 		{
-			channel = _mapChannels.at(reduced_tree[1]);
+			channel = _mapChannels.at(reduced_tree[0]);
 			if (!channel->contains(caller))
 			{
-				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[0]));
 				return ;
 			}
 			if (!channel->isClientRight(caller.getNickname(), 'o'))
 			{
-				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
 				return ;
 			}
 		}
 		catch(std::out_of_range &e)
 		{
-			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, reduced_tree[1]));
+			sendMessage(&caller, ERR_NOSUCHCHANNEL(&caller, reduced_tree[0]));
 			return ;
 		}
 		try
 		{
-			snitch = _regClients.at(reduced_tree[0]);
+			snitch = _regClients.at(reduced_tree[1]);
 			if (!channel->contains(*snitch))
 			{
-				sendMessage(&caller, ERR_USERNOTINCHANNEL(snitch, reduced_tree[1]));
+				sendMessage(&caller, ERR_USERNOTINCHANNEL(snitch, reduced_tree[0]));
 				return ;
 			}
 		}
 		catch(std::out_of_range &e)
 		{
-			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
+			sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[1]));
 			return ;
 		}
+	}
+	if (channel->isClientRight(snitch->getNickname(), 'x'))
+	{
+		sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
+		return ;
 	}
 	PART(Message("PART " + channel->getName()), *snitch);
 	if (comment != "")
@@ -409,7 +414,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	}
 	channel->addInvitedClients(guest->getNickname());
 	sendMessage(&caller, RPL_INVITING(guest, channel));
-	sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
+	// sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
 	if (guest->checkMode('a'))
 	{
 		sendMessage(&caller, RPL_AWAY(guest));
@@ -578,6 +583,7 @@ void	Server::PART(const Message &obj, Client &caller)
 			{
 				std::string reason = (obj.getParameters().size() > 1 ? obj.getParameters().back() : "");
 				_mapChannels.at(*param_begin)->rmClient(caller);
+				sendMessage(&caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
 				_mapChannels.at(*param_begin)->broadcast(caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
 				// _mapChannels.at(*param_begin)->broadcast(caller, RPL_ENDOFNAMES(&caller, _mapChannels.at(*param_begin)));
 			}
