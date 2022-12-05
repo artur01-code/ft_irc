@@ -191,6 +191,7 @@ std::string server_ipaddr);
 	void PING(const Message &obj, Client &caller);
 	void AWAY(const Message &obj, Client &caller);
     void SUMMONBOTHAN(const Message &msg, Client &cl);
+    void TEACHBOTHAN(const Message &msg, Client &cl);
     /*---ERRORS---*/
 	std::string	ERR_BADCHANMASK(std::string channel_name);
 	std::string	ERR_KEYSET(std::string channelName);

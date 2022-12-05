@@ -25,7 +25,7 @@ class BOThan
 		~BOThan();
 
 		Client		*getBotClient();
-		// bool		addToDict(std::string word, std::string phrase);
+		bool		addToDict(std::string word, std::string phrase);
 		// bool		removeFromDict(std::string word);
 		std::string	getPhraseFromDict(std::string word);
 		bool		checkBethaviour(std::string text);

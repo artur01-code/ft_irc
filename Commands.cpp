@@ -106,6 +106,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->SUMMONBOTHAN(msgObj, clientObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "TEACHBOTHAN")
+			{
+				this->TEACHBOTHAN(msgObj, clientObj);
+				return (0);
+			}
 		}
 		return (1);
 	}
@@ -929,16 +934,19 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
 			if (M_DEBUG)
 				std::cout << COLOR_GREEN << text << END;
+			toChannel->broadcast(*cl, text);
 			if (this->isClientOnChannel(cl, toChannel) && this->_bethBot->checkBethaviour(msg.getParameters().back()))
 			{
-				text = this->buildPRIVMSG(cl, toChannel->getName(), this-_>_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toChannel->getName(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				toChannel->broadcast(*cl, text);
 				if (M_DEBUG)
 				{
 					std::cout << "BethBot should say something" << std::endl;
 					std::cout << text << std::endl;
 				}
+				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toClient->getNickname(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				this->PRIVMSG(this->_bethBot->getBotClient(), text);
 			}
-			toChannel->broadcast(*cl, text);
 		}
 		else
 		{
@@ -1087,10 +1095,8 @@ void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
 		send hello message from BOThan
 		Make BOThan choper so it can KICK people
 	*/
-	std::cout << "BEFORE IF ELSE" << std::endl;
 	if (toCh->getNickList().find("BOThan") != std::string::npos)
 	{
-		std::cout << "INSIDE IF" << std::endl;
 		std::cout << toCh->getNickList() << std::endl;
 		for (std::vector<Client *>::iterator it = toCh->_clients.begin(); it != toCh->_clients.end(); it++)
 		{
@@ -1105,7 +1111,6 @@ void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
 	}
 	else
 	{
-		std::cout << "INSIDE ELSE" << std::endl;
 		botCl = this->_bethBot->getBotClient();
 		toCh->addClient(*botCl);
 		text = this->buildPRIVMSG(botCl, toCh->getName(), "What's up mothertruckers?!");
@@ -1114,4 +1119,26 @@ void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
 		toCh->broadcast(*botCl, text);
 		toCh->setClientRight(botCl->getNickname(), CHANMODE_OWNER, true);
 	}
+}
+
+void	Server::TEACHBOTHAN(const Message &msg, Client &cl)
+{
+	std::vector<std::string>::iterator it;
+	std::string	word;
+	std::string	phrase;
+
+	if (msg.getParameters().size() < 1)
+	{
+		this->sendMessage(&cl, this->ERR_NEEDMOREPARAMS(&cl, "TEACHBOTHAN"));
+		return ;
+	}
+	phrase = msg.getParameters().back();
+	for (it = msg.getParameters().begin(); it != msg.getParameters().end() - 1; ++it)
+	{
+		word += *it;
+		word += " ";
+	}
+	word.erase(word.end() - 1);
+	if (!(this->_bethBot->addToDict(word, phrase)))
+		this->sendMessage(&cl, buildNOTICE(this->_bethBot->getBotClient(), cl.getNickname(), "I know that already, doofus"));
 }

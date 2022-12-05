@@ -24,12 +24,12 @@ Client *BOThan::getBotClient()
 	return (this->_botClient);
 }
 
-// bool	BOThan::addToDict(std::string word, std::string phrase)
-// {
-// 	if (!(this->_dictionary.insert(std::pair<std::string, std::string>(word, phrase)).second))
-// 		return (false);
-// 	return (true);
-// }
+bool	BOThan::addToDict(std::string word, std::string phrase)
+{
+	if (!(this->_dictionary.insert(std::make_pair<std::string, std::string>(word, phrase)).second))
+		return (false);
+	return (true);
+}
 
 // bool	BOThan::removeFromDict(std::string word)
 // {
