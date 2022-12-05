@@ -773,7 +773,7 @@ Parameters:
 void Server::USER(const Message &obj, Client &clientObj)
 {
 	if (M_DEBUG)
-		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERED" << std::endl;
+		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERED" << std::endl << obj.getRawInput() << std::endl;
 	std::vector<std::string> vec = obj.getParameters();
 	if (vec.size() < 4)
 	{
@@ -929,17 +929,16 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
 			if (M_DEBUG)
 				std::cout << COLOR_GREEN << text << END;
-			toChannel->broadcast(*cl, text);
 			if (this->isClientOnChannel(cl, toChannel) && this->_bethBot->checkBethaviour(msg.getParameters().back()))
 			{
-				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toChannel->getName(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				text = this->buildPRIVMSG(cl, toChannel->getName(), this-_>_bethBot->getPhraseFromDict(msg.getParameters().back()));
 				if (M_DEBUG)
 				{
 					std::cout << "BethBot should say something" << std::endl;
 					std::cout << text << std::endl;
 				}
-				toChannel->broadcast(*(this->_bethBot->getBotClient()), text);
 			}
+			toChannel->broadcast(*cl, text);
 		}
 		else
 		{
@@ -1005,7 +1004,7 @@ Parameters:
 void Server::NICK(const Message &obj, Client &clientObj)
 {
 	if (M_DEBUG)
-		std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
+		std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl << obj.getRawInput() << std::endl;
 	if (obj.getParameters().empty())
 	{
 		std::string msg = ERR_NONICKNAMEGIVEN(&clientObj);
@@ -1015,7 +1014,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 		return;
 	}
 	std::vector<std::string> vec = obj.getParameters();
-	if (vec[0].size() > 9 || !isalpha(vec[0][0]) || vec[0] == "BOThan")
+	if (vec[0].size() > 9 || !isalpha(vec[0][0]))
 	{
 		std::string msg = ERR_ERRONEUSNICKNAME(&clientObj);
 		sendMessage(&clientObj, msg);

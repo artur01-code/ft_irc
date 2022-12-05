@@ -14,6 +14,10 @@ Server::Server(int port, BOThan *bethbot) : _host("default"), _servername("defau
 	_operPwd = "6969";
 	std::string tmp = "127.0.0.1";
 
+	Message	nick("NICK BOThan");
+	Message	user("USER BOThan Wales MimoDePozor BOTh4n_Will-1-4MS");
+	this->USER(user, *(bethbot->getBotClient()));
+	this->NICK(nick, *(bethbot->getBotClient()));
 	setupConnection(tmp, port);
 	setKqueue();
 }
