@@ -332,6 +332,8 @@ void Channel::rmClient(Client &obj)
 			std::cout << (**begin).getNickname() << " is a member" << std::endl;
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
+			if (isClientRight(obj.getNickname(), 'x') && _clients.size() >= 2)// if it is the owner
+				charRuleSetter(client_rights[_clients[1]->getNickname()], 'x', true);
 			_clients.erase(begin);
 			if (_clients.size() == 0) // No more clients left
 				throw("destroyChannel");
