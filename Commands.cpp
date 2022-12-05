@@ -345,6 +345,11 @@ void Server::KICK(const Message &msgObj, Client &caller)
 			return ;
 		}
 	}
+	if (channel->isClientRight(snitch->getNickname(), 'x'))
+	{
+		sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
+		return ;
+	}
 	PART(Message("PART " + channel->getName()), *snitch);
 	if (comment != "")
 		sendMessage(snitch, "Banned from " + channel->getName() + " reason: " + comment + "\r\n");
