@@ -343,6 +343,11 @@ void Server::kqueueEngine()
 				/////////////REMOVE CLIENT//////////////////
 				// remove_connection(_fd_client);
 				// RemoveClient(_fd_client);
+				if (_conClients[_fd_client].getSocket()) 
+				{
+					close(_conClients[_fd_client].getSocket());
+					_conClients.erase(_fd_client);
+				}
 			}
 			else if (this->_fd_client == this->_server_fd)
 			{

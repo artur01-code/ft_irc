@@ -794,25 +794,53 @@ void Server::USER(const Message &obj, Client &clientObj)
 		return;
 	}
 
-	std::map<std::string, Client *>::iterator itReg = this->_regClients.begin();
-	while (itReg != this->_regClients.end())
-	{
-		if (this->_fd_client == itReg->second->getSocket())
-		{
-			sendMessage(&clientObj, ERR_ALREADYREGISTERED(itReg->second));
-			if (M_DEBUG)
-				std::cout << ERR_ALREADYREGISTERED(itReg->second) << std::endl;
-			return;
-		}
-		itReg++;
-	}
+	// rewrite that part with checking in the connected clients
+	// std::map<std::string, Client *>::iterator itReg = this->_regClients.begin();
+	// while (itReg != this->_regClients.end())
+	// {
+	// 	if (this->_fd_client == itReg->second->getSocket())
+	// 	{
+	// 		sendMessage(&clientObj, ERR_ALREADYREGISTERED(itReg->second));
+	// 		if (M_DEBUG)
+	// 			std::cout << ERR_ALREADYREGISTERED(itReg->second) << std::endl;
+	// 		return;
+	// 	}
+	// 	itReg++;
+	// }
+	// if (this->_conClients.count(this->_fd_client) && this->_regClients.count(clientObj.getNickname()))
+	// {
+	// 	sendMessage(&clientObj, ERR_ALREADYREGISTERED(&clientObj));
+	// 	if (M_DEBUG)
+	// 		std::cout << ERR_ALREADYREGISTERED(&clientObj) << std::endl;
+	// 	return;
+	// }
 
 	if (this->_regClients.count(clientObj.getNickname()))
 	{
-		sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
-		if (M_DEBUG)
-			std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
-		return ;
+				//check if user is connected by it's fd
+		// this->_regClients.find(vec[0])->second->getSocket() //this is the socketaddress of the registered client
+		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()))
+		{
+			this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
+			sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
+			if (M_DEBUG)
+				std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
+			return ;
+		}
+		else //client is disconnected
+		{
+			//we have a new client object and now need to put the information of the old one into the new one
+			//change the socketadress
+			int new_fd = clientObj.getSocket();
+			Client *tmp = this->_regClients.find(vec[0])->second;
+			clientObj =  Client(*tmp); //assign the old values to the new object
+			clientObj.setSocket(new_fd);
+			if (M_DEBUG)
+			{
+				std::cout << "Assigned the new connected client on an disconnected client" << std::endl;
+				clientObj.printAttributes();
+			}	
+		}
 	}
 	/*FUNCTINALITY*/
 	clientObj.setHostname(vec[1]);
@@ -1027,10 +1055,30 @@ void Server::NICK(const Message &obj, Client &clientObj)
     // see if new nickname is already in _regClients map
     if (this->_regClients.count(vec[0]))
     {
-        sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
-        if (M_DEBUG)
-            std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
-        return ;
+		//check if user is connected by it's fd
+		// this->_regClients.find(vec[0])->second->getSocket() //this is the socketaddress of the registered client
+		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()))
+		{
+			this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
+			sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
+			if (M_DEBUG)
+				std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
+			return ;
+		}
+		else //client is disconnected
+		{
+			//we have a new client object and now need to put the information of the old one into the new one
+			//change the socketadress
+			int new_fd = clientObj.getSocket();
+			Client *tmp = this->_regClients.find(vec[0])->second;
+			clientObj =  Client(*tmp); //assign the old values to the new object
+			clientObj.setSocket(new_fd);
+			if (M_DEBUG)
+			{
+				std::cout << "Assigned the new connected client on an disconnected client" << std::endl;
+				clientObj.printAttributes();
+			}	
+		}
     }
     /*FUNCTINALITY*/
     // delete old nickname
