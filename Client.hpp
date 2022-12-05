@@ -41,8 +41,10 @@ class Client : public Noun
 		int			_pwdFlag;
 		int			_msgCounter;
 		std::map<std::string, Channel *> _channels;
+
 		std::vector<std::string> _history;
 		id_t		_modes;
+
 	public:
 			std::string	awayMsg;
 			virtual int setFlag(char  flag, Noun *obj, bool active, Client &caller);
@@ -80,6 +82,7 @@ class Client : public Noun
 		int			getMsgCounter();
 
 		std::map<std::string, Channel *>	getChannels(void) const;
+		std::vector<std::string> channels;
 		void	addChannel(Channel *ptr);
 		void	subtractChannel(std::string name);
 		void	subtractChannel(Channel *ptr);
@@ -90,8 +93,15 @@ class Client : public Noun
 		{
 			return (_socket == obj.getSocket());
 		}
+
 		std::string	modeStr() const;
 		friend std::ostream	&operator<<(std::ostream &os, Client &obj);
+
+		// bool isOnChannel(Channel &ch) {
+		// 	if (_channels.count(ch.getName()))
+		// 		return true;
+		// 	return false;
+		// }
 };
 
 std::ostream	&operator<<(std::ostream &os, Client &obj);

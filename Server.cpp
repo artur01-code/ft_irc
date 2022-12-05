@@ -38,68 +38,62 @@ std::string Server::getHost() { return (this->_host); }
 std::string Server::getMotd() { return (this->_motd); }
 
 //--------------setupConnection-------------//
-void Server::setupConnection(std::string &ipaddr, int port)
-{
-	this->_ip_address = ipaddr;
-	this->_port = port;
+void Server::setupConnection(std::string &ipaddr, int port) {
+    this->_ip_address = ipaddr;
+    this->_port = port;
 
-	// filling up address structs with getddrinfo()
-	bzero(_event_list, sizeof(_event_list));
-	// setup the host address structure for use in bind
-	this->_server_address.sin_family = AF_INET;
+    // filling up address structs with getddrinfo()
+    bzero(_event_list, sizeof(_event_list));
+    // setup the host address structure for use in bind
+    this->_server_address.sin_family = AF_INET;
 
-	// Port host to network
-	_server_address.sin_port = htons(_port);
-	// transform port nb from set of bytes
-	_server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    // Port host to network
+    _server_address.sin_port = htons(_port);
+    // transform port nb from set of bytes
+    _server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	// SOCKET CREATION
-	setSocket();
+    // SOCKET CREATION
+    setSocket();
 
-	// BIND CREATION
-	setBind();
+    // BIND CREATION
+    setBind();
 
-	// LISTEN CREATION
-	setListen();
+    // LISTEN CREATION
+    setListen();
 }
 
 //-*-*-*-*-*-*-*-*-*-* SOCKET FUNCTION //-*-*-*-*-*-*-*-*-*-*
-int Server::setSocket()
-{
-	this->_server_fd = socket(this->_server_address.sin_family, SOCK_STREAM, 0);
+int Server::setSocket() {
+    this->_server_fd = socket(this->_server_address.sin_family, SOCK_STREAM, 0);
 
-	if (this->_server_fd == ERROR)
-	{
-		throw Server::SocketException();
-	}
-	if (fcntl(this->_server_fd, F_SETFL, O_NONBLOCK) == ERROR)
-		throw Server::FcntlException();
-	return _server_fd;
+    if (this->_server_fd == ERROR) {
+        throw Server::SocketException();
+    }
+    if (fcntl(this->_server_fd, F_SETFL, O_NONBLOCK) == ERROR)
+        throw Server::FcntlException();
+    return _server_fd;
 }
 
 //-*-*-*-*-*-*-*-*-*-* BIND FUNCTION //-*-*-*-*-*-*-*-*-*-*
-int Server::setBind()
-{
-	int option = 1;
-	int binding;
+int Server::setBind() {
+    int option = 1;
+    int binding;
 
-	if (setsockopt(this->_server_fd, SOL_SOCKET, SO_REUSEADDR, &option,
-				   sizeof(int)) == ERROR)
-		throw Server::SetSockOptException();
-	if ((binding =
-			 bind(this->_server_fd, (const struct sockaddr *)&_server_address,
-				  sizeof(this->_server_address))) == ERROR)
-		throw Server::BindException();
-	return binding;
+    if (setsockopt(this->_server_fd, SOL_SOCKET, SO_REUSEADDR, &option,
+                   sizeof(int)) == ERROR)
+        throw Server::SetSockOptException();
+    if ((binding =
+             bind(this->_server_fd, (const struct sockaddr *)&_server_address,
+                  sizeof(this->_server_address))) == ERROR)
+        throw Server::BindException();
+    return binding;
 }
 
 //-*-*-*-*-*-*-*-*-*-* LISTEN FUNCTION //-*-*-*-*-*-*-*-*-*-*
-int Server::setListen()
-{
-	int listening = listen(_server_fd, 42);
-	if (listening == ERROR)
-		throw Server::ListenException();
-	return listening;
+int Server::setListen() {
+    int listening = listen(_server_fd, 42);
+    if (listening == ERROR) throw Server::ListenException();
+    return listening;
 }
 
 //-*-*-*-*-*-*-*-*-*-* ACCEPT FUNCTION //-*-*-*-*-*-*-*-*-*-*
@@ -288,77 +282,79 @@ int Server::parsingMessages(std::string read)
 // }
 
 //-*-*-*-*-*-*-*-*-*-*setKqueue//-*-*-*-*-*-*-*-*-*-*
-void Server::setKqueue()
-{
-	if ((this->_kq_fd = kqueue()) == ERROR)
-		throw Server::KqueueException();
-	// set up server_fd for listening
-	EV_SET(&_change_list, _server_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0,
-		   NULL);
-	int num_pendingEvents = kevent(_kq_fd, &_change_list, 1, NULL, 0, NULL);
-	if (num_pendingEvents == ERROR)
-		throw Server::KeventsException();
-	// std::cout << this->_kq_fd << std::endl;
-	memset(&_change_list, 0, sizeof(_change_list));
+void Server::setKqueue() {
+    if ((this->_kq_fd = kqueue()) == ERROR) throw Server::KqueueException();
+    // set up server_fd for listening
+    EV_SET(&_change_list, _server_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0,
+           NULL);
+    int num_pendingEvents = kevent(_kq_fd, &_change_list, 1, NULL, 0, NULL);
+    if (num_pendingEvents == ERROR) throw Server::KeventsException();
+    // std::cout << this->_kq_fd << std::endl;
+    memset(&_change_list, 0, sizeof(_change_list));
 }
 
 //-*-*-*-*-*-*-*-*-*-*setAddKqueue//-*-*-*-*-*-*-*-*-*-*
-void Server::setAddKqueue(int fd)
-{
-	struct kevent kev;
-	EV_SET(&kev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-	if (kevent(_kq_fd, &kev, 1, NULL, 0, NULL) == ERROR)
-		throw Server::KeventAddException();
-	// std::cout << fd << std::endl;
+void Server::setAddKqueue(int fd) {
+    struct kevent kev;
+    EV_SET(&kev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+    if (kevent(_kq_fd, &kev, 1, NULL, 0, NULL) == ERROR)
+        throw Server::KeventAddException();
+    // std::cout << fd << std::endl;
 }
 //-*-*-*-*-*-*-*-*-*-*setDeleteKqueue//-*-*-*-*-*-*-*-*-*-*
-void Server::setDeleteKqueue(int fd)
-{
-	struct kevent kev;
-	EV_SET(&kev, fd, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
-	int num_pendingEvents = kevent(_kq_fd, &kev, 1, NULL, 0, NULL);
-	if (num_pendingEvents == ERROR)
-		throw Server::KeventDeleteException();
+void Server::setDeleteKqueue(int fd) {
+    struct kevent kev;
+    EV_SET(&kev, fd, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
+    int num_pendingEvents = kevent(_kq_fd, &kev, 1, NULL, 0, NULL);
+    if (num_pendingEvents == ERROR) throw Server::KeventDeleteException();
 }
 
+//
 //-*-*-*-*-*-*-*-*-*-*kqueueEngine//-*-*-*-*-*-*-*-*-*-*
-void Server::kqueueEngine()
-{
-	memset(&this->_change_list, 0, sizeof(_change_list));
+void Server::kqueueEngine() {
+    memset(&this->_change_list, 0, sizeof(_change_list));
 
-	while (1)
-	{
-		this->_new_events =
-			kevent(this->_kq_fd, NULL, 0, _event_list, 20, NULL);
-		if (this->_new_events == ERROR)
-			throw Server::KeventAddException();
+    while (1) {
+        this->_new_events =
+            kevent(this->_kq_fd, NULL, 0, _event_list, 20, NULL);
+        if (this->_new_events == ERROR) throw Server::KeventAddException();
 
-		for (int i = 0; i < this->_new_events; i++)
-		{
-			this->_fd_client = this->_event_list[i].ident;
-			if (_event_list[i].flags & EV_EOF)
-			{
-				setDeleteKqueue(_fd_client);
-				/////////////REMOVE CLIENT//////////////////
-				// remove_connection(_fd_client);
-				// RemoveClient(_fd_client);
-			}
-			else if (this->_fd_client == this->_server_fd)
-			{
-				int new_client_fd;
+        for (int i = 0; i < this->_new_events; i++) {
+            this->_fd_client = this->_event_list[i].ident;
+            if (_event_list[i].flags & EV_EOF) {
+                setDeleteKqueue(_fd_client);
+                /////////////REMOVE CLIENT//////////////////
+                // remove_connection(_fd_client);
+                // RemoveClient(_fd_client);
+            } else if (this->_fd_client == this->_server_fd) {
+                int new_client_fd;
 
-				new_client_fd = setAccept();
-				setAddKqueue(new_client_fd);
-			}
-			else if (this->_event_list[i].filter == EVFILT_READ)
-			{
-				// std::cout << new_client_fd << std::endl;
+                new_client_fd = setAccept();
+                setAddKqueue(new_client_fd);
+            } else if (this->_event_list[i].filter == EVFILT_READ) {
+                // std::cout << new_client_fd << std::endl;
 
-				receiveMessages(this->_fd_client);
-			}
-		}
-	}
+                receiveMessages(this->_fd_client);
+            }
+        }
+    }
 }
+
+// Client *Server::findClientByFd(int fd) {
+//     return _conClients[fd];
+// }
+
+Client *Server::findClientByName(std::string name) {
+    std::vector<Client *>::iterator it = this->_Client.begin();
+    std::vector<Client *>::iterator ite = this->_Client.end();
+
+    for ( ; it != ite ; it++) {
+        if ((*it)->getNickname() == name)
+            return (*it);
+    }
+    return NULL;
+}
+
 
 std::string Server::makeNickMask(Server *server, Client *client)
 {
@@ -476,81 +472,67 @@ void Server::setPassword(std::string password)
 }
 
 //--------------Exceptions-------------//
-const char *Server::NoSuchChannelException::what() const throw()
-{
-	return ("CHANNEL ACCESS ERROR: ");
+const char *Server::SendException::what() const throw() {
+    return ("SEND ERROR: ");
 }
-const char *Server::SendException::what() const throw()
-{
-	return ("SEND ERROR: ");
+const char *Server::RemoveException::what() const throw() {
+    return ("REMOVE ERROR: ");
 }
-const char *Server::RemoveException::what() const throw()
-{
-	return ("REMOVE ERROR: ");
+const char *Server::ReceiveException::what() const throw() {
+    return ("RECEIVE ERROR: ");
 }
-const char *Server::ReceiveException::what() const throw()
-{
-	return ("RECEIVE ERROR: ");
+const char *Server::ReceiveSockHungUpException::what() const throw() {
+    return ("SOCKER HUNG UP ERROR: ");
 }
-const char *Server::ReceiveSockHungUpException::what() const throw()
-{
-	return ("SOCKER HUNG UP ERROR: ");
+const char *Server::GetAddrInfoException::what() const throw() {
+    return ("GETADDRINFO ERROR: ");
 }
-const char *Server::GetAddrInfoException::what() const throw()
-{
-	return ("GETADDRINFO ERROR: ");
+const char *Server::SocketException::what() const throw() {
+    return ("SOCKET ERROR: ");
 }
-const char *Server::SocketException::what() const throw()
-{
-	return ("SOCKET ERROR: ");
+const char *Server::FcntlException::what() const throw() {
+    return ("FCNTL ERROR: ");
 }
-const char *Server::FcntlException::what() const throw()
-{
-	return ("FCNTL ERROR: ");
+const char *Server::SetSockOptException::what() const throw() {
+    return ("SETSOCKOPT ERROR: ");
 }
-const char *Server::SetSockOptException::what() const throw()
-{
-	return ("SETSOCKOPT ERROR: ");
+const char *Server::BindException::what() const throw() {
+    return ("BIND ERROR: ");
 }
-const char *Server::BindException::what() const throw()
-{
-	return ("BIND ERROR: ");
+const char *Server::ListenException::what() const throw() {
+    return ("LISTEN ERROR: ");
 }
-const char *Server::ListenException::what() const throw()
-{
-	return ("LISTEN ERROR: ");
+const char *Server::NumEventsException::what() const throw() {
+    return ("NUMEVENTS ERROR: ");
 }
-const char *Server::NumEventsException::what() const throw()
-{
-	return ("NUMEVENTS ERROR: ");
+const char *Server::KeventsException::what() const throw() {
+    return ("KEVENTS ERROR: ");
 }
-const char *Server::KeventsException::what() const throw()
-{
-	return ("KEVENTS ERROR: ");
+const char *Server::AcceptException::what() const throw() {
+    return ("ACCEPT ERROR: ");
 }
-const char *Server::AcceptException::what() const throw()
-{
-	return ("ACCEPT ERROR: ");
+const char *Server::ConnectionRefusedException::what() const throw() {
+    return ("CONNECTIONREFUSED ERROR: ");
 }
-const char *Server::ConnectionRefusedException::what() const throw()
-{
-	return ("CONNECTIONREFUSED ERROR: ");
+const char *Server::KqueueException::what() const throw() {
+    return ("KQUEUE ERROR: ");
 }
-const char *Server::KqueueException::what() const throw()
-{
-	return ("KQUEUE ERROR: ");
+const char *Server::LimitMessageException::what() const throw() {
+    return ("LIMITMESSAGE [2048] ERROR: ");
 }
-const char *Server::LimitMessageException::what() const throw()
-{
-	return ("LIMITMESSAGE [2048] ERROR: ");
+const char *Server::KeventAddException::what() const throw() {
+    return ("KEVENT_ADD ERROR: ");
 }
-const char *Server::KeventAddException::what() const throw()
-{
-	return ("KEVENT_ADD ERROR: ");
+const char *Server::KeventDeleteException::what() const throw() {
+    return ("KEVENT_DELETE ERROR: ");
 }
-const char *Server::KeventDeleteException::what() const throw()
-{
-	return ("KEVENT_DELETE ERROR: ");
+
+const char *Server::NoSuchChannelException::what() const throw() {
+    return ("NoSuchChannel ERROR: ");
+}
+
+const char *Server::KillingServerException::what() const throw () {
+    return ("KillingServerException ERROR: ");
 }
 
 std::ostream	&operator<<(std::ostream &os, std::vector<std::string>	veci)

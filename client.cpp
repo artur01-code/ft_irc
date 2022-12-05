@@ -17,6 +17,8 @@ RuleSetter<char> Client::_charRuleSetter(Client::_alphabet);
 
 std::string	Client::greet()
 {
+	// Client client;
+	// client.setFlag('o', reinterpret_cast<Noun *>(NULL), true, Client &client_obj);
 	return ("Hello from client");
 }
 
