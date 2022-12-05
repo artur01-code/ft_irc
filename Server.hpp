@@ -271,6 +271,9 @@ class Server {
     std::string RPL_ENDOFMOTD(Client *client);
     std::string JOINREPLY(Client *client, Channel *channel);
     std::string PARTREPLY(Client *client, Channel *channel, std::string reason);
+    std::string QUITREPLY(Client *client, Channel *channel, std::string reason);
+    std::string KILLREPLY(Client *client, std::string reason);
+    std::string DIEREPLY(Client *client, Channel *channel, std::string reason);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{

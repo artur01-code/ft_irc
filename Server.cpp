@@ -323,9 +323,13 @@ void Server::kqueueEngine() {
             this->_fd_client = this->_event_list[i].ident;
             if (_event_list[i].flags & EV_EOF) {
                 setDeleteKqueue(_fd_client);
+				std::cout << "FD : " << _fd_client << std::endl;
                 /////////////REMOVE CLIENT//////////////////
                 // remove_connection(_fd_client);
                 // RemoveClient(_fd_client);
+				// if (_conClients[_fd_client].getSocket()) {
+					// close(_conClients[_fd_client].getSocket());
+					// _conClients.erase(_fd_client);
             } else if (this->_fd_client == this->_server_fd) {
                 int new_client_fd;
 
