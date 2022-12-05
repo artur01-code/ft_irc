@@ -3,11 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.ruslan.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkultaev <rkultaev@student.42.fr>              +#+  +:+       +#+    */
+/*   By: qduong <qduong@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 18:20:37 by ljahn             #+#    #+#             */
-
-/*   Updated: 2022/11/21 14:03:31 by rkultaev           ###   ########.fr     */
+/*   Updated: 2022/11/21 14:03:31 by qduong           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +136,6 @@ int addConnection(int fd) {
         error_message("appending clients issue!");
         return ERROR;
     }
-
     clients[i].fd = fd;
     return 0;
 }

@@ -325,19 +325,15 @@ void Channel::rmClient(Client &obj)
 {
 	obj.subtractChannel(this->getName()); // Change what channels obj is a member of.
 
-	// std::vector<Client *>::const_iterator	begin(_clients.begin());
-	std::vector<Client *>	copy = _clients;
-	std::vector<Client *>::iterator begin = copy.begin();
-	// Client *target = srv.
-	for (; begin != copy.end(); begin++)
+	std::vector<Client *>::iterator	begin(_clients.begin());
+	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
 	{
 		if (M_DEBUG)
 			std::cout << (**begin).getNickname() << " is a member" << std::endl;
-		if ((**begin).getNickname() == obj.getNickname())
+		if ( (**begin).getNickname() == obj.getNickname())
 		{
-			_clients.erase(_clients.begin() + (begin - copy.begin()));
-
-			if (_clients.size() == 0)
+			_clients.erase(begin);
+			if (_clients.size() == 0) // No more clients left
 				throw("destroyChannel");
 			return ;
 		}
