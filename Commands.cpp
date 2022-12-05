@@ -944,8 +944,8 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 					std::cout << "BethBot should say something" << std::endl;
 					std::cout << text << std::endl;
 				}
-				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toClient->getNickname(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
-				this->PRIVMSG(this->_bethBot->getBotClient(), text);
+				// text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toChannel->getName(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));				toChannel->broadcast(*cl, text);
+				// this->PRIVMSG(cl, text);
 			}
 		}
 		else
@@ -1127,7 +1127,7 @@ void	Server::TEACHBOTHAN(const Message &msg, Client &cl)
 	std::string	word;
 	std::string	phrase;
 
-	if (msg.getParameters().size() < 1)
+	if (msg.getParameters().size() < 2)
 	{
 		this->sendMessage(&cl, this->ERR_NEEDMOREPARAMS(&cl, "TEACHBOTHAN"));
 		return ;
