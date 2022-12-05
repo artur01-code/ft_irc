@@ -62,7 +62,6 @@ class Channel : public Noun
 		BanLst							_banLst;
 		std::map<std::string, char>		client_rights;
 	public:
-
 		Channel(std::string name);
 		virtual ~Channel() {}
 
@@ -114,7 +113,5 @@ class Channel : public Noun
 
 std::string	getPrimer(std::string &pattern);
 bool	strMatch(std::string specific, std::string pattern);
-
-
 
 #endif
