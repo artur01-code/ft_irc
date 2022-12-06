@@ -120,7 +120,7 @@ std::string server_ipaddr);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj, Client &caller);
     void LIST(const Message &obj, Client &clientObj);
-    void sendConfirm(Client &client, std::string &cmd, std::string const &opt);
+    void sendConfirm(Client &client, std::string const &opt);
     void KILL(const Message &obj, Client &clientObj);
     void DIE(const Message &obj, Client &clientObj);
     void closeLink(Client const &client, std::string const &arg, std::string const &opt);

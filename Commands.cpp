@@ -1057,19 +1057,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
         clientObj.setRegFlag(1);
 }
 
-void Server::sendConfirm(Client &client, std::string &cmd, std::string const &opt) {
-	char ip_str[INET_ADDRSTRLEN];
-	struct sockaddr_in client_address;
-	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
-              sizeof(client_address));
-	std::string message(": " + client.getNickname() + "! " + "@" + ip_str);
-	if (opt.empty()) {
-		message += " " + cmd + " " + client.getNickname() + " " + opt + " " + message + "\r\n";
-	}
-	else
-		message += " " + cmd + " " + client.getNickname() + " " + message + "\r\n";
-	send(client.getSocket(), message.c_str(), message.length(), 0);
-}
+
 
 void Server::KILL(const Message &obj, Client &clientObj) {
 	std::vector<std::string> vec = obj.getParameters();
@@ -1077,40 +1065,52 @@ void Server::KILL(const Message &obj, Client &clientObj) {
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
 		return;
 	}
-
 	if (clientObj.checkMode('o') == false) {
 		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
 		return;
 	}
-	std::string msg = "REASON";
-	if (!vec.back().empty()) {
-		msg += ": " + vec.back();
-	}
-	if (msg == "REASON")
-		msg += " WAS NOT PROVIDED";
-	msg += "\r\n";
+	if (clientObj.getRegFlag() == 1 && _conClients.count(clientObj.getSocket()) && clientObj.checkMode('o')) {
+		std::string msg = "REASON : ";
+		int size = obj.getParameters().size();
+		if (vec.size() > 2) {
+			if (!vec.back().empty()) {
+				if (msg == "REASON : ") {
+					for(int i = 1; i < size; i++)
+						msg += " " + vec[i];
+					msg += "\r\n";
+					sendMessage(&clientObj, msg);
+				}
+			}
+		}
+		else {
+			if (msg == "REASON : ")
+			msg += " WAS NOT PROVIDED";
+			msg += "\r\n";
+			sendMessage(&clientObj, msg);
+		}
 
-	Client *target = _regClients[vec[0]];
-	if (!target) {
-		sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
-		return;
-	}
- 	else {
-		const std::map<std::string, Channel *> copy = target->getChannels();
-		std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
-		for (; mapIt != copy.end(); mapIt++)
-		{
-			Message msg(std::string("PART " + mapIt->second->getName()));
-			PART(msg, *target);
+		Client *target = _regClients[vec[0]];
+		if (!target) {
+			sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
+			return;
 		}
-		sendMessage(&clientObj, msg);
-		sendMessage(&clientObj, KILLREPLY(&clientObj, msg));
-		if (!_regClients.empty()) {
-			std::cerr << target->getNickname() << ": disconnected" << std::endl;
+ 		else {
+			const std::map<std::string, Channel *> copy = target->getChannels();
+			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
+			for (; mapIt != copy.end(); mapIt++)
+			{
+				Message messge(std::string("PART " + mapIt->second->getName()));
+				PART(messge, *target);
+			}
+			sendMessage(&clientObj, msg);
+			sendMessage(&clientObj, KILLREPLY(&clientObj, msg));
+			if (!_regClients.empty()) {
+				std::cerr << target->getNickname() << ": disconnected" << std::endl;
+			}
+			_conClients.erase(target->getSocket());
+			close(target->getSocket());
+			_regClients.erase(target->getNickname());
 		}
-		_conClients.erase(target->getSocket());
-		close(target->getSocket());
-		_regClients.erase(target->getNickname());
 	}
 }
 
@@ -1143,26 +1143,50 @@ void Server::closeLink(Client const &client, std::string const &arg, std::string
 	}
 }
 
+// void Server::sendConfirm(Client &client, std::string const &opt) {
+// 	char ip_str[INET_ADDRSTRLEN];
+// 	struct sockaddr_in client_address;
+// 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
+//               sizeof(client_address));
+// 	std::string message("QUIT : ");
+// 	if (opt.empty()) {
+// 		message += client.getNickname() + " " + opt + " " + "\r\n";
+// 	}
+// 	else
+// 		message += client.getNickname() + "\r\n";
+// 	send(client.getSocket(), message.c_str(), message.length(), 0);
+// }
+
 void Server::QUIT(const Message &obj, Client &clientObj) {
 	std::vector<std::string> vec = obj.getParameters();
 	char ip_str[INET_ADDRSTRLEN];
 	struct sockaddr_in client_address;
 	inet_ntop(AF_INET, (char *)&(client_address.sin_addr), ip_str,
               sizeof(client_address));
-	std::string quit = "Client Quit";
-	if (vec.empty())
+	int size = obj.getParameters().size();
+	if (obj.getParameters().size() == 0) {
+		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
 		return;
-	if (clientObj.getRegFlag() == 1) {
-		std::string msg = "REASON";
-		if (!vec.back().empty()) {
-			msg += ": " + vec.back();
+	}
+	if (clientObj.getRegFlag() == 1 && _conClients.count(clientObj.getSocket())) {
+		std::string msg = "REASON : ";
+		if (vec.size() > 0 && vec[0] != clientObj.getNickname()) {
+			if (!vec.back().empty()) {
+				if (msg == "REASON : ") {
+					for(int i = 0; i < size; i++)
+						msg += " " + vec[i];
+					msg += "\r\n";
+					sendMessage(&clientObj, msg);
+				}
+			}
 		}
-		if (msg == "REASON")
-			msg += " WAS NOT PROVIDED";
-		msg += "\r\n";
-		sendMessage(&clientObj, msg);
-		if (_conClients.count(_fd_client)) {
-			sendConfirm(clientObj, vec[0], clientObj.getNickname());
+		else {
+			if (msg == "REASON : ")
+			msg += clientObj.getNickname();
+			msg += "\r\n";
+			sendMessage(&clientObj, msg);
+		}
+		if (_conClients.count(_fd_client) && _regClients.count(clientObj.getNickname())) {
 			const std::map<std::string, Channel *> copy = clientObj.getChannels();
 			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
 			Channel *itrMap;
@@ -1173,7 +1197,7 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 				PART(msg, clientObj);
 			}
 			if (_conClients.count(_fd_client)) {
-				closeLink(clientObj, "Close Link", ip_str + quit);
+				closeLink(clientObj, "Close Link", ip_str);
 				close(_conClients[_fd_client].getSocket());
 				_conClients.erase(_fd_client);
 				_regClients.erase(clientObj.getNickname());

@@ -40,6 +40,8 @@ std::string Server::getMotd() { return (this->_motd); }
 //--------------setupConnection-------------//
 void Server::setupConnection(std::string &ipaddr, int port)
 {
+	//A pair (host,port) is used for AF_INET address family, where host is a string representing hstname and integer(host)
+
 	this->_ip_address = ipaddr;
 	this->_port = port;
 
@@ -106,10 +108,13 @@ int Server::setListen()
 int Server::setAccept()
 {
 	struct sockaddr_in client_address;
+	//contains the amount of space that client_address points to. When returned, it contains length of adress
 	socklen_t socket_length;
 	int client_fd;
 	char buffer[2048];
 	char ip_str[INET_ADDRSTRLEN];
+	//<server_fd>-stream socket fd created with socket() bound to local address with bind() and listens for connection after listen()
+	//<client_addr>-pointer to buffer into which clients connection address is placed.Address points to sockaddr_in bcs of AF_INET domain.
 	client_fd = accept(this->_server_fd, (struct sockaddr *)&client_address,
 					   (socklen_t *)&socket_length);
 	if (client_fd == ERROR)
@@ -137,7 +142,6 @@ int Server::receiveMessages(int fd)
 	char buffer[2048];
 	int bytes_read;
 
-	// std::cout << "ruslan\n";
 	bzero(buffer, sizeof(buffer));
 	bytes_read = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_read <= 0)
@@ -149,7 +153,6 @@ int Server::receiveMessages(int fd)
 			throw Server::ReceiveSockHungUpException();
 		}
 	}
-
 	buffer[bytes_read] = 0;
 
 	/*START SAVE HISTORY*/
@@ -290,15 +293,29 @@ int Server::parsingMessages(std::string read)
 //-*-*-*-*-*-*-*-*-*-*setKqueue//-*-*-*-*-*-*-*-*-*-*
 void Server::setKqueue()
 {
+	//create kqueue which is yet another fd that we open, just like we do a socket
+	//returns fd index that we'll use for future calls
 	if ((this->_kq_fd = kqueue()) == ERROR)
 		throw Server::KqueueException();
 	// set up server_fd for listening
+	//EV_SET-utility function helps setting up the structure
+	//EVFILT_READ-read filter looking for read events on a file or socket
+	//EV_ADD-add event(fd) to the kqueue
+	//EV_ENABLE-when we add event, unless we specify this flag, it won't be watched for
 	EV_SET(&_change_list, _server_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0,
 		   NULL);
+	//kevent has 6 arguments to accept
+	//1)<kq_fd>-created via kqueue()
+	//2)<_change_list>-pointer to array of structs of type kevent that describes changes we ask for in kqueue
+	//3)<Nchanges>-nb in array of changes in _change_list
+	//4)<event_list>-pointer to array of structures of type kevent that can be filled in by OS to tell what events have been triggered
+	//5)<Nevents>-size of the event_list arg so kernel knows how many events it can tell you about
+	//6)<Timeout>-allows how blocking the call will be.We set to NULL->to wait forever
+
+	//As input to tell kernel what events we are interested in(we set up a bunch of socket fds, but we are not interested in handling events)
 	int num_pendingEvents = kevent(_kq_fd, &_change_list, 1, NULL, 0, NULL);
 	if (num_pendingEvents == ERROR)
 		throw Server::KeventsException();
-	// std::cout << this->_kq_fd << std::endl;
 	memset(&_change_list, 0, sizeof(_change_list));
 }
 
@@ -315,6 +332,7 @@ void Server::setAddKqueue(int fd)
 void Server::setDeleteKqueue(int fd)
 {
 	struct kevent kev;
+	//EV_DISABLE-opposite of enable, but internal kqueue inside kernel won't be removed, its ready to reenable
 	EV_SET(&kev, fd, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
 	int num_pendingEvents = kevent(_kq_fd, &kev, 1, NULL, 0, NULL);
 	if (num_pendingEvents == ERROR)
@@ -329,6 +347,9 @@ void Server::kqueueEngine()
 
 	while (1)
 	{
+		//As output, we can find out what events have happened
+		//we are running in loop processing events, but not setting any new ones in
+		//_event_list set a pointer of array of kevents we want filled and nb_events to length of array
 		this->_new_events =
 			kevent(this->_kq_fd, NULL, 0, _event_list, 20, NULL);
 		if (this->_new_events == ERROR)
@@ -336,7 +357,9 @@ void Server::kqueueEngine()
 
 		for (int i = 0; i < this->_new_events; i++)
 		{
+			//<ident>-is identifier we wish to have watched(fd)
 			this->_fd_client = this->_event_list[i].ident;
+			//flags on output tells us what happened.
 			if (_event_list[i].flags & EV_EOF)
 			{
 				setDeleteKqueue(_fd_client);
@@ -351,6 +374,7 @@ void Server::kqueueEngine()
 				new_client_fd = setAccept();
 				setAddKqueue(new_client_fd);
 			}
+			//filter is actual request that we ask kernel to watch for.
 			else if (this->_event_list[i].filter == EVFILT_READ)
 			{
 				// std::cout << new_client_fd << std::endl;
