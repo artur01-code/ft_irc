@@ -199,10 +199,16 @@ std::string Server::buildNOTICE(Client *cl, std::string receiver, std::string te
 void Server::sendMessage(Client *client, std::string message)
 {
 	int nb_of_bytes_sent;
+	if (this->_conClients.count(client->getSocket()) && client->getRegFlag() == 0)
+	{
+		if (M_DEBUG)
+			std::cout << "ERROR: sendMessage() unsuccessfull\nClient not connected" << std::endl;
+		return ;
+	}
 	if (client->getSocket() == ERROR)
 	{
 		if (M_DEBUG)
-			std::cout << "ERROR: sendMessage() unsuccessfull" << std::endl;
+			std::cout << "ERROR: sendMessage() unsuccessfull\nSocket error" << std::endl;
 		return;
 	}
 	if (M_DEBUG)
@@ -342,6 +348,14 @@ void Server::kqueueEngine()
 				/////////////REMOVE CLIENT//////////////////
 				// remove_connection(_fd_client);
 				// RemoveClient(_fd_client);
+				if (this->_conClients.count(_fd_client) && this->_regClients.count(this->_conClients.find(_fd_client)->second.getNickname()))//(_conClients[_fd_client].getSocket()) 
+				{
+					if (M_DEBUG)
+						std::cout << "earse client from both maps" << std::endl;
+					close(_conClients[_fd_client].getSocket());
+					this->_regClients.erase(this->_conClients.find(_fd_client)->second.getNickname());
+					this->_conClients.erase(_fd_client);
+				}
 			}
 			else if (this->_fd_client == this->_server_fd)
 			{
@@ -352,8 +366,6 @@ void Server::kqueueEngine()
 			}
 			else if (this->_event_list[i].filter == EVFILT_READ)
 			{
-				// std::cout << new_client_fd << std::endl;
-
 				receiveMessages(this->_fd_client);
 			}
 		}

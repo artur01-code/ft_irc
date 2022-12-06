@@ -466,6 +466,12 @@ static void	sendMessage(Client &to, std::string &msg)
 	if (to.getSocket() == ERROR)
 		return ;
 
+	// if (to.getSocket() == ERROR)
+	// {
+	// 	if (M_DEBUG)
+	// 		std::cout << "ERROR: sendMessage() unsuccessfull\nClient not connected" << std::endl;
+	// 	return ;
+	// }
 	if (M_DEBUG)
 			std::cout << "sending message to " << to.getNickname() << std::endl;
 	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)

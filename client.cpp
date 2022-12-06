@@ -160,6 +160,16 @@ void Client::setPwdFlag(int n)
 	this->_pwdFlag = n;
 }
 
+int			Client::getConFlag(void)
+{
+	return (this->_conFlag);
+}
+
+void		Client::setConFlag(int n)
+{
+	this->_conFlag = n;
+}
+
 std::map<std::string, Channel *> Client::getChannels(void) const
 {
 	return (this->_channels);

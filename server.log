@@ -1,0 +1,1957 @@
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 5 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER someone * localhost :someone
+NICK rinus
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 5
+Hostname: *
+Realname: someone
+Username: someone
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 5
+Nickname: rinus
+Hostname: *
+Realname: someone
+Username: someone
+
+sendMessage() : :defaultservername 375 rinus :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 rinus :defaultmotd
+
+sendMessage() : :defaultservername 376 rinus :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 6 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+NICK newacc
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 6
+Hostname: *
+Realname: realname
+Username: username
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 6
+Nickname: newacc
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 newacc :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 newacc :defaultmotd
+
+sendMessage() : :defaultservername 376 newacc :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 7 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+NICK ruslan
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 7
+Hostname: *
+Realname: realname
+Username: username
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 7
+Nickname: ruslan
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 ruslan :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 ruslan :defaultmotd
+
+sendMessage() : :defaultservername 376 ruslan :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 8 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER ich * localhost :hello
+NICK habibib
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 8
+Hostname: *
+Realname: hello
+Username: ich
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 8
+Nickname: habibib
+Hostname: *
+Realname: hello
+Username: ich
+
+sendMessage() : :defaultservername 375 habibib :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 habibib :defaultmotd
+
+sendMessage() : :defaultservername 376 habibib :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 9 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER USERNAME * localhost :Jorit
+NICK jtomala
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 9
+Hostname: *
+Realname: Jorit
+Username: USERNAME
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 9
+Nickname: jtomala
+Hostname: *
+Realname: Jorit
+Username: USERNAME
+
+sendMessage() : :defaultservername 375 jtomala :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 jtomala :defaultmotd
+
+sendMessage() : :defaultservername 376 jtomala :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 5 was accepted
+IPv4 address is : 1.0.0.0
+Revieved: USER someone * localhost :someone
+NICK rinus
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 5
+Hostname: *
+Realname: someone
+Username: someone
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 5
+Nickname: rinus
+Hostname: *
+Realname: someone
+Username: someone
+
+sendMessage() : :defaultservername 375 rinus :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 rinus :defaultmotd
+
+sendMessage() : :defaultservername 376 rinus :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 6 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 6
+Hostname: *
+Realname: realname
+Username: username
+
+[31m Message Destructor[0m
+Revieved: NICK newacc
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 6
+Nickname: newacc
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 newacc :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 newacc :defaultmotd
+
+sendMessage() : :defaultservername 376 newacc :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 7 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER ich * localhost :hello
+NICK habibib
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 7
+Hostname: *
+Realname: hello
+Username: ich
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 7
+Nickname: habibib
+Hostname: *
+Realname: hello
+Username: ich
+
+sendMessage() : :defaultservername 375 habibib :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 habibib :defaultmotd
+
+sendMessage() : :defaultservername 376 habibib :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 8 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+NICK ruslan
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 8
+Hostname: *
+Realname: realname
+Username: username
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 8
+Nickname: ruslan
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 ruslan :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 ruslan :defaultmotd
+
+sendMessage() : :defaultservername 376 ruslan :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 5 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER ich * localhost :hello
+NICK habibib
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 5
+Hostname: *
+Realname: hello
+Username: ich
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 5
+Nickname: habibib
+Hostname: *
+Realname: hello
+Username: ich
+
+sendMessage() : :defaultservername 375 habibib :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 habibib :defaultmotd
+
+sendMessage() : :defaultservername 376 habibib :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 7 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER someone * localhost :someone
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 7
+Hostname: *
+Realname: someone
+Username: someone
+
+[31m Message Destructor[0m
+Revieved: NICK rinus
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 7
+Nickname: rinus
+Hostname: *
+Realname: someone
+Username: someone
+
+sendMessage() : :defaultservername 375 rinus :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 rinus :defaultmotd
+
+sendMessage() : :defaultservername 376 rinus :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 9 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER USERNAME * localhost :Jorit
+NICK jtomala
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 9
+Hostname: *
+Realname: Jorit
+Username: USERNAME
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 9
+Nickname: jtomala
+Hostname: *
+Realname: Jorit
+Username: USERNAME
+
+sendMessage() : :defaultservername 375 jtomala :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 jtomala :defaultmotd
+
+sendMessage() : :defaultservername 376 jtomala :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 10 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER ich * localhost :hello!
+Revieved: 
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: USER ich * localhost :hello
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 10
+Hostname: *
+Realname: hello
+Username: ich
+
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+Revieved: NICK habibib
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+sendMessage() : :defaultservername 433   :Nickname is already in use
+
+:defaultservername 433   :Nickname is already in use
+
+[31m Message Destructor[0m
+Revieved: PING 1670331722
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331722
+
+[31m Message Destructor[0m
+Revieved: PING 1670331727
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331727
+
+[31m Message Destructor[0m
+Revieved: PING 1670331737
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331737
+
+[31m Message Destructor[0m
+Revieved: PING 1670331761
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331761
+
+[31m Message Destructor[0m
+Revieved: PING 1670331761
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331761
+
+[31m Message Destructor[0m
+Revieved: PING 1670331788
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331788
+
+[31m Message Destructor[0m
+Revieved: PING 1670331788
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331788
+
+[31m Message Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 5 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+NICK newacc
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 5
+Hostname: *
+Realname: realname
+Username: username
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 5
+Nickname: newacc
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 newacc :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 newacc :defaultmotd
+
+sendMessage() : :defaultservername 376 newacc :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 6 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+NICK ruslan
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 6
+Hostname: *
+Realname: realname
+Username: username
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 6
+Nickname: ruslan
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 ruslan :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 ruslan :defaultmotd
+
+sendMessage() : :defaultservername 376 ruslan :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 7 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER someone * localhost :someone
+NICK rinus
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 7
+Hostname: *
+Realname: someone
+Username: someone
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 7
+Nickname: rinus
+Hostname: *
+Realname: someone
+Username: someone
+
+sendMessage() : :defaultservername 375 rinus :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 rinus :defaultmotd
+
+sendMessage() : :defaultservername 376 rinus :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 8 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER ich * localhost :hello
+NICK habibib
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 8
+Hostname: *
+Realname: hello
+Username: ich
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 8
+Nickname: habibib
+Hostname: *
+Realname: hello
+Username: ich
+
+sendMessage() : :defaultservername 375 habibib :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 habibib :defaultmotd
+
+sendMessage() : :defaultservername 376 habibib :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 7 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER ich * localhost :hello
+NICK habibib
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 7
+Hostname: *
+Realname: hello
+Username: ich
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 7
+Nickname: habibib
+Hostname: *
+Realname: hello
+Username: ich
+
+sendMessage() : :defaultservername 375 habibib :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 habibib :defaultmotd
+
+sendMessage() : :defaultservername 376 habibib :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 8 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER someone * localhost :someone
+NICK rinus
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 8
+Hostname: *
+Realname: someone
+Username: someone
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 8
+Nickname: rinus
+Hostname: *
+Realname: someone
+Username: someone
+
+sendMessage() : :defaultservername 375 rinus :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 rinus :defaultmotd
+
+sendMessage() : :defaultservername 376 rinus :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+[32m Client socket Constructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+[31m Client Default Destructor[0m
+new client : 5 was accepted
+IPv4 address is : 127.0.0.1
+Revieved: USER username * localhost :realname
+NICK newacc
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+COMMAND: *USER* FUNCTION GOT TRIGGERED
+Socket: 5
+Hostname: *
+Realname: realname
+Username: username
+
+COMMAND: *NICK* FUNCTION GOT TRIGGERED
+Socket: 5
+Nickname: newacc
+Hostname: *
+Realname: realname
+Username: username
+
+sendMessage() : :defaultservername 375 newacc :- defaultservername Message of the day - 
+
+sendMessage() : :defaultservername 372 newacc :defaultmotd
+
+sendMessage() : :defaultservername 376 newacc :End of /MOTD command.
+
+Client successfully registered!
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+Revieved: PING 1670331817
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331817
+
+[31m Message Destructor[0m
+Revieved: PING 1670331861
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331861
+
+[31m Message Destructor[0m
+Revieved: PING 1670331861
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331861
+
+[31m Message Destructor[0m
+Revieved: PING 1670331863
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331863
+
+[31m Message Destructor[0m
+Revieved: PING 1670331897
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331897
+
+[31m Message Destructor[0m
+Revieved: PING 1670331916
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331916
+
+[31m Message Destructor[0m
+Revieved: PING 1670331932
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331932
+
+[31m Message Destructor[0m
+Revieved: PING 1670331950
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331950
+
+[31m Message Destructor[0m
+Revieved: PING 1670331950
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331950
+
+[31m Message Destructor[0m
+Revieved: PING 1670331978
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331978
+
+[31m Message Destructor[0m
+Revieved: PING 1670331998
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670331998
+
+[31m Message Destructor[0m
+Revieved: PING 1670332011
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670332011
+
+[31m Message Destructor[0m
+Revieved: PING 1670332011
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670332011
+
+[31m Message Destructor[0m
+Revieved: PING 1670332013
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670332013
+
+[31m Message Destructor[0m
+Revieved: JOIN #420
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+TRIGGERED JOIN
+Creating new channel: #420
+Push back is triggered with the following nickname: jtomala
+Aparisan of:
+Channel Name: #420
+Apartisans
+socket id: 9
+global rights: 19
+Rules: 
+empty
+User limit: 69
+
+
+Send JOIN REPLY to the client
+sendMessage() : :jtomala!USERNAME@defaulthost JOIN :#420
+
+sendMessage() : :defaultservername 331 jtomala #420 :No topic is set
+
+sendMessage() : :defaultservername 353 jtomala = #420 :jtomala 
+
+sendMessage() : :defaultservername 366 jtomala #420 :End of /NAMES list
+
+The socketid of the caller: 9
+Through the map: 9
+Channel Name: #420
+Apartisans
+socket id: 9
+global rights: 19
+Rules: 
+empty
+User limit: 69
+
+
+[31m Message Destructor[0m
+Revieved: WHO #420
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername 315 jtomala :End of /WHO list
+
+[31m Message Destructor[0m
+Revieved: PING 1670332067
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+sendMessage() : :defaultservername PONG 1670332067
+
+[31m Message Destructor[0m
+Revieved: JOIN #420
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+TRIGGERED JOIN
+Push back is triggered with the following nickname: habibib
+Aparisan of:
+Channel Name: #420
+Apartisans
+socket id: 9
+global rights: 19
+socket id: 7
+global rights: 0
+Rules: 
+empty
+User limit: 69
+
+
+Send JOIN REPLY to the client
+sendMessage() : :habibib!ich@defaulthost JOIN :#420
+
+sendMessage() : :defaultservername 331 habibib #420 :No topic is set
+
+sendMessage() : :defaultservername 353 habibib = #420 :jtomala habibib 
+
+sendMessage() : :defaultservername 366 habibib #420 :End of /NAMES list
+
+sending message to jtomala
+Send TOPIC REPLY to the client
+sendMessage() : :defaultservername 332 habibib #420 :
+
+The socketid of the caller: 7
+Through the map: 7
+Channel Name: #420
+Apartisans
+socket id: 9
+global rights: 19
+socket id: 7
+global rights: 0
+Rules: 
+empty
+User limit: 69
+
+
+[31m Message Destructor[0m
+Revieved: WHO #420
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+WHO: common clients:
+jtomala
+sendMessage() : :defaultservername 315 habibib :End of /WHO list
+
+[31m Message Destructor[0m
+Revieved: PRIVMSG #420 :hey
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+Recipient[0]: #420
+[32m:jtomala!USERNAME@defaulthost PRIVMSG #420 :hey
+[0msending message to habibib
+[31m Message Destructor[0m
+Revieved: QUIT :Leaving.
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+CONSTRING: QUIT :Leaving.
+(!)
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+[31m Message Destructor[0m
+earse client from both maps
+[31m Client Default Destructor[0m
+Revieved: PRIVMSG #420 :hey
+!
+[32m Message Constructor from String input[0m
+[32m Message Copy Constructor[0m
+[33m Message Copy Operator[0m
+[31m Message Destructor[0m
+Recipient[0]: #420
+[32m:jtomala!USERNAME@defaulthost PRIVMSG #420 :hey
+[0msending message to habibib
