@@ -41,7 +41,7 @@ void Client::setMeOperator()
 	_charRuleSetter(_globalClientMode, 'o', true);
 }
 
-Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1), _msgCounter(0)
+Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1), _msgCounter(0), _conFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client Default Constructor" << END << std::endl;
@@ -53,7 +53,7 @@ Client::Client(std::string nickname) : _nickname(nickname), _regFlag(0), _msgCou
 		std::cout << COLOR_GREEN << " Client nickname Constructor" << END << std::endl;
 }
 
-Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket) : _socket(socket), _nickname(nickname), _hostname(hostname), _realname(realname), _username(username), _regFlag(0)
+Client::Client(std::string nickname, std::string hostname, std::string realname, std::string username, int socket) : _socket(socket), _nickname(nickname), _hostname(hostname), _realname(realname), _username(username), _pwdFlag(1), _msgCounter(0), _conFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client params Constructor" << END << std::endl;
@@ -61,10 +61,21 @@ Client::Client(std::string nickname, std::string hostname, std::string realname,
 
 Client::Client(const Client &rhs)
 {
-	*this = rhs;
+	this->_socket = rhs._socket;
+	this->_nickname	= rhs._nickname;
+	this->_hostname = rhs._hostname;
+	this->_realname = rhs._realname;
+	this->_username = rhs._username;
+	this->_regFlag = rhs._regFlag;
+	this->_pwdFlag = rhs._pwdFlag;
+	this->_msgCounter = rhs._msgCounter;
+	this->_conFlag = rhs._conFlag;
+	this->_channels = rhs._channels;
+	this->_history = rhs._history;
+	this->_modes = rhs._modes;
 }
 
-Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1)
+Client::Client(int socket) : _socket(socket), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1), _conFlag(1)
 {
 	if (M_DEBUG)
 		std::cout << COLOR_GREEN << " Client socket Constructor" << END << std::endl;
@@ -86,6 +97,7 @@ Client &Client::operator=(const Client &rhs)
 	this->_regFlag = rhs._regFlag;
 	this->_pwdFlag = rhs._pwdFlag;
 	this->_msgCounter = rhs._msgCounter;
+	this->_conFlag = rhs._conFlag;
 	this->_channels = rhs._channels;
 	this->_history = rhs._history;
 	this->_modes = rhs._modes;
@@ -189,6 +201,18 @@ bool	Client::isOnChannel(Channel *ch)
 	return ( (this->_channels.count(ch->getName())) ? true : false );
 }
 
+int			Client::getConFlag(void)
+{
+	return (this->_conFlag);
+}
+
+void		Client::setConFlag(int n)
+{
+	if (M_DEBUG)
+		std::cout << "set " << this->getNickname() << "'s conFlag to " << n << std::endl;
+	this->_conFlag = n;
+}
+
 void Client::printAttributes(void)
 {
 	if (this->getSocket() != -1)
@@ -201,6 +225,9 @@ void Client::printAttributes(void)
 		std::cout << "Realname: " << this->getRealname() << std::endl;
 	if (this->getUsername() != "")
 		std::cout << "Username: " << this->getUsername() << std::endl;
+	std::cout << "PwdFlag: " << this->getPwdFlag() << std::endl;
+	std::cout << "RegFlag: " << this->getRegFlag() << std::endl;
+	std::cout << "ConFlag: " << this->getConFlag() << std::endl;
 	std::cout << std::endl;
 }
 

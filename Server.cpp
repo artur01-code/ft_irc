@@ -199,7 +199,7 @@ std::string Server::buildNOTICE(Client *cl, std::string receiver, std::string te
 void Server::sendMessage(Client *client, std::string message)
 {
 	int nb_of_bytes_sent;
-	if (client->getSocket() == ERROR)
+	if (client->getSocket() == ERROR || client->getConFlag() == 0)
 	{
 		if (M_DEBUG)
 			std::cout << "ERROR: sendMessage() unsuccessfull" << std::endl;
@@ -340,16 +340,17 @@ void Server::kqueueEngine()
 			if (_event_list[i].flags & EV_EOF)
 			{
 				setDeleteKqueue(_fd_client);
-				/////////////REMOVE CLIENT//////////////////
-				// remove_connection(_fd_client);
-				// RemoveClient(_fd_client);
 				if (this->_conClients.count(_fd_client) && this->_regClients.count(this->_conClients.find(_fd_client)->second.getNickname()))//(_conClients[_fd_client].getSocket()) 
 				{
 					if (M_DEBUG)
 						std::cout << "earse client from conclients" << std::endl;
+					this->_regClients.find(this->_conClients.find(_fd_client)->second.getNickname())->second->setConFlag(0);
 					close(_conClients[_fd_client].getSocket());
 					_conClients.erase(_fd_client);
 				}
+				/////////////REMOVE CLIENT//////////////////
+				// remove_connection(_fd_client);
+				// RemoveClient(_fd_client);
 			}
 			else if (this->_fd_client == this->_server_fd)
 			{

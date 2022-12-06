@@ -468,6 +468,8 @@ static void	sendMessage(Client &to, std::string &msg)
 
 	if (M_DEBUG)
 			std::cout << "sending message to " << to.getNickname() << std::endl;
+	if (to.getConFlag() == 0)
+		return ;
 	if (send(to.getSocket(), msg.c_str(), msg.size(), 0) == ERROR)
 		throw Server::SendException();
 }
@@ -476,7 +478,7 @@ void	Channel::broadcast(Client &caller, std::string msg)
 {
 	for (std::vector<Client *>::iterator	aMemberBeg = this->_clients.begin(); aMemberBeg != this->_clients.end(); aMemberBeg++)
 	{
-		if (*aMemberBeg == &caller)
+		if (*aMemberBeg == &caller || (*aMemberBeg)->getConFlag() == 0) //this->_clients.at(*aMemberBeg).getConFlag() == 0)
 			continue ;
 		sendMessage(**aMemberBeg, msg);
 	}
