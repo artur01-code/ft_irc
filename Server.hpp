@@ -227,7 +227,7 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
-	std::string RPL_ENDOFWHO(Client *caller);
+	std::string RPL_ENDOFWHO(Client *cl, std::string mask);
 	std::string	RPL_WHOREPLY(Client *client, Client *target);
 	std::string	RPL_YOUAREOPER();
 	std::string INVITEREPLY(Client *cl, Channel *ch, Client *from);

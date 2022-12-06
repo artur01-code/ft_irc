@@ -266,11 +266,11 @@ void Server::WHO(const Message &obj, Client &caller)
 			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
 			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
 				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first));
-			sendMessage(&caller, RPL_ENDOFWHO(&caller));
+			sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0]));
 			return ;
 		}
 	}
-	sendMessage(&caller, RPL_ENDOFWHO(&caller));
+	sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0]));
 }
 
 void Server::OPER(const Message &obj, Client &caller)

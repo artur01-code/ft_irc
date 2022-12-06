@@ -1,14 +1,14 @@
 #include "Server.hpp"
 
-// "<name> :End of /WHO list"
-std::string Server::RPL_ENDOFWHO(Client *caller)
+std::string Server::RPL_ENDOFWHO(Client *cl, std::string mask)
 {
-	std::string	msg;
-
+	std::string msg;
 	msg += ":" + this->getServerName();
 	msg += " 315 ";
-	msg += caller->getNickname();
-	msg += " :End of /WHO list\r\n";
+	msg += cl->getNickname() + " ";
+	msg += mask;
+	msg += " :End of WHO list";
+	msg += "\r\n";
 	return (msg);
 }
 
