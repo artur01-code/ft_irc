@@ -343,7 +343,7 @@ void Server::kqueueEngine()
 				/////////////REMOVE CLIENT//////////////////
 				// remove_connection(_fd_client);
 				// RemoveClient(_fd_client);
-				if (_conClients[_fd_client].getSocket()) 
+				if (this->_conClients.count(_fd_client) && this->_regClients.count(this->_conClients.find(_fd_client)->second.getNickname()))//(_conClients[_fd_client].getSocket()) 
 				{
 					if (M_DEBUG)
 						std::cout << "earse client from conclients" << std::endl;

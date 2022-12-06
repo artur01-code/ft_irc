@@ -84,7 +84,11 @@ Client &Client::operator=(const Client &rhs)
 	this->_realname = rhs._realname;
 	this->_username = rhs._username;
 	this->_regFlag = rhs._regFlag;
+	this->_pwdFlag = rhs._pwdFlag;
+	this->_msgCounter = rhs._msgCounter;
 	this->_channels = rhs._channels;
+	this->_history = rhs._history;
+	this->_modes = rhs._modes;
 	return (*this);
 }
 

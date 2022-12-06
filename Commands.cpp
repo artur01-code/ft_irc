@@ -819,10 +819,11 @@ void Server::USER(const Message &obj, Client &clientObj)
 	{
 				//check if user is connected by it's fd
 		// this->_regClients.find(vec[0])->second->getSocket() //this is the socketaddress of the registered client
+		Client conClient = this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second;
 		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()) && \
-		 (this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getNickname() != clientObj.getNickname() || \
-		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getHostname() != clientObj.getHostname() || \
-		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getRealname() != clientObj.getRealname())) 
+		 (conClient.getNickname() != clientObj.getNickname() || \
+		 conClient.getHostname() != clientObj.getHostname() || \
+		 conClient.getRealname() != clientObj.getRealname())) 
 		{
 			this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
 			sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
@@ -1056,18 +1057,21 @@ void Server::NICK(const Message &obj, Client &clientObj)
         return;
     }
     // see if new nickname is already in _regClients map
+	std::cout << "ANNANAS 1" << std::endl;
     if (this->_regClients.count(vec[0]))
     {
 		//check if user is connected by it's fd
 		// this->_regClients.find(vec[0])->second->getSocket() //this is the socketaddress of the registered client
+		// Client conClient = this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second;
+		std::cout << "ANNANAS 2" << std::endl;
 		if (this->_conClients.count(this->_regClients.find(vec[0])->second->getSocket()) && \
 		 (this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getNickname() != clientObj.getNickname() || \
 		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getHostname() != clientObj.getHostname() || \
 		 this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.getRealname() != clientObj.getRealname())) 
 		{
-			if (M_DEBUG)
-				std::cout << "here" << std::endl;
-			this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
+			// if (M_DEBUG)
+			// 	std::cout << "here" << std::endl;
+			// this->_conClients.find(this->_regClients.find(vec[0])->second->getSocket())->second.printAttributes();
 			sendMessage(&clientObj, ERR_NICKNAMEINUSE(&clientObj));
 			if (M_DEBUG)
 				std::cout << ERR_NICKNAMEINUSE(&clientObj) << std::endl;
@@ -1075,12 +1079,17 @@ void Server::NICK(const Message &obj, Client &clientObj)
 		}
 		else //client is disconnected
 		{
+			std::cout << "ANNANAS 3" << std::endl;
 			//we have a new client object and now need to put the information of the old one into the new one
 			//change the socketadress
 			int new_fd = clientObj.getSocket();
+			std::cout << "ANNANAS 3.1" << std::endl;
 			Client *tmp = this->_regClients.find(vec[0])->second;
+			std::cout << "ANNANAS 3.2" << std::endl;
 			clientObj =  Client(*tmp); //assign the old values to the new object
+			std::cout << "ANNANAS 3.3" << std::endl;
 			clientObj.setSocket(new_fd);
+			std::cout << "ANNANAS 3.4" << std::endl;
 			if (M_DEBUG)
 			{
 				std::cout << "Assigned the new connected client on an disconnected client" << std::endl;
@@ -1088,6 +1097,7 @@ void Server::NICK(const Message &obj, Client &clientObj)
 			}
 		}
     }
+	std::cout << "ANNANAS 4" << std::endl;
     /*FUNCTINALITY*/
     // delete old nickname
     if (clientObj.getNickname() != "" && clientObj.getUsername() != "" && this->_regClients.count(clientObj.getNickname()))
@@ -1200,6 +1210,8 @@ void Server::closeLink(Client const &client, std::string const &arg, std::string
 }
 
 void Server::QUIT(const Message &obj, Client &clientObj) {
+	if (M_DEBUG)
+		std::cout << "QUIT FUNCTION GOT TRIGGERT" << std::endl;
 	std::vector<std::string> vec = obj.getParameters();
 	char ip_str[INET_ADDRSTRLEN];
 	struct sockaddr_in client_address;
@@ -1217,6 +1229,7 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 			msg += " WAS NOT PROVIDED";
 		msg += "\r\n";
 		sendMessage(&clientObj, msg);
+		// std::cout << "DEBUG Nr. 1" << std::endl;
 		if (_conClients.count(_fd_client)) {
 			sendConfirm(clientObj, vec[0], clientObj.getNickname());
 			const std::map<std::string, Channel *> copy = clientObj.getChannels();
@@ -1231,6 +1244,8 @@ void Server::QUIT(const Message &obj, Client &clientObj) {
 			if (_conClients.count(_fd_client)) {
 				closeLink(clientObj, "Close Link", ip_str + quit);
 				close(_conClients[_fd_client].getSocket());
+				if (M_DEBUG)
+					std::cout << "Client erased from con & reg clients map" << std::endl;
 				_conClients.erase(_fd_client);
 				_regClients.erase(clientObj.getNickname());
 			}
