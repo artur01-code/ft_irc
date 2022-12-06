@@ -1,5 +1,7 @@
 #include "Server.hpp"
 
+
+
 std::string Server::RPL_ENDOFWHO(Client *cl, std::string mask)
 {
 	std::string msg;
@@ -112,8 +114,8 @@ std::string	Server::RPL_UMODEIS(Client *caller, Client *object)
 
 	msg += ":" + this->getServerName();
 	msg += " 221 ";
-	msg += caller->getNickname() + " ";
-	msg += ": " + object->modeStr();
+	msg += caller->getNickname() + " +";
+	msg += object->modeStr();
 	msg += "\r\n";
 	return (msg);
 }
