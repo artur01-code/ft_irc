@@ -126,7 +126,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 void Server::AWAY(const Message &obj, Client &caller)
 {
 	if (M_DEBUG)
-		std::cout << "Away got triggered" << std::endl;
+		std::cout << "COMMAND: TRIGGERT AWAY FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 	reduced_tree = reduce(getTree(obj));
 
@@ -151,6 +151,8 @@ void Server::AWAY(const Message &obj, Client &caller)
 
 void Server::PING(const Message &obj, Client &caller)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: TRIGGERT PING FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 	reduced_tree = reduce(getTree(obj));
 	if (reduced_tree.size() != 1)
@@ -191,6 +193,8 @@ void searchMatch(std::map<Client *, Channel *> &ret, std::map<Client *, Channel 
 
 void Server::WHO(const Message &obj, Client &caller)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: TRIGGERT WHO FUNCTION" << std::endl;
 	(void)obj;
 	std::set<Channel *> base = reduce(caller.getChannels());
 	if (base.size() == 0)
@@ -271,6 +275,8 @@ void Server::WHO(const Message &obj, Client &caller)
 
 void Server::OPER(const Message &obj, Client &caller)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: TRIGGERT OPER FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 
 	reduced_tree = reduce(getTree(obj));
@@ -300,6 +306,8 @@ void Server::OPER(const Message &obj, Client &caller)
 
 void Server::KICK(const Message &msgObj, Client &caller)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: TRIGGERT KICK FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 	Channel *channel = NULL;
 	Client *snitch = NULL;
@@ -372,11 +380,14 @@ void Server::KICK(const Message &msgObj, Client &caller)
 
 void Server::INVITE(const Message &msgObj, Client &caller)
 {
+	if (M_DEBUG)
+		std::cout << "COMMAND: TRIGGERT INVITE FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 	Channel *channel = NULL;
 	Client *guest = NULL;
 
 	reduced_tree = reduce(getTree(msgObj));
+	// reduced_tree = msgObj.getParameters();
 	if (reduced_tree.size() != 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
@@ -386,20 +397,39 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	{
 		try
 		{
-			channel = _mapChannels.at(reduced_tree[1]);
+			std::vector<Channel *>::iterator it = _v_channels.begin();
+			while (it != _v_channels.end())
+			{
+				if ((*it)->getName() == reduced_tree[1])
+				{
+					if (M_DEBUG)
+						std::cout << "Channel " << (*it)->getName() << " found!" << std::endl;
+					channel = *it;
+					break ;
+				}
+				it++;
+			}
+
+			// channel = _mapChannels.at(reduced_tree[0]); //this thing is not working
 			if (!channel->contains(caller))
 			{
-				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1])); 
+				if (M_DEBUG)
+					std::cout << ERR_NOTONCHANNEL(&caller, reduced_tree[1]) << std::endl;
 				return ;
 			}
 			if (channel->isChannelRule('i') && !channel->isClientRight(caller.getNickname(), 'o'))
 			{
 				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
+				if (M_DEBUG)
+					std::cout << ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]) << std::endl;
 				return ;
 			}
 		}
 		catch(std::out_of_range &e)
 		{
+			if (M_DEBUG)
+				std::cout << "Error: unexpected" << std::endl;
 			return ;
 		}
 		try
