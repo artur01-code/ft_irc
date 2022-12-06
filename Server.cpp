@@ -93,6 +93,7 @@ int Server::setBind()
 				  sizeof(this->_server_address))) == ERROR)
 		throw Server::BindException();
 	return binding;
+	
 }
 
 //-*-*-*-*-*-*-*-*-*-* LISTEN FUNCTION //-*-*-*-*-*-*-*-*-*-*

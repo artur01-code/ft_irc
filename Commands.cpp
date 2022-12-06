@@ -111,6 +111,11 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->QUIT(msgObj, clientObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "DIE")
+			{
+				this->DIE(msgObj, clientObj);
+				return (0);
+			}
 		}
 		return (1);
 	}
