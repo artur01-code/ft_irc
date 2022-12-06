@@ -1075,9 +1075,9 @@ void Server::KILL(const Message &obj, Client &clientObj) {
 		return;
 	}
 	if (clientObj.getRegFlag() == 1 && _conClients.count(clientObj.getSocket()) && clientObj.checkMode('o')) {
-		std::string msg = "REASON : ";
 		int size = obj.getParameters().size();
-		if (vec.size() > 2) {
+			std::string msg = "REASON : ";
+		if (vec.size() > 1) {
 			if (!vec.back().empty()) {
 				if (msg == "REASON : ") {
 					for(int i = 1; i < size; i++)
@@ -1087,13 +1087,6 @@ void Server::KILL(const Message &obj, Client &clientObj) {
 				}
 			}
 		}
-		else {
-			if (msg == "REASON : ")
-			msg += " WAS NOT PROVIDED";
-			msg += "\r\n";
-			sendMessage(&clientObj, msg);
-		}
-
 		Client *target = _regClients[vec[0]];
 		if (!target) {
 			sendMessage(&clientObj, ERR_NOSUCHNICK(&clientObj, vec[0]));
@@ -1107,8 +1100,6 @@ void Server::KILL(const Message &obj, Client &clientObj) {
 				Message messge(std::string("PART " + mapIt->second->getName()));
 				PART(messge, *target);
 			}
-			sendMessage(&clientObj, msg);
-			sendMessage(&clientObj, KILLREPLY(&clientObj, msg));
 			if (!_regClients.empty()) {
 				std::cerr << target->getNickname() << ": disconnected" << std::endl;
 			}
