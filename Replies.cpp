@@ -311,3 +311,30 @@ std::string Server::PARTREPLY(Client *client, Channel *channel, std::string reas
 	msg += "\r\n";
 	return (msg);
 }
+
+// std::string Server::QUITREPLY(Client *client, Channel *channel, std::string reason)
+// {
+// 	std::string msg;
+// 	msg += ":" + makeNickMask(this, client);
+// 	msg += " " 
+// 	if (reason != "")
+// 		msg += " :" + reason;
+// 	return msg;
+// }
+std::string Server::KILLREPLY(Client *client, std::string reason)
+{
+	std::string msg;
+	msg += ":" + this->getServerName();
+	msg += " 361 ";
+	msg += client->getNickname() + " ";
+	if (reason != "")
+		msg += " :" + reason;
+	msg += "\r\n";
+	return (msg);
+}
+// std::string Server::DIEREPLY(Client *client, Channel *channel, std::string, reason)
+// {
+
+// }
+
+
