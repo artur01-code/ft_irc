@@ -1116,8 +1116,17 @@ void Server::DIE(const Message &obj, Client &clientObj) {
 	if (M_DEBUG)
 		std::cout << "DIE() FUNCTION TRIGGERED" << std::endl;
 	if (clientObj.checkMode('o')) {
-		std::cout << "Server is shutting down" << std::endl;
-		exit(1);
+		std::string msg = "Server is shutting down";
+		if (obj.getParameters().size() == 0) {
+			msg += "\r\n";
+			sendMessage(&clientObj, msg);
+			exit(1);
+		}
+		else {
+			msg = "Too many arguments!";
+			msg += "\r\n";
+			sendMessage(&clientObj, msg);
+		}
 	}
 	else {
 		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
