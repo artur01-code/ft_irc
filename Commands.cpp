@@ -126,7 +126,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 void Server::AWAY(const Message &obj, Client &caller)
 {
 	if (M_DEBUG)
-		std::cout << "COMMAND: TRIGGERT AWAY FUNCTION" << std::endl;
+		std::cout << "COMMAND: TRIGGERED AWAY FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 	reduced_tree = reduce(getTree(obj));
 
@@ -448,8 +448,8 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 		}
 	}
 	channel->addInvitedClients(guest->getNickname());
-	sendMessage(&caller, RPL_INVITING(guest, channel));
-	// sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
+	sendMessage(&caller, RPL_INVITING(&caller, channel, guest));
+	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
 	if (guest->checkMode('a'))
 	{
 		sendMessage(&caller, RPL_AWAY(guest));
