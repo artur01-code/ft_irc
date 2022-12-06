@@ -237,11 +237,15 @@ void Server::WHO(const Message &obj, Client &caller)
 
 	// Parsing
 	std::vector<std::string> reduced_tree = reduce(getTree(obj));
-	if (reduced_tree.size() < 1 || reduced_tree.size() > 2)
+	if (reduced_tree.size() > 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+
+	if (reduced_tree.size() == 0)
+		reduced_tree.push_back("*");
+
 	// Filtering with operator flag
 	if (reduced_tree.size() == 2 && reduced_tree[1] == "o")
 	{
