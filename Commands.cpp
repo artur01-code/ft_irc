@@ -146,7 +146,6 @@ void Server::AWAY(const Message &obj, Client &caller)
 			message += *begin;
 	}
 	caller.awayMsg = message;
-	sendMessage(&caller, RPL_AWAY(&caller));
 }
 
 void Server::PING(const Message &obj, Client &caller)
@@ -452,7 +451,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
 	if (guest->checkMode('a'))
 	{
-		sendMessage(&caller, RPL_AWAY(guest));
+		sendMessage(&caller, RPL_AWAY(&caller, guest));
 	}
 }
 
@@ -993,7 +992,10 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 				// if (toClient->checkMode(USERMODE_AWAY))
 				if (M_DEBUG)
 					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
-				this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
+				if (toClient->checkMode('a'))
+					sendMessage(cl, RPL_AWAY(cl, toClient));
+				else
+					this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}
 		}
 	}
