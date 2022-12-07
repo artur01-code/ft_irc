@@ -4,116 +4,8 @@
 const std::string Channel::_alphabet = "opsitnmlkb";
 const std::string Channel::_clientAlphabet = "iswovx"; // x is for serverowner
 
-// <HELPERS>
 
-StrNoun &StrNoun::operator()(std::string _content) {content = _content; return (*this);}
-StrNoun	&StrNoun::operator=(const StrNoun &cpy) {content = cpy.content; return (*this);}
-StrNoun::~StrNoun() {}
-std::string StrNoun::greet() {return ("Hello from string");}
-int StrNoun::setFlag(char flag, Noun *obj, bool active, Client &caller) {(void)flag, (void)obj, (void)active, (void)caller; return(1);}
-
-const char *s_names::WrongFormatException::what() const throw()
-{
-	return ("The name mask must be of format: 'nick!user@host'!\n");
-}
-
-s_names::s_names(const Client &request)
-{
-	nick = request.getNickname();
-	user = request.getUsername();
-	host = request.getHostname();
-}
-
-bool	s_names::operator<(const s_names	&other) const
-{
-	if (nick < other.nick)
-		return (true);
-	else if (nick > other.nick)
-		return (false);
-	else if (user < other.user)
-		return (true);
-	else if (user > other.user)
-		return (false);
-	else if (host < other.host)
-		return (true);
-	else if (host > other.host)
-		return (false);
-	return (false);
-}
-
-s_names::s_names(const std::string &pattern)
-{
-	std::cout << "Enters the constructor at all" << std::endl;
-	if (pattern.find('!') == std::string::npos || pattern.find('@') == std::string::npos)
-	{
-		throw WrongFormatException();
-	}
-	if (pattern.find('!') > pattern.find('@'))
-	{
-		throw WrongFormatException();
-	}
-	if (pattern.find('!') == 0 || pattern.find('@') - pattern.find('!') == 1 || pattern.find('!') == pattern.size() - 1)
-	{
-		throw WrongFormatException();
-	}
-	nick = pattern.substr(0, pattern.find("!"));
-	user = pattern.substr(pattern.find("!") + 1, pattern.find("@") - pattern.find("!") - 1);
-	host = pattern.substr(pattern.find("@") + 1);
-}
-
-std::ostream	&operator<<(std::ostream &os, const t_names	&obj)
-{
-	os << obj.nick << std::endl;
-	os << obj.user << std::endl;
-	os << obj.host << std::endl;
-	return (os);
-}
-
-void	Channel::BanLst::add(std::string newPattern, bool active)
-{
-	if (active)
-		_patterns.insert(t_names(newPattern));
-	else
-		_patterns.erase(t_names(newPattern));
-}
-
-
-bool Channel::BanLst::match(const Client &request) const
-{
-	typedef std::set<t_names>::iterator	iter;
-
-	t_names	newClient(request);
-	iter	begin(_patterns.begin());
-	for (iter end(_patterns.end()); begin != end; begin++)
-	{
-		if (strMatch(newClient.nick, begin->nick))
-		{
-			if (strMatch(newClient.user, begin->user))
-			{
-				if (strMatch(newClient.host, begin->host))
-				{
-					return (true);
-				}
-			}
-		}
-	}
-	return (false);
-}
-
-bool	isNum(std::string str)
-{
-	std::string::iterator	begin(str.begin());
-	for (std::string::iterator end(str.end()); begin < end; begin++)
-	{
-		if (!std::isdigit(*begin))
-			return (false);
-	}
-	return (true);
-}
-
-// <\Helpers>
-
-int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
+int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller) // obj can be str, client or empty str
 {
 	(void)caller;
 	if (!isClientRight(caller.getNickname(), 'o') && !isClientRight(caller.getNickname(), 'x'))
@@ -174,11 +66,6 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller)
 	return (0);
 }
 
-std::string	Channel::getName() const
-{
-	return (_name);
-}
-
 // NAME CONSTRUCTOR
 Channel::Channel(std::string name) : _name(name),  _channel_rules(0), intRuleSetter(_alphabet), charRuleSetter(_clientAlphabet), _has_pwd(false), _limit(69)
 {
@@ -212,8 +99,8 @@ void Channel::addClient(Client &obj)
 		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), flag_val(_clientAlphabet, 'x')));
 	else
 		client_rights.insert(std::pair<std::string, char>(obj.getNickname(), '\0'));
-	// Extend the list the given Client is apartisan of:
-	obj.addChannel(this);
+	obj.addChannel(this); // Extend the list the given Client is apartisan of
+
 	if (M_DEBUG)
 	{
 		std::map<std::string, Channel *> local = obj.getChannels();
@@ -226,7 +113,7 @@ void Channel::addClient(Client &obj)
 	}
 }
 
-std::string	Channel::ModeStr()
+std::string	Channel::ModeStr() // channelmodes to str
 {
 	std::string	modes;
 	for (int i = 1; i != INT_MIN; i <<= 1)
@@ -291,6 +178,35 @@ bool	Channel::InviteContains(const Client &obj)
 }
 
 
+void Channel::rmClient(Client &obj)
+{
+	obj.subtractChannel(this->getName()); // Change what channels obj is a member of.
+
+	std::vector<Client *>::iterator	begin(_clients.begin());
+	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
+	{
+		if (M_DEBUG)
+			std::cout << (**begin).getNickname() << " is a member" << std::endl;
+
+		if ( (**begin).getNickname() == obj.getNickname())
+		{
+			if (isClientRight(obj.getNickname(), 'x') && _clients.size() >= 2)// if it is the owner
+				charRuleSetter(client_rights[_clients[1]->getNickname()], 'x', true); // make next member owner
+			_clients.erase(begin);
+			if (_clients.size() == 0) // No more clients left
+				throw("destroyChannel");
+			client_rights.erase(obj.getNickname()); // destroy rights of the client
+			return ;
+		}
+	}
+	throw("rmClient");
+}
+
+std::string	Channel::getName() const
+{
+	return (_name);
+}
+
 // GETTERS AND SETTERS
 
 std::string Channel::getPwd() const
@@ -327,32 +243,12 @@ void	Channel::addInvitedClients(std::string newInvite)
 		std::cout << "added " << newInvite << " to " << this->getName() << std::endl;
 }
 
-void Channel::rmClient(Client &obj)
-{
-	obj.subtractChannel(this->getName()); // Change what channels obj is a member of.
-
-	std::vector<Client *>::iterator	begin(_clients.begin());
-	for (std::vector<Client *>::iterator	end(_clients.end()); begin < end; begin++)
-	{
-		if (M_DEBUG)
-			std::cout << (**begin).getNickname() << " is a member" << std::endl;
-		if ( (**begin).getNickname() == obj.getNickname())
-		{
-			if (isClientRight(obj.getNickname(), 'x') && _clients.size() >= 2)// if it is the owner
-				charRuleSetter(client_rights[_clients[1]->getNickname()], 'x', true);
-			_clients.erase(begin);
-			if (_clients.size() == 0) // No more clients left
-				throw("destroyChannel");
-			client_rights.erase(obj.getNickname());
-			return ;
-		}
-	}
-	throw("rmClient");
-}
+size_t	Channel::getLimit() const
+{return (_limit);}
 
 // </ SETTERS AND GETTERS>
 
-int	Channel::isChannelRule(char rule) // tested
+int	Channel::isChannelRule(char rule)
 {
 	return (_channel_rules & flag_val(_alphabet, rule));
 }
@@ -362,19 +258,15 @@ bool	Channel::isClientRight( std::string nickname, char right )
 	if (right == CHANMODE_OPER) // The owner is also operator.
 	{
 		if (isClientRight(nickname, 'x'))
-		{
 			return (true);
-		}
 	}
+
 	int	flag = flag_val(_clientAlphabet, right);
 
 	return (client_rights[nickname] & flag);
 }
 
-size_t	Channel::getLimit() const
-{return (_limit);}
-
-std::vector<std::string>	Channel::getBanLst() const
+std::vector<std::string>	Channel::getBanLst() const // banlist to vector<str>
 {
 	std::vector<std::string>	ret;
 
@@ -389,23 +281,8 @@ std::vector<std::string>	Channel::getBanLst() const
 	return (ret);
 }
 
-std::string			Channel::getEndBanLst() const
-{
-	std::string banLst;
-	std::set<t_names>	structs = _banLst.getPatterns();
-	if (structs.size() == 0)
-		banLst += "empty";
-	std::set<t_names>::iterator end(structs.end());
-	--end;
-	banLst += "nick: " + (*end).nick + " | ";
-	banLst += "user: " + (*end).user + " | ";
-	banLst += "host: " + (*end).host + "\r\n";
 
-	return (banLst);
-}
-
-
-std::string	getPrimer(std::string &pattern)
+std::string	getPrimer(std::string &pattern) // get next specific part in wildcard pattern
 {
 	if (pattern.size() == 0)
 		return ("");
@@ -418,7 +295,7 @@ std::string	getPrimer(std::string &pattern)
 	return (substr);
 }
 
-bool	strMatch(std::string specific, std::string pattern)
+bool	strMatch(std::string specific, std::string pattern) // does str match wildcard pattern?
 {
 	std::string primer;
 
@@ -455,7 +332,7 @@ bool	strMatch(std::string specific, std::string pattern)
 	return (true);
 }
 
-std::string	Channel::channelUsrModes(Client *object)
+std::string	Channel::channelUsrModes(Client *object) // str of usermodes on that channel
 {
 	std::string	msg;
 
@@ -467,7 +344,7 @@ std::string	Channel::channelUsrModes(Client *object)
 	return (msg);
 }
 
-static void	sendMessage(Client &to, std::string &msg)
+static void	sendMessage(Client &to, std::string &msg) // sendMessage for erros
 {
 	if (to.getSocket() == ERROR)
 		return ;
@@ -478,7 +355,7 @@ static void	sendMessage(Client &to, std::string &msg)
 		throw Server::SendException();
 }
 
-void	Channel::broadcast(Client &caller, std::string msg)
+void	Channel::broadcast(Client &caller, std::string msg) // for PRIVMSG
 {
 	for (std::vector<Client *>::iterator	aMemberBeg = this->_clients.begin(); aMemberBeg != this->_clients.end(); aMemberBeg++)
 	{
@@ -488,7 +365,7 @@ void	Channel::broadcast(Client &caller, std::string msg)
 	}
 }
 
-std::string Channel::getNickList(void)
+std::string Channel::getNickList(void) // str of all nicknames
 {
 	std::string list;
 	std::vector<Client *>::iterator itClient = this->_clients.begin();
@@ -502,10 +379,120 @@ std::string Channel::getNickList(void)
 	return (list);
 }
 
-bool	Channel::matchBanLst(const Client &request)
+bool	Channel::matchBanLst(const Client &request) // pass on to banlist instance
 {
 	return (_banLst.match(request));
 }
+
+// <HELPERS>
+
+	// possible argument for set flag (str)
+	StrNoun &StrNoun::operator()(std::string _content) {content = _content; return (*this);}
+	StrNoun	&StrNoun::operator=(const StrNoun &cpy) {content = cpy.content; return (*this);}
+	StrNoun::~StrNoun() {}
+	std::string StrNoun::greet() {return ("Hello from string");}
+	int StrNoun::setFlag(char flag, Noun *obj, bool active, Client &caller) {(void)flag, (void)obj, (void)active, (void)caller; return(1);}
+
+	const char *s_names::WrongFormatException::what() const throw() // wrong nick mask
+	{
+		return ("The name mask must be of format: 'nick!user@host'!\n");
+	}
+
+	s_names::s_names(const Client &request) // client to nick mask
+	{
+		nick = request.getNickname();
+		user = request.getUsername();
+		host = request.getHostname();
+	}
+
+	bool	s_names::operator<(const s_names	&other) const // To store nick masks in set/map
+	{
+		if (nick < other.nick)
+			return (true);
+		else if (nick > other.nick)
+			return (false);
+		else if (user < other.user)
+			return (true);
+		else if (user > other.user)
+			return (false);
+		else if (host < other.host)
+			return (true);
+		else if (host > other.host)
+			return (false);
+		return (false);
+	}
+
+	s_names::s_names(const std::string &pattern) // nickmask to attributes
+	{
+		std::cout << "Enters the constructor at all" << std::endl;
+		if (pattern.find('!') == std::string::npos || pattern.find('@') == std::string::npos)
+		{
+			throw WrongFormatException();
+		}
+		if (pattern.find('!') > pattern.find('@'))
+		{
+			throw WrongFormatException();
+		}
+		if (pattern.find('!') == 0 || pattern.find('@') - pattern.find('!') == 1 || pattern.find('!') == pattern.size() - 1)
+		{
+			throw WrongFormatException();
+		}
+		nick = pattern.substr(0, pattern.find("!"));
+		user = pattern.substr(pattern.find("!") + 1, pattern.find("@") - pattern.find("!") - 1);
+		host = pattern.substr(pattern.find("@") + 1);
+	}
+
+	std::ostream	&operator<<(std::ostream &os, const t_names	&obj)
+	{
+		os << obj.nick << std::endl;
+		os << obj.user << std::endl;
+		os << obj.host << std::endl;
+		return (os);
+	}
+
+	void	Channel::BanLst::add(std::string newPattern, bool active) // Modifier for banlist
+	{
+		if (active)
+			_patterns.insert(t_names(newPattern));
+		else
+			_patterns.erase(t_names(newPattern));
+	}
+
+
+	bool Channel::BanLst::match(const Client &request) const
+	{
+		typedef std::set<t_names>::iterator	iter;
+
+		t_names	newClient(request);
+		iter	begin(_patterns.begin());
+		for (iter end(_patterns.end()); begin != end; begin++)
+		{
+			if (strMatch(newClient.nick, begin->nick))
+			{
+				if (strMatch(newClient.user, begin->user))
+				{
+					if (strMatch(newClient.host, begin->host))
+					{
+						return (true);
+					}
+				}
+			}
+		}
+		return (false);
+	}
+
+	bool	isNum(std::string str)
+	{
+		std::string::iterator	begin(str.begin());
+		for (std::string::iterator end(str.end()); begin < end; begin++)
+		{
+			if (!std::isdigit(*begin))
+				return (false);
+		}
+		return (true);
+	}
+
+// <\Helpers>
 
 void	Channel::setClientRight( std::string username, char toAdd, bool active)
 {

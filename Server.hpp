@@ -128,11 +128,7 @@ std::string server_ipaddr);
     void KILL(const Message &obj, Client &clientObj);
     void DIE(const Message &obj, Client &clientObj);
     void closeLink(Client const &client, std::string const &arg, std::string const &opt);
-	// ------------ MODE MEMBER CLASS ------------------- //
-
-	// Implementation in: Mode.cpp
-	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
-
+	// <USEFULL TOOLS>
 	template <class Data>
 	static std::vector<Data> reduce(std::vector<std::vector<Data> > vector) // Fields are not comma separated, therefore we can reduce them
 	{
@@ -157,6 +153,13 @@ std::string server_ipaddr);
 		}
 		return (ret);
 	}
+	// </USEFULL TOOLS>
+
+	// ------------ MODE MEMBER CLASS ------------------- //
+	// Implementation in: Mode.cpp
+	friend class MODE_CLASS; // Mode class can access the private variables of the server but the server can not acess the private variables of mode
+
+	// makes sense to have it as a class because private variables are needed in all member functions
 	class MODE_CLASS
 	{
 		private:
@@ -174,9 +177,9 @@ std::string server_ipaddr);
 			Server&									_server;
 		public:
 			MODE_CLASS(Server &server); // Instance of server, whose Modes are altered
-			void	recursive_part(std::vector<std::string> &remainder, Client &caller); // Handling multiple objects
+			void	recursive_part(std::vector<std::string> &remainder, Client &caller); // Handling multiple clients/channels whose modes need to be altered
 			void	operator()(const Message &obj, Client &caller);
-			bool	internal_state(Client &caller, std::vector<std::string> &remainder);
+			bool	internal_state(Client &caller, std::vector<std::string> &remainder); // Converts the strings to objects
 	};
 	// ------------ </MODE MEMBER CLASS> ------------------- //
     MODE_CLASS MODE;
