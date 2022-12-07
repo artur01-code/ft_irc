@@ -19,7 +19,6 @@
 #define USERMODE_AWAY		'a'
 #define USERMODE_INVIS		'i'
 #define USERMODE_NOTICE		's'
-#define USERMODE_WALLOPS	'w'
 #define USERMODE_OPER		'o'
 
 class Channel;

@@ -49,7 +49,6 @@ class Channel : public Noun
 		size_t							_limit;
 		class BanLst
 		{
-			// friend std::ostream	&operator<<(std::ostream &os, BanLst &banLst);
 			private:
 				std::set<t_names>		_patterns;
 			public:
