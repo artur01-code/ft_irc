@@ -125,6 +125,8 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->DIE(msgObj, clientObj);
 				return (0);
 			}
+			else
+				return (1);
 		}
 	}
 	return (1);
@@ -420,6 +422,8 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 				}
 				it++;
 			}
+			if (!channel)
+				return ;
 
 			if (!channel->contains(caller))
 			{

@@ -210,7 +210,7 @@ std::string Server::RPL_NAMREPLY(Client *client, Channel *channel)
 	msg += ":" + this->getServerName();
 	msg += " 353 ";
 	msg += client->getNickname();
-	if (channel->isClientRight(client->getNickname(), 'i'))
+	if (channel->isClientRight(client->getNickname(), 'o'))
 		msg += " @ ";
 	else
 		msg += " = ";
