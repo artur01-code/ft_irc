@@ -139,11 +139,12 @@ void Server::AWAY(const Message &obj, Client &caller)
 	}
 
 	caller.changeMode('a', true);
+	sendMessage(&caller, RPL_AWAY(&caller));
 	std::string message;
 	{
 		std::vector<std::string>::iterator begin(reduced_tree.begin());
 		for (std::vector<std::string>::iterator end(reduced_tree.end()); begin < end; begin++)
-			message += *begin;
+			message += (" " + *begin);
 	}
 	caller.awayMsg = message;
 }
@@ -455,7 +456,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
 	if (guest->checkMode('a'))
 	{
-		sendMessage(&caller, RPL_AWAY(&caller, guest));
+		sendMessage(&caller, RPL_NOWAWAY(&caller, guest));
 	}
 }
 
@@ -997,7 +998,7 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 				if (M_DEBUG)
 					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
 				if (toClient->checkMode('a'))
-					sendMessage(cl, RPL_AWAY(cl, toClient));
+					sendMessage(cl, RPL_NOWAWAY(cl, toClient));
 				else
 					this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}

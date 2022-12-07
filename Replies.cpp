@@ -150,11 +150,11 @@ std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
 	return (msg);
 }
 
-std::string Server::RPL_AWAY(Client *cl, Client *toCl)
+std::string Server::RPL_NOWAWAY(Client *cl, Client *toCl)
 {
 	std::string msg;
 	msg += ":" + this->getServerName();
-	msg += " 301 ";
+	msg += " 306 ";
 	msg += cl->getNickname() + " ";
 	msg += toCl->getNickname() + " ";
 	msg += ":" + toCl->awayMsg;
@@ -174,12 +174,12 @@ std::string	Server::RPL_UNAWAY(Client *client)
 	return (msg);
 }
 
-std::string	Server::RPL_NOWAWAY(Client *client)
+std::string	Server::RPL_AWAY(Client *client)
 {
 	std::string msg;
 
 	msg += ":" + this->getServerName();
-	msg += " 306 ";
+	msg += " 301 ";
 	msg += client->getNickname() + " ";
 	msg += ":You have been marked as being away";
 	msg += "\r\n";
