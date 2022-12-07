@@ -471,16 +471,9 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	channel->addInvitedClients(guest->getNickname()); // Actually inviting
 	sendMessage(&caller, RPL_INVITING(&caller, channel, guest)); // Replies to both the caller and guest
 	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
-<<<<<<< HEAD
 
 	if (guest->checkMode('a')) // Get default answer when guest away
-		sendMessage(&caller, RPL_AWAY(&caller, guest));
-=======
-	if (guest->checkMode('a'))
-	{
-		sendMessage(&caller, RPL_NOWAWAY(&caller, guest));
-	}
->>>>>>> main
+		sendMessage(&caller, RPL_AWAY(&caller));
 }
 
 /*
