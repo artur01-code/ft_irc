@@ -31,13 +31,6 @@ bool	BOThan::addToDict(std::string word, std::string phrase)
 	return (true);
 }
 
-// bool	BOThan::removeFromDict(std::string word)
-// {
-// 	if (!(this->_dictionary.erase(word)))
-// 		return (false);
-// 	return (true);
-// }
-
 std::string	BOThan::getPhraseFromDict(std::string word)
 {
 	return (_dictionary[word]);
