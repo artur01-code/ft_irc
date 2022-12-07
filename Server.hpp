@@ -227,17 +227,17 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
-	std::string RPL_ENDOFWHO(Client *caller);
+	std::string RPL_ENDOFWHO(Client *cl, std::string mask);
 	std::string	RPL_WHOREPLY(Client *client, Client *target);
 	std::string	RPL_YOUAREOPER();
-	std::string	RPL_INVITINGOBJECT(Client *caller, Channel *channel); // costume (not in protocol but usefull)
-	std::string	RPL_INVITING(Client *invited, Channel *invitedTo);
+	std::string INVITEREPLY(Client *cl, Channel *ch, Client *from);
+	std::string	RPL_INVITING(Client *caller, Channel *invitedTo, Client *invited);
 	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
 	std::string	RPL_UMODEIS(Client *caller, Client *object);
 	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
 	void		RPL_BANLIST(Client *caller, Channel *channel);
 	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
-	std::string	RPL_AWAY(Client *client);
+	std::string RPL_AWAY(Client *cl, Client *toCl);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);

@@ -1,14 +1,16 @@
 #include "Server.hpp"
 
-// "<name> :End of /WHO list"
-std::string Server::RPL_ENDOFWHO(Client *caller)
-{
-	std::string	msg;
 
+
+std::string Server::RPL_ENDOFWHO(Client *cl, std::string mask)
+{
+	std::string msg;
 	msg += ":" + this->getServerName();
 	msg += " 315 ";
-	msg += caller->getNickname();
-	msg += " :End of /WHO list\r\n";
+	msg += cl->getNickname() + " ";
+	msg += mask;
+	msg += " :End of WHO list";
+	msg += "\r\n";
 	return (msg);
 }
 
@@ -57,26 +59,28 @@ std::string	Server::RPL_YOUAREOPER()
 	return(msg);
 }
 
-std::string	Server::RPL_INVITING(Client *invited, Channel *invitedTo)
+std::string	Server::RPL_INVITING(Client *caller, Channel *invitedTo, Client *invited)
 {
 	std::string	msg;
 
 	msg += ":" + this->getServerName();
 	msg += " 341 ";
+	msg += caller->getNickname() + " ";
+	msg += invited->getNickname() + " ";
 	msg += invitedTo->getName() + " ";
-	msg += invited->getNickname() + "\r\n";
+	msg += "\r\n";
 
 	return (msg);
 }
 
-std::string	Server::RPL_INVITINGOBJECT(Client *caller, Channel *channel)
+std::string Server::INVITEREPLY(Client *cl, Channel *ch, Client *from)
 {
-	std::string	msg;
-
-	msg += ":" + this->getServerName();
-	msg += " 389 ";
-	msg += caller->getNickname() + " ";
-	msg += "has invited you to join " + channel->getName() + "\r\n";
+	std::string msg;
+	msg += ":" + makeNickMask(this, from);
+	msg += " INVITE ";
+	msg += cl->getNickname() + " ";
+	msg += ch->getName();
+	msg += "\r\n";
 	return (msg);
 }
 
@@ -110,8 +114,8 @@ std::string	Server::RPL_UMODEIS(Client *caller, Client *object)
 
 	msg += ":" + this->getServerName();
 	msg += " 221 ";
-	msg += caller->getNickname() + " ";
-	msg += ": " + object->modeStr();
+	msg += caller->getNickname() + " +";
+	msg += object->modeStr();
 	msg += "\r\n";
 	return (msg);
 }
@@ -146,14 +150,14 @@ std::string Server::RPL_CHANNELMODEIS(Client *client, Channel *channel)
 	return (msg);
 }
 
-std::string	Server::RPL_AWAY(Client *client)
+std::string Server::RPL_AWAY(Client *cl, Client *toCl)
 {
 	std::string msg;
-
 	msg += ":" + this->getServerName();
 	msg += " 301 ";
-	msg += client->getNickname() + " ";
-	msg += ":" + client->awayMsg;
+	msg += cl->getNickname() + " ";
+	msg += toCl->getNickname() + " ";
+	msg += ":" + toCl->awayMsg;
 	msg += "\r\n";
 	return (msg);
 }

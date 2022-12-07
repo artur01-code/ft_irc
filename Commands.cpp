@@ -126,7 +126,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 void Server::AWAY(const Message &obj, Client &caller)
 {
 	if (M_DEBUG)
-		std::cout << "COMMAND: TRIGGERT AWAY FUNCTION" << std::endl;
+		std::cout << "COMMAND: TRIGGERED AWAY FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 	reduced_tree = reduce(getTree(obj));
 
@@ -146,7 +146,6 @@ void Server::AWAY(const Message &obj, Client &caller)
 			message += *begin;
 	}
 	caller.awayMsg = message;
-	sendMessage(&caller, RPL_AWAY(&caller));
 }
 
 void Server::PING(const Message &obj, Client &caller)
@@ -238,11 +237,15 @@ void Server::WHO(const Message &obj, Client &caller)
 
 	// Parsing
 	std::vector<std::string> reduced_tree = reduce(getTree(obj));
-	if (reduced_tree.size() < 1 || reduced_tree.size() > 2)
+	if (reduced_tree.size() > 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+
+	if (reduced_tree.size() == 0)
+		reduced_tree.push_back("*");
+
 	// Filtering with operator flag
 	if (reduced_tree.size() == 2 && reduced_tree[1] == "o")
 	{
@@ -266,11 +269,11 @@ void Server::WHO(const Message &obj, Client &caller)
 			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
 			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
 				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first));
-			sendMessage(&caller, RPL_ENDOFWHO(&caller));
+			sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0]));
 			return ;
 		}
 	}
-	sendMessage(&caller, RPL_ENDOFWHO(&caller));
+	sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0]));
 }
 
 void Server::OPER(const Message &obj, Client &caller)
@@ -448,11 +451,11 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 		}
 	}
 	channel->addInvitedClients(guest->getNickname());
-	sendMessage(&caller, RPL_INVITING(guest, channel));
-	// sendMessage(guest, RPL_INVITINGOBJECT(&caller, channel));
+	sendMessage(&caller, RPL_INVITING(&caller, channel, guest));
+	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
 	if (guest->checkMode('a'))
 	{
-		sendMessage(&caller, RPL_AWAY(guest));
+		sendMessage(&caller, RPL_AWAY(&caller, guest));
 	}
 }
 
@@ -993,7 +996,10 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 				// if (toClient->checkMode(USERMODE_AWAY))
 				if (M_DEBUG)
 					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
-				this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
+				if (toClient->checkMode('a'))
+					sendMessage(cl, RPL_AWAY(cl, toClient));
+				else
+					this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
 			}
 		}
 	}
