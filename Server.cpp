@@ -11,7 +11,7 @@ Server::Server() : _v_channels(), _mapChannels(), MODE(*this)
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
 Server::Server(int port, BOThan *bethbot) : _host("default"), _servername("default"), _motd("default"), _v_channels(), _mapChannels(), _bethBot(bethbot), MODE(*this)
 {
-	_operPwd = "6969";
+	_operPwd = M_OPERPWD;
 	std::string tmp = "127.0.0.1";
 
 	Message	nick("NICK BOThan");
@@ -25,7 +25,7 @@ Server::Server(int port, BOThan *bethbot) : _host("default"), _servername("defau
 //--------------PARAMETERIZED CONSTRUCTOR-------------//
 Server::Server(int port, std::string ip_address) : _v_channels(), _mapChannels(), MODE(*this)
 {
-	_operPwd = "6969";
+	_operPwd = M_OPERPWD;
 	setupConnection(ip_address, port);
 	setKqueue();
 }
@@ -46,7 +46,6 @@ std::string Server::getMotd() { return (this->_motd); }
 void Server::setupConnection(std::string &ipaddr, int port)
 {
 	//A pair (host,port) is used for AF_INET address family, where host is a string representing hstname and integer(host)
-
 	this->_ip_address = ipaddr;
 	this->_port = port;
 
@@ -127,8 +126,6 @@ int Server::setAccept()
 		throw Server::AcceptException();
 
 	////////////ADD CLIENT////////////
-	// AddClient(client_fd, client_address, _ip_address);
-	// addConnection(client_fd);
 	this->_conClients.insert(std::make_pair(client_fd, Client(client_fd)));
 	if (M_DEBUG)
 		std::cout << "new client : " << client_fd << " was accepted\n";
@@ -170,7 +167,7 @@ int Server::receiveMessages(int fd)
 		itCli++;
 	}
 	if (M_DEBUG)
-		std::cout << "Revieved: " << buffer << "!" << std::endl;
+		std::cout << "Received: " << buffer << "!" << std::endl;
 	itCli->second.addHistory(buffer);
 	itCli->second.increaseMsgCounter(1);
 	if (buffer[strlen(buffer) - 1] == '\n')
@@ -179,7 +176,7 @@ int Server::receiveMessages(int fd)
 		this->parsingMessages(buffer);
 		itCli->second.flushHistory();
 	}
-	return 1;
+	return (1);
 }
 
 std::string Server::buildPRIVMSG(Client *cl, std::string receiver, std::string text)
@@ -234,9 +231,6 @@ std::string	concat(std::vector<std::string> veci)
 	return (ret);
 }
 
-/// @brief
-/// @param read
-/// @return
 int Server::parsingMessages(std::string read)
 {
 	/*--- PARSING START ---*/
@@ -290,12 +284,6 @@ int Server::parsingMessages(std::string read)
 	/*--- PARSING END ---*/
 }
 
-// int Server::get_connection(int fd) {
-//     for (int i = 0; i < NUM_CLIENTS; i++)
-//         if (this->_server_fd[i] == fd) return i;
-//     return ERROR;
-// }
-
 //-*-*-*-*-*-*-*-*-*-*setKqueue//-*-*-*-*-*-*-*-*-*-*
 void Server::setKqueue()
 {
@@ -332,7 +320,6 @@ void Server::setAddKqueue(int fd)
 	EV_SET(&kev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
 	if (kevent(_kq_fd, &kev, 1, NULL, 0, NULL) == ERROR)
 		throw Server::KeventAddException();
-	// std::cout << fd << std::endl;
 }
 //-*-*-*-*-*-*-*-*-*-*setDeleteKqueue//-*-*-*-*-*-*-*-*-*-*
 void Server::setDeleteKqueue(int fd)
@@ -357,7 +344,7 @@ void Server::kqueueEngine()
 		//we are running in loop processing events, but not setting any new ones in
 		//_event_list set a pointer of array of kevents we want filled and nb_events to length of array
 		this->_new_events =
-			kevent(this->_kq_fd, NULL, 0, _event_list, 20, NULL);
+			kevent(this->_kq_fd, NULL, 0, _event_list, M_MAXCLIENTS, NULL);
 		if (this->_new_events == ERROR)
 			throw Server::KeventAddException();
 
@@ -366,13 +353,9 @@ void Server::kqueueEngine()
 			//<ident>-is identifier we wish to have watched(fd)
 			this->_fd_client = this->_event_list[i].ident;
 			//flags on output tells us what happened.
+			/////////////REMOVE CLIENT//////////////////
 			if (_event_list[i].flags & EV_EOF)
-			{
 				setDeleteKqueue(_fd_client);
-				/////////////REMOVE CLIENT//////////////////
-				// remove_connection(_fd_client);
-				// RemoveClient(_fd_client);
-			}
 			else if (this->_fd_client == this->_server_fd)
 			{
 				int new_client_fd;
@@ -382,11 +365,7 @@ void Server::kqueueEngine()
 			}
 			//filter is actual request that we ask kernel to watch for.
 			else if (this->_event_list[i].filter == EVFILT_READ)
-			{
-				// std::cout << new_client_fd << std::endl;
-
 				receiveMessages(this->_fd_client);
-			}
 		}
 	}
 }
@@ -397,99 +376,6 @@ std::string Server::makeNickMask(Server *server, Client *client)
 	mask += client->getNickname() + "!" + client->getUsername() + "@" + server->getHost();
 	return (mask);
 }
-
-// int Server::get_connection(int fd) {
-//     for (int i = 0; i < NUM_CLIENTS; i++) {
-//         // std::cout << clients[i].fd << std::endl;
-//         if (clients[i].fd == fd)
-//         // std::cout << fd << std::endl;
-//         return i;
-//     }
-//     return ERROR;
-// }
-
-// int Server::addConnection(int fd)
-// {
-//     if (fd < 1) {
-//         throw Server::ConnectionRefusedException();
-//         return -1;
-//     }
-//     int i = get_connection(0);
-//     if (i == ERROR) {
-//         throw Server::ConnectionRefusedException();
-//         return -1;
-//     }
-
-//     clients[i].fd = fd;
-//     return 0;
-// }
-
-// int Server::remove_connection(int fd) {
-
-//     if (fd < 1) {
-//         throw Server::RemoveException();
-//         return -1;
-//     }
-//     int i = get_connection(fd);
-//     if (i == ERROR) {
-//         throw Server::RemoveException();
-//         return ERROR;
-//     }
-//     clients[i].fd = 0;
-//     return close(fd);
-// }
-
-// void 	Server::addClient(int fd_client, sockaddr_in addrinfo_client,
-// std::string server_ipaddr)
-// {
-// 	Client *new_client =  new Client (fd_client, addrinfo_client,
-// server_ipaddr);
-
-// 	_Client.push_back(new_client);
-
-// }
-
-// void Server::RemoveClient(int fd_client)
-// {
-// 	std::vector<Client*>::iterator it = _Client.begin();
-// 	std::vector<Client*>::iterator it_end = _Client.end();
-
-// 	while (it < it_end)
-// 	{
-// 		if ((*it)->getFd() == fd_client)
-// 		{
-// 			delete *it;
-// 			_Client.erase(it);
-// 			break;
-// 		}
-
-// 		it++;
-// 	}
-// }
-
-// Client* Server::GetClientFromFd(int fd)
-// {
-// 	std::vector<Client*>::iterator iter_begin = _Client.begin();   //using
-// map is better 	std::vector<Client*>::iterator iter_end = _Client.end();
-
-// 	while (iter_begin < iter_end)
-// 	{
-// 		//std::cout << "Fd: " << (*iter_begin)->getFd() << std::endl;
-// 		if (fd == (*iter_begin)->getFd())
-// 		{
-// 			return ((*iter_begin));
-// 			//std::cout << "Fd Finded!: " << (*iter_begin)->getFd()
-// << std::endl;
-// 		}
-// 		iter_begin++;
-// 	}
-// 	return (NULL);
-// }
-
-// #define RemoveException() throw new runtime_error("REMOVE ERROR")
-
-// RemoveException();
-
 
 int Server::getPwdFlag(void)
 {

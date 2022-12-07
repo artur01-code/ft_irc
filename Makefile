@@ -32,12 +32,6 @@ docker:
 debug:
 	${CC} ${MAIN} ${SRCS} ${FLAGS} ${DFLAGS} -o ${NAME}
 
-test_messages:
-	${CC} ${SRCS} tests/test_messages.cpp -o messages.test
-
-test_errors:
-	${CC} ${SRCS} tests/test_errors.cpp -o errors.test
-
 fclean:
 	rm -f ${NAME}
 	rm -f *.test

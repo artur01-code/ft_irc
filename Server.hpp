@@ -35,6 +35,8 @@
 #define MAX_BUFF 256
 #define ERROR -1
 #define PORT "6969"
+#define M_MAXCLIENTS 69
+#define M_OPERPWD "6969"
 
 class Client;
 class Channel;
@@ -322,19 +324,7 @@ std::string server_ipaddr);
     class KeventDeleteException : public std::exception {
         virtual const char *what() const throw();
     };
-
-   private:
-    /*
-    I don't think we need a default constructor, so I moved it to private for
-    now; Same for the copy methods, I think we ever only need one Server object
-    so there's no point in having copy functions imo.
-    */
-
-    // Server(const Server &rhs);
-    // Server &operator=(const Server &rhs);
 };
-
-// <Some experimental stuff>
 
 template <class Iter>
 void apply(Iter &i, void (*func)(typename Iter::value_type))
@@ -405,7 +395,6 @@ bool	operator==(Second someVal ,std::pair<First, Second> pair)
 		return (true);
 	return (false);
 }
-// </Some experimental stuff>
 
 // For debugging
 template <class First, class Second>

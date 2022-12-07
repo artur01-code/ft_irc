@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jsubel <jsubel@student.42wolfsburg.de >    +#+  +:+       +#+        */
+/*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 02:51:29 by rkultaev          #+#    #+#             */
-/*   Updated: 2022/12/05 09:10:23 by jsubel           ###   ########.fr       */
+/*   Updated: 2022/12/07 11:48:54 by jtomala          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,7 @@
 #include "BOThan.hpp"
 
 int main(int argc, char **argv) {
-    //     // if (argc < 3) {
-    //     //     return -1;
-    //     // }
-    //     // (void)argv;
-    //     // int port = std::atoi(argv[1]);
-    //     Server server;
-    //     server.create_socket_and_listen();
-    //     server.run_event_loop();
-    //     // kevent() registers new events with kqueue() and retrieves any
-    //     pending
-    //     // events.
 
-    //     // run_event_loop(content.new_kqueue, content.listener);
     if (argc < 2 || argc > 3) {
         std::cerr << "bad input" << std::endl;
         return (1);

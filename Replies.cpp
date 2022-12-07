@@ -16,15 +16,6 @@ std::string Server::RPL_ENDOFWHO(Client *cl, std::string mask)
 
 std::string	Server::RPL_WHOREPLY(Client *client, Client *target)
 {
-	// std::string	msg;
-
-	// msg += ":" + this->getServerName();
-	// msg += " 352 ";
-	// Client->checkMode('a');
-	// msg += ":" + foundOn->getName() + " " + found->getUsername() + " " + found->getHostname() + " " + this->getServerName() + " " + found->getNickname() + " " + ((found->checkMode('o')) ? ("G*") : ("G")) + " :0 " + found->getRealname();
-	// msg += "\r\n";
-	// return (msg);
-
 	std::string msg;
 	msg += ":" + this->getServerName();
 	msg += " 352 ";
@@ -316,15 +307,6 @@ std::string Server::PARTREPLY(Client *client, Channel *channel, std::string reas
 	return (msg);
 }
 
-// std::string Server::QUITREPLY(Client *client, Channel *channel, std::string reason)
-// {
-// 	std::string msg;
-// 	msg += ":" + makeNickMask(this, client);
-// 	msg += " " 
-// 	if (reason != "")
-// 		msg += " :" + reason;
-// 	return msg;
-// }
 std::string Server::KILLREPLY(Client *client, std::string reason)
 {
 	std::string msg;
@@ -336,9 +318,3 @@ std::string Server::KILLREPLY(Client *client, std::string reason)
 	msg += "\r\n";
 	return (msg);
 }
-// std::string Server::DIEREPLY(Client *client, Channel *channel, std::string, reason)
-// {
-
-// }
-
-
