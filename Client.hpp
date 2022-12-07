@@ -84,7 +84,7 @@ class Client : public Noun
 		void	subtractChannel(std::string name);
 		void	subtractChannel(Channel *ptr);
 		bool	isOnChannel(Channel *ch);
-		void printAttributes(void);
+		void	printAttributes(void);
 		bool	changeMode(char mode, bool active);
 		bool	operator==(const Client &obj) const
 		{

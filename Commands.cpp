@@ -101,6 +101,16 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 				this->AWAY(msgObj, clientObj);
 				return (0);
 			}
+			else if (msgObj.getCommand() == "SUMMONBOTHAN")
+			{
+				this->SUMMONBOTHAN(msgObj, clientObj);
+				return (0);
+			}
+			else if (msgObj.getCommand() == "TEACHBOTHAN")
+			{
+				this->TEACHBOTHAN(msgObj, clientObj);
+				return (0);
+			}
 			else if (msgObj.getCommand() == "KILL")
 			{
 				this->KILL(msgObj, clientObj);
@@ -417,7 +427,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 			// channel = _mapChannels.at(reduced_tree[0]); //this thing is not working
 			if (!channel->contains(caller))
 			{
-				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1])); 
+				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1]));
 				if (M_DEBUG)
 					std::cout << ERR_NOTONCHANNEL(&caller, reduced_tree[1]) << std::endl;
 				return ;
@@ -823,7 +833,7 @@ Parameters:
 void Server::USER(const Message &obj, Client &clientObj)
 {
 	if (M_DEBUG)
-		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERED" << std::endl;
+		std::cout << "COMMAND: *USER* FUNCTION GOT TRIGGERED" << std::endl << obj.getRawInput() << std::endl;
 	std::vector<std::string> vec = obj.getParameters();
 	if (vec.size() < 4)
 	{
@@ -980,6 +990,18 @@ void	Server::PRIVMSG(Client *cl, const Message &msg)
 			if (M_DEBUG)
 				std::cout << COLOR_GREEN << text << END;
 			toChannel->broadcast(*cl, text);
+			if (this->isClientOnChannel(cl, toChannel) && this->_bethBot->checkBethaviour(msg.getParameters().back()))
+			{
+				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toChannel->getName(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				toChannel->broadcast(*cl, text);
+				if (M_DEBUG)
+				{
+					std::cout << "BethBot should say something" << std::endl;
+					std::cout << text << std::endl;
+				}
+				text = this->buildPRIVMSG(this->_bethBot->getBotClient(), toChannel->getName(), this->_bethBot->getPhraseFromDict(msg.getParameters().back()));
+				this->sendMessage(cl, text);
+			}
 		}
 		else
 		{
@@ -1024,7 +1046,7 @@ void	Server::NOTICE(Client *cl, const Message &msg)
 		{
 			toChannel = this->_mapChannels[target];
 			text = msg.getParameters().back();
-			text = this->buildPRIVMSG(cl, toChannel->getName(), text);
+			text = this->buildNOTICE(cl, toChannel->getName(), text);
 			toChannel->broadcast(*cl, text);
 		}
 		else
@@ -1045,7 +1067,7 @@ Parameters:
         [0]     second
 */
 
-void Server::NICK(const Message &obj, Client &clientObj) 
+void Server::NICK(const Message &obj, Client &clientObj)
 {
     if (M_DEBUG)
         std::cout << "COMMAND: *NICK* FUNCTION GOT TRIGGERED" << std::endl;
@@ -1131,7 +1153,7 @@ void Server::KILL(const Message &obj, Client &clientObj) {
 		}
  		else {
 			const std::map<std::string, Channel *> copy = target->getChannels();
-			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();	
+			std::map<std::string, Channel *>::const_iterator mapIt = copy.cbegin();
 			for (; mapIt != copy.end(); mapIt++)
 			{
 				Message messge(std::string("PART " + mapIt->second->getName()));
@@ -1189,6 +1211,77 @@ void Server::closeLink(Client const &client, std::string const &arg, std::string
 // 		message += client.getNickname() + "\r\n";
 // 	send(client.getSocket(), message.c_str(), message.length(), 0);
 // }
+
+
+void	Server::SUMMONBOTHAN(const Message &msg, Client &cl)
+{
+	std::string	channelName;
+	Channel		*toCh;
+	Client		*botCl;
+	std::string text;
+
+	if (msg.getParameters().size() < 1)
+		return ;
+	channelName = msg.getParameters()[0];
+	if (channelName[0] != '#' || !(this->_mapChannels.count(channelName)))
+	{
+		this->sendMessage(&cl, ERR_NOSUCHCHANNEL(&cl, channelName));
+		return ;
+	}
+	toCh = this->_mapChannels[channelName];
+	/*
+		Steps:
+		Check if BOThan is already on the channel
+		send hello message from BOThan
+		Make BOThan choper so it can KICK people
+	*/
+	if (toCh->getNickList().find("BOThan") != std::string::npos)
+	{
+		std::cout << toCh->getNickList() << std::endl;
+		for (std::vector<Client *>::iterator it = toCh->_clients.begin(); it != toCh->_clients.end(); it++)
+		{
+			if ((*it) == this->_bethBot->getBotClient())
+			{
+				text = this->buildNOTICE(*it, toCh->getName(), "I'm already on the channel, bruh.");
+				toCh->broadcast(*(*it), text);
+
+			}
+		}
+		return ;
+	}
+	else
+	{
+		botCl = this->_bethBot->getBotClient();
+		toCh->addClient(*botCl);
+		text = this->buildPRIVMSG(botCl, toCh->getName(), "What's up mothertruckers?!");
+		if (M_DEBUG)
+			std::cout << text << std::endl;
+		toCh->broadcast(*botCl, text);
+		toCh->setClientRight(botCl->getNickname(), CHANMODE_OWNER, true);
+	}
+}
+
+void	Server::TEACHBOTHAN(const Message &msg, Client &cl)
+{
+	std::vector<std::string>::iterator it;
+	std::string	word;
+	std::string	phrase;
+
+	if (msg.getParameters().size() < 2)
+	{
+		this->sendMessage(&cl, this->ERR_NEEDMOREPARAMS(&cl, "TEACHBOTHAN"));
+		return ;
+	}
+	phrase = msg.getParameters().back();
+	for (it = msg.getParameters().begin(); it != msg.getParameters().end() - 1; ++it)
+	{
+		word += *it;
+		word += " ";
+	}
+	word.erase(word.end() - 1);
+	if (!(this->_bethBot->addToDict(word, phrase)))
+		this->sendMessage(&cl, buildNOTICE(this->_bethBot->getBotClient(), cl.getNickname(), "I know that already, doofus"));
+}
 
 void Server::QUIT(const Message &obj, Client &clientObj) {
 	std::vector<std::string> vec = obj.getParameters();

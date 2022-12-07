@@ -10,7 +10,9 @@ SRCS	=	Channel.cpp \
 			Server.cpp \
 			ErrorMessages.cpp \
 			Replies.cpp \
-			Mode.cpp
+			Mode.cpp \
+			BOThan.cpp \
+
 INC = Channel.hpp \
 	  Client.hpp \
 	  Colors.hpp \
