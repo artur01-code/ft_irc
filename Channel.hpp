@@ -112,6 +112,6 @@ class Channel : public Noun
 };
 
 std::string	getPrimer(std::string &pattern);
-bool	strMatch(std::string specific, std::string pattern);
+bool	strMatch(std::string specific, std::string pattern); // Determines if str matches wildcard pattern
 
 #endif

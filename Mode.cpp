@@ -8,6 +8,7 @@ Server::MODE_CLASS::MODE_CLASS(Server &server) : _server(server)
 
 void	Server::MODE_CLASS::operator()(const Message &obj, Client &caller) // Just an inital caller of the recursive part
 {
+	// <Parsing>
 	_reduced_tree = reduce(getTree(obj));
 	if (M_DEBUG)
 	{
@@ -20,6 +21,7 @@ void	Server::MODE_CLASS::operator()(const Message &obj, Client &caller) // Just 
 		_server.sendMessage(&caller, _server.ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+	// </Parsing>
 
 	recursive_part(_reduced_tree, caller);
 }
@@ -28,8 +30,7 @@ void	Server::MODE_CLASS::recursive_part(std::vector<std::string> &remainder, Cli
 {
 	if (!internal_state(caller, remainder)) //_subject, _flags, _object and sign
 		return ;
-	if (M_DEBUG)
-		std::cout << _subject->greet() << std::endl;
+
 	//Iterate through all flags
 	if (_flags.size() == 0)
 	{
@@ -38,11 +39,11 @@ void	Server::MODE_CLASS::recursive_part(std::vector<std::string> &remainder, Cli
 	}
 	for (size_t i = 0; i < _flags.size(); i++)
 	{
-		switch (_subject->setFlag(_flags[i], _object, _sign, caller)){
+		switch (_subject->setFlag(_flags[i], _object, _sign, caller)){ // caller is passed in order to verify operator rights
 			case 0:
 				break ;
 			case 1:
-				_server.sendMessage(&caller, _server.ERR_UNKNOWNMODE(&caller, _flags[i]));
+				_server.sendMessage(&caller, _server.ERR_UNKNOWNMODE(&caller, _flags[i])); // feedback of setFlag()
 				break ;
 			case 2:
 				_server.sendMessage(&caller, _server.ERR_NOTONCHANNEL(&caller, _object_str));
@@ -58,33 +59,35 @@ void	Server::MODE_CLASS::recursive_part(std::vector<std::string> &remainder, Cli
 
 bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string> &remainder)
 {
+	// The same for each recursive call
 	_subject_str = remainder[0];
 	_flags = remainder[1];
+
 	try
 	{
 		_object_str = remainder.at(2);
 	}
 	catch (std::out_of_range	&e)
 	{
-		_object_str = "";
+		_object_str = ""; // No object; only servermodes are set
 	}
 	try
 	{
 		remainder.at(3);
-		remainder.erase(remainder.begin() + 2);
+		remainder.erase(remainder.begin() + 2); // Delete handled parameter
 
-		MODE_CLASS	MODE_THREAD(_server);
-		MODE_THREAD.recursive_part(remainder, caller);
+		MODE_CLASS	MODE_THREAD(_server); // Make another instance of the callable object, to handle remaining parameters
+		MODE_THREAD.recursive_part(remainder, caller); // call directly the recursive part
 	}
 	catch(std::out_of_range &e)
 	{}
 
-	if (_subject_str[0] == '#' || _subject_str[0] == '&')
+	if (_subject_str[0] == '#' || _subject_str[0] == '&') // It signifies a channel subject
 	{
 		try
 		{
 			_subject = reinterpret_cast<Noun *>(_server._mapChannels.at(_subject_str));
-			if (_flags == "mode")
+			if (_flags == "mode") // Special verb to show channelmodes
 			{
 				try
 				{
@@ -92,12 +95,12 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 					_server.sendMessage(&caller, _server.RPL_UMODEIS(&caller, reinterpret_cast<Channel *>(_subject), reinterpret_cast<Client *>(_object)));
 					return (false);
 				}
-				catch (std::out_of_range)
+				catch (std::out_of_range &e)
 				{}
 				_server.sendMessage(&caller, _server.RPL_CHANNELMODEIS(&caller, reinterpret_cast<Channel *>(_subject)));
 				return (false);
 			}
-			else if (_flags == "banlist")
+			else if (_flags == "banlist") // Special verb to signify the banlist of a channel
 			{
 				_server.RPL_BANLIST(&caller, reinterpret_cast<Channel *>(_subject));
 				return (false);
@@ -131,6 +134,7 @@ bool	Server::MODE_CLASS::internal_state(Client &caller, std::vector<std::string>
 			return (false);
 		}
 	}
+
 	if (_flags[0] == '-')
 		_sign = false;
 	else if (_flags[0] == '+')

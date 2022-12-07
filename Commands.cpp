@@ -58,7 +58,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			}
 			else if (msgObj.getCommand() == "MODE")
 			{
-				this->MODE(msgObj, clientObj);
+				this->MODE(msgObj, clientObj); // This is a callable object, not a function
 				return (0);
 			}
 			else if (msgObj.getCommand() == "NAMES")
@@ -73,12 +73,12 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			}
 			else if (msgObj.getCommand() == "KICK")
 			{
-				this->KICK(msgObj, clientObj);
+				this->KICK(msgObj, clientObj); // Calls PART
 				return (0);
 			}
 			else if (msgObj.getCommand() == "OPER")
 			{
-				this->OPER(msgObj, clientObj);
+				this->OPER(msgObj, clientObj); // Makes IRC operator, password: 6969
 				return (0);
 			}
 			else if (msgObj.getCommand() == "WHO")
@@ -93,7 +93,7 @@ int Server::checkCommands(const Message &msgObj, Client &clientObj)
 			}
 			else if (msgObj.getCommand() == "PING")
 			{
-				this->PING(msgObj, clientObj);
+				this->PING(msgObj, clientObj); // Shows Adium that server is still up
 				return (0);
 			}
 			else if (msgObj.getCommand() == "AWAY")
@@ -130,6 +130,7 @@ void Server::AWAY(const Message &obj, Client &caller)
 	std::vector<std::string>	reduced_tree;
 	reduced_tree = reduce(getTree(obj));
 
+	// No arguments means no longer away
 	if (reduced_tree.size() == 0)
 	{
 		caller.awayMsg = "";
@@ -139,7 +140,7 @@ void Server::AWAY(const Message &obj, Client &caller)
 	}
 
 	caller.changeMode('a', true);
-	std::string message;
+	std::string message; // away message
 	{
 		std::vector<std::string>::iterator begin(reduced_tree.begin());
 		for (std::vector<std::string>::iterator end(reduced_tree.end()); begin < end; begin++)
@@ -159,18 +160,19 @@ void Server::PING(const Message &obj, Client &caller)
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
-	sendMessage(&caller, ":" + this->getServerName() + " PONG " + reduced_tree[0] + "\r\n");
+
+	sendMessage(&caller, ":" + this->getServerName() + " PONG " + reduced_tree[0] + "\r\n"); // gives back PONG +id for server
 }
 
 void searchMatch(std::map<Client *, Channel *> &ret, std::map<Client *, Channel *> &commonClients, std::string &pattern, std::string whatName)
 {
-	std::map<Client *, Channel * >::iterator	toFilter(commonClients.begin());
+	std::map<Client *, Channel * >::iterator	toFilter(commonClients.begin()); // check for all the users
 	for (std::map<Client *, Channel *>::iterator	toFilterEnd(commonClients.end()); toFilter != toFilterEnd; toFilter++)
 	{
 		if (whatName == "user")
 		{
 			if (strMatch((*toFilter).first->getUsername(), pattern))
-				ret.insert(*toFilter);
+				ret.insert(*toFilter); // Ret gets inserted matches
 		}
 		else if (whatName == "host")
 		{
@@ -194,37 +196,30 @@ void Server::WHO(const Message &obj, Client &caller)
 {
 	if (M_DEBUG)
 		std::cout << "COMMAND: TRIGGERT WHO FUNCTION" << std::endl;
-	(void)obj;
+
+	// Look which channels the caller is part of
 	std::set<Channel *> base = reduce(caller.getChannels());
 	if (base.size() == 0)
 	{
 		ERR_NOSUCHCHANNEL(&caller, "ANY");
 		return ;
 	}
-	// if (M_DEBUG)
-	// {
-	// 	std::set<Channel *>::iterator	begin(base.begin());
-	// 	for (std::set<Channel *>::iterator	end(base.end()); begin != end; begin++)
-	// 	{
-	// 		std::cout << "Base channels from WHO" << std::endl;
-	// 		std::cout << **begin << std::endl;
-	// 	}
-	// }
 
 	std::map<Client *, Channel *>	commonClients;
-
-	std::set<Channel *>::iterator	channel(base.begin());
-	for (std::set<Channel *>::iterator	end(base.end()); channel != end; channel++)
 	{
-		std::vector<Client *>::iterator	eachClient((*channel)->_clients.begin());
-		for (std::vector<Client *>::iterator	eachClientEnd((*channel)->_clients.end()); eachClient < eachClientEnd; eachClient++)
+		std::set<Channel *>::iterator	channel(base.begin()); // for each channel the caller is part of
+		for (std::set<Channel *>::iterator	end(base.end()); channel != end; channel++)
 		{
-			if (!(*channel)->isClientRight((*eachClient)->getNickname(), 'i')) // only add the user if he is not marked as invisible on the common channel
-				commonClients.insert(std::pair<Client *, Channel *>(*eachClient, *channel));
+			std::vector<Client *>::iterator	eachClient((*channel)->_clients.begin());
+			for (std::vector<Client *>::iterator	eachClientEnd((*channel)->_clients.end()); eachClient < eachClientEnd; eachClient++) // for each client in those channels
+			{
+				if (!(*channel)->isClientRight((*eachClient)->getNickname(), 'i')) // only add visible users
+					commonClients.insert(std::pair<Client *, Channel *>(*eachClient, *channel)); // does not insert duplicate keys
+			}
 		}
 	}
 
-	commonClients.erase(&caller);
+	commonClients.erase(&caller); // Erase the caller from the map
 	if (M_DEBUG)
 	{
 		std::map<Client *, Channel *>::iterator	commonClientsBegin(commonClients.begin());
@@ -242,8 +237,9 @@ void Server::WHO(const Message &obj, Client &caller)
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+	// </Parsing>
 
-	if (reduced_tree.size() == 0)
+	if (reduced_tree.size() == 0) // Equivalent to wildcard
 		reduced_tree.push_back("*");
 
 	// Filtering with operator flag
@@ -255,25 +251,25 @@ void Server::WHO(const Message &obj, Client &caller)
 		for (std::map<Client *, Channel *>::iterator	allUsrsEnd(cpy.end()); allUsrsBeg != allUsrsEnd; allUsrsBeg++)
 		{
 			if (!(*allUsrsBeg).first->checkMode(CHANMODE_OPER))
-				commonClients.erase((*allUsrsBeg).first);
+				commonClients.erase((*allUsrsBeg).first); // Erase non operators
 		}
 	}
 
 	std::map<Client *, Channel *>	ret;
-	std::string trys[4] = {"user", "host", "real", "nick"};
+	std::string trys[4] = {"user", "host", "real", "nick"}; // Serach wildcard matches in those
 	for (size_t i = 0; i < 4; i++)
 	{
 		searchMatch(ret, commonClients, reduced_tree[0], trys[i]);
-		if (ret.size() > 0)
+		if (ret.size() > 0) // At least one match was found, print and exit
 		{
 			std::map<Client *, Channel *>::iterator matchesBegin(ret.begin());
 			for (std::map<Client *, Channel *>::iterator matchesEnd(ret.end()); matchesBegin != matchesEnd; matchesBegin++)
-				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first));
+				sendMessage(&caller, RPL_WHOREPLY(&caller, (*matchesBegin).first)); // Message for each match
 			sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0]));
 			return ;
 		}
 	}
-	sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0]));
+	sendMessage(&caller, RPL_ENDOFWHO(&caller, reduced_tree[0])); // No matches where found
 }
 
 void Server::OPER(const Message &obj, Client &caller)
@@ -282,12 +278,16 @@ void Server::OPER(const Message &obj, Client &caller)
 		std::cout << "COMMAND: TRIGGERT OPER FUNCTION" << std::endl;
 	std::vector<std::string>	reduced_tree;
 
+	// <parsing>
 	reduced_tree = reduce(getTree(obj));
 	if (reduced_tree.size() != 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
+	// </parsing>
+
+	// requirments: Password correct, nick exists
 	if (reduced_tree[1] != _operPwd)
 	{
 		sendMessage(&caller, ERR_PASSWDMISMATCH(&caller));
@@ -304,25 +304,28 @@ void Server::OPER(const Message &obj, Client &caller)
 		sendMessage(&caller, ERR_NOSUCHNICK(&caller, reduced_tree[0]));
 		return ;
 	}
+
 	sendMessage(newOper, RPL_YOUAREOPER());
 }
 
 void Server::KICK(const Message &msgObj, Client &caller)
 {
 	if (M_DEBUG)
-		std::cout << "COMMAND: TRIGGERT KICK FUNCTION" << std::endl;
+		std::cout << "COMMAND: TRIGGERED KICK FUNCTION" << std::endl;
+
 	std::vector<std::string>	reduced_tree;
 	Channel *channel = NULL;
 	Client *snitch = NULL;
 	std::string	comment = "";
 
+	// <parsing>
 	reduced_tree = reduce(getTree(msgObj));
 	if (reduced_tree.size() < 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
 		return ;
 	}
-	if (reduced_tree.size() > 2)
+	if (reduced_tree.size() > 2) // connecting the split comment
 	{
 		try
 		{
@@ -332,10 +335,13 @@ void Server::KICK(const Message &msgObj, Client &caller)
 				comment += reduced_tree[i] + " ";
 			}
 		}
-		catch(std::out_of_range)
+		catch(std::out_of_range &e)
 		{}
 	}
-	// string to objects
+	// </parsing>
+
+	// channel str to channelobj
+	// requirements: caller on channel, caller is operator on that channel, kicked user is part of that channel
 	{
 		try
 		{
@@ -376,7 +382,8 @@ void Server::KICK(const Message &msgObj, Client &caller)
 		sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
 		return ;
 	}
-	PART(Message("PART " + channel->getName()), *snitch);
+
+	PART(Message("PART " + channel->getName()), *snitch); // Actually getting rid of the other client
 	if (comment != "")
 		sendMessage(snitch, "Banned from " + channel->getName() + " reason: " + comment + "\r\n");
 }
@@ -390,13 +397,13 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	Client *guest = NULL;
 
 	reduced_tree = reduce(getTree(msgObj));
-	// reduced_tree = msgObj.getParameters();
 	if (reduced_tree.size() != 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, msgObj.getRawInput()));
 		return ;
 	}
-	// string to objects
+	// channel str to channlobj, guest str to guestobj
+	// Requirments: channel exists, you are on the channel, you are operator on that channel, guest exists
 	{
 		try
 		{
@@ -413,7 +420,6 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 				it++;
 			}
 
-			// channel = _mapChannels.at(reduced_tree[0]); //this thing is not working
 			if (!channel->contains(caller))
 			{
 				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[1])); 
@@ -450,13 +456,13 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 			return ;
 		}
 	}
-	channel->addInvitedClients(guest->getNickname());
-	sendMessage(&caller, RPL_INVITING(&caller, channel, guest));
+
+	channel->addInvitedClients(guest->getNickname()); // Actually inviting
+	sendMessage(&caller, RPL_INVITING(&caller, channel, guest)); // Replies to both the caller and guest
 	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
-	if (guest->checkMode('a'))
-	{
+
+	if (guest->checkMode('a')) // Get default answer when guest away
 		sendMessage(&caller, RPL_AWAY(&caller, guest));
-	}
 }
 
 /*
@@ -598,10 +604,8 @@ std::vector<std::vector<std::string> >	Server::getTree(const Message &obj)
 	return (tree);
 }
 
-// Very, very inefficent because I am not using maps... talk to your team mates
 void	Server::PART(const Message &obj, Client &caller)
 {
-	// typedef std::vector<Channel>::iterator	iterator;
 	typedef	std::vector<std::string>::iterator	str_iterator;
 	if (M_DEBUG)
 		std::cout << "TRIGGERED PART" << std::endl;
@@ -612,24 +616,26 @@ void	Server::PART(const Message &obj, Client &caller)
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return;
 	}
+	// Iterate through all the names of the channels you want to part from
 	str_iterator	param_begin(tree[0].begin());
 	for (str_iterator	param_end(tree[0].end()); param_begin < param_end; param_begin++)
 	{
-		try
+		try // Channel not in channelmap
 		{
 			try
 			{
+				// Give the identical reason for each single part
 				std::string reason = (obj.getParameters().size() > 1 ? obj.getParameters().back() : "");
+				// rm the client from the corresponding channel
 				_mapChannels.at(*param_begin)->rmClient(caller);
 				sendMessage(&caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
 				_mapChannels.at(*param_begin)->broadcast(caller, PARTREPLY(&caller, _mapChannels.at(*param_begin), reason));
-				// _mapChannels.at(*param_begin)->broadcast(caller, RPL_ENDOFNAMES(&caller, _mapChannels.at(*param_begin)));
 			}
-			catch(const char *tunnel)
+			catch(const char *tunnel) // rmClient() feedback
 			{
-				if (std::string(tunnel) == "rmClient")
+				if (std::string(tunnel) == "rmClient") // Client was not on channel
 					sendMessage(&caller, ERR_NOTONCHANNEL(&caller, *param_begin));
-				else if (std::string(tunnel) == "destroyChannel")
+				else if (std::string(tunnel) == "destroyChannel") // He was the last member of the channel
 				{
 					apply(_v_channels, SignalEraseEqual<Channel *>(_mapChannels[*param_begin]));
 					delete _mapChannels[*param_begin];
@@ -665,25 +671,25 @@ void	Server::ChannelFlags(const Message &obj, std::vector<std::vector<std::strin
 	}
 }
 
+// Creates channel if not existant, otherwhise joins it
 void	Server::JOIN(const Message &obj, Client &caller)
 {
 	typedef std::vector<std::string>::iterator	viterator;
 	if (M_DEBUG)
 		std::cout << "TRIGGERED JOIN" << std::endl;
 
+	//Parsing [space separated][comma separated]
 	std::vector<std::vector<std::string> >	tree = getTree(obj);
-
 	if (tree.size() < 1 || tree.size() > 2)
 	{
 		sendMessage(&caller, ERR_NEEDMOREPARAMS(&caller, obj.getRawInput()));
 		return ;
 	}
-	// Add user to channel or create channel.
-	size_t key = 0;
+	size_t key = 0; // Index of the channelkey, increases with each channelname
 	viterator	chanelname2(tree[0].end());
 	for (viterator chanelname1(tree[0].begin()); chanelname1 < chanelname2; chanelname1++)
 	{
-		Channel	*chany = NULL;
+		Channel	*chany = NULL; // Get the channel if allready existant
 		{
 			std::vector<Channel *>::iterator chanel_list2(_v_channels.end());
 			for (std::vector<Channel *>::iterator chanel_list1(_v_channels.begin()); chanel_list1 < chanel_list2; chanel_list1++)
@@ -695,10 +701,10 @@ void	Server::JOIN(const Message &obj, Client &caller)
 				}
 			}
 		}
-		if (chany)
+		if (chany) // There is allready a channel
 		{
 			// Selection criteria
-			if (chany->getHasPwd())
+			if (chany->getHasPwd()) // See if the password is correct
 			{
 				try
 				{
@@ -715,7 +721,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 					return ;
 				}
 			}
-			if (chany->isChannelRule('i'))
+			if (chany->isChannelRule('i')) // see if the channel is invite only
 			{
 				if (M_DEBUG)
 					std::cout << "IS EXECUTED" << std::endl;
@@ -725,17 +731,17 @@ void	Server::JOIN(const Message &obj, Client &caller)
 					return ;
 				}
 			}
-			if (chany->getLimit() == chany->_clients.size())
+			if (chany->getLimit() == chany->_clients.size()) // See if the userlimit is allready met
 			{
 				sendMessage(&caller, ERR_CHANNELISFULL(&caller, *chanelname1));
 				return ;
 			}
 			// </Selection criteria>
-			if (!chany->contains(_conClients[_fd_client]))
+			if (!chany->contains(_conClients[_fd_client])) // See if you are allready member of that channel
 			{
 				try
 				{
-					chany->addClient(_conClients[_fd_client]);
+					chany->addClient(_conClients[_fd_client]); // ACTUALLY ADDING
 					if (M_DEBUG)
 						std::cout << "Send JOIN REPLY to the client" << std::endl;
 
@@ -749,7 +755,7 @@ void	Server::JOIN(const Message &obj, Client &caller)
 					sendMessage(&caller, RPL_ENDOFNAMES(&caller, _v_channels[_v_channels.size() - 1]));
 					chany->broadcast(caller, JOINREPLY(&caller, _v_channels[_v_channels.size() - 1]));
 				}
-				catch(std::string &e)
+				catch(std::string &e) // Check if banned from the channel
 				{
 					if (e == "Banned (addClient)")
 					{
