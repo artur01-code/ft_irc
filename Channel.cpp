@@ -277,9 +277,13 @@ bool Channel::contains(const Client &obj)
 
 bool	Channel::InviteContains(const Client &obj)
 {
+	if (M_DEBUG)
+		std::cout << "Invitelist:" << std::endl;
 	std::vector<std::string>::iterator	end(_listInvitedClients.end());
 	for (std::vector<std::string>::iterator	begin(_listInvitedClients.begin()); begin < end; begin++)
 	{
+		if (M_DEBUG)
+			std::cout << *begin << std::endl;
 		if (*begin == obj.getNickname())
 			return (true);
 	}
@@ -319,6 +323,8 @@ const std::vector<std::string>	&Channel::getInvitedClients() const
 void	Channel::addInvitedClients(std::string newInvite)
 {
 	_listInvitedClients.push_back(newInvite);
+	if (M_DEBUG)
+		std::cout << "added " << newInvite << " to " << this->getName() << std::endl;
 }
 
 void Channel::rmClient(Client &obj)
@@ -332,9 +338,12 @@ void Channel::rmClient(Client &obj)
 			std::cout << (**begin).getNickname() << " is a member" << std::endl;
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
+			if (isClientRight(obj.getNickname(), 'x') && _clients.size() >= 2)// if it is the owner
+				charRuleSetter(client_rights[_clients[1]->getNickname()], 'x', true);
 			_clients.erase(begin);
 			if (_clients.size() == 0) // No more clients left
 				throw("destroyChannel");
+			client_rights.erase(obj.getNickname());
 			return ;
 		}
 	}

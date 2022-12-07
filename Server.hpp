@@ -124,6 +124,10 @@ std::string server_ipaddr);
 			void	ChannelFlags(const Message &obj, std::vector<std::vector<std::string> >	tree, bool sign);
     void PART(const Message &obj, Client &caller);
     void LIST(const Message &obj, Client &clientObj);
+    void sendConfirm(Client &client, std::string const &opt);
+    void KILL(const Message &obj, Client &clientObj);
+    void DIE(const Message &obj, Client &clientObj);
+    void closeLink(Client const &client, std::string const &arg, std::string const &opt);
 	// ------------ MODE MEMBER CLASS ------------------- //
 
 	// Implementation in: Mode.cpp
@@ -228,17 +232,17 @@ std::string server_ipaddr);
     std::string ERR_USERSDONTMATCH(Client *client);
 
     /*---REPLIES---*/
-	std::string RPL_ENDOFWHO(Client *caller);
+	std::string RPL_ENDOFWHO(Client *cl, std::string mask);
 	std::string	RPL_WHOREPLY(Client *client, Client *target);
 	std::string	RPL_YOUAREOPER();
-	std::string	RPL_INVITINGOBJECT(Client *caller, Channel *channel); // costume (not in protocol but usefull)
-	std::string	RPL_INVITING(Client *invited, Channel *invitedTo);
+	std::string INVITEREPLY(Client *cl, Channel *ch, Client *from);
+	std::string	RPL_INVITING(Client *caller, Channel *invitedTo, Client *invited);
 	std::string	RPL_ENDOFBANLIST(Client *caller, Channel *channel);
 	std::string	RPL_UMODEIS(Client *caller, Client *object);
 	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
 	void		RPL_BANLIST(Client *caller, Channel *channel);
 	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
-	std::string	RPL_AWAY(Client *client);
+	std::string RPL_AWAY(Client *cl, Client *toCl);
 	std::string	RPL_UNAWAY(Client *client);
 	std::string	RPL_NOWAWAY(Client *client);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
@@ -253,6 +257,9 @@ std::string server_ipaddr);
     std::string RPL_ENDOFMOTD(Client *client);
     std::string JOINREPLY(Client *client, Channel *channel);
     std::string PARTREPLY(Client *client, Channel *channel, std::string reason);
+    std::string QUITREPLY(Client *client, Channel *channel, std::string reason);
+    std::string KILLREPLY(Client *client, std::string reason);
+    std::string DIEREPLY(Client *client, Channel *channel, std::string reason);
 
     //--------------Exceptions-------------//
 	class NoSuchChannelException : public std::exception{
