@@ -424,7 +424,8 @@ bool	Channel::matchBanLst(const Client &request) // pass on to banlist instance
 
 	s_names::s_names(const std::string &pattern) // nickmask to attributes
 	{
-		std::cout << "Enters the constructor at all" << std::endl;
+		if (M_DEBUG)
+			std::cout << "Enters the constructor at all" << std::endl;
 		if (pattern.find('!') == std::string::npos || pattern.find('@') == std::string::npos)
 		{
 			throw WrongFormatException();
@@ -452,15 +453,22 @@ bool	Channel::matchBanLst(const Client &request) // pass on to banlist instance
 
 	void	Channel::BanLst::add(std::string newPattern, bool active) // Modifier for banlist
 	{
-		if (active)
-			_patterns.insert(t_names(newPattern));
-		else
-			_patterns.erase(t_names(newPattern));
+		try
+		{
+			if (active)
+				_patterns.insert(t_names(newPattern));
+			else
+				_patterns.erase(t_names(newPattern));
+		}
+		catch(s_names::WrongFormatException	&e)
+		{}
 	}
 
 
 	bool Channel::BanLst::match(const Client &request) const
 	{
+		if (request.getNickname() == "BOThan")
+			return (false);
 		typedef std::set<t_names>::iterator	iter;
 
 		t_names	newClient(request);
