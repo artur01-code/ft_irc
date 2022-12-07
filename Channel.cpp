@@ -493,3 +493,10 @@ bool	Channel::matchBanLst(const Client &request) // pass on to banlist instance
 	}
 
 // <\Helpers>
+
+void	Channel::setClientRight( std::string username, char toAdd, bool active)
+{
+	if (_clientAlphabet.find(toAdd) == std::string::npos)
+		return ;
+	charRuleSetter(client_rights[username], toAdd, active);
+}

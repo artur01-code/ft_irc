@@ -29,6 +29,7 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 #include "Message.hpp"
+#include "BOThan.hpp"
 
 #define MAX_EVENTS 32
 #define MAX_BUFF 256
@@ -37,6 +38,7 @@
 
 class Client;
 class Channel;
+class BOThan;
 class Server {
     typedef std::map<int, Client>::iterator it;
 
@@ -52,7 +54,7 @@ class Server {
     std::string _password_operator;
 	std::vector<Channel *>	_v_channels;
     std::map<std::string, Channel *> _mapChannels;
-    std::map<int, Client> _bots;
+    BOThan *_bethBot;
 
     std::string _ip_address;
     int _new_events;
@@ -70,7 +72,7 @@ class Server {
     Server();
 
    public:
-    Server(int port);
+    Server(int port, BOThan *bethbot);
     Server(int port, std::string ip_address);
     ~Server();
 
@@ -107,6 +109,8 @@ std::string server_ipaddr);
     void setKEvent();
     std::string makeNickMask(Server *server, Client *client);
     void setPwdFlag(int n);
+    bool    isClientOnChannel(Client *cl, Channel *ch);
+
     std::vector<Client *> _Client;
 
     /*---COMMAND FUNCTIONS---*/
@@ -193,7 +197,8 @@ std::string server_ipaddr);
 	void WHO(const Message &obj, Client &caller);
 	void PING(const Message &obj, Client &caller);
 	void AWAY(const Message &obj, Client &caller);
-
+    void SUMMONBOTHAN(const Message &msg, Client &cl);
+    void TEACHBOTHAN(const Message &msg, Client &cl);
     /*---ERRORS---*/
 	std::string	ERR_BADCHANMASK(std::string channel_name);
 	std::string	ERR_KEYSET(std::string channelName);
@@ -240,9 +245,9 @@ std::string server_ipaddr);
 	std::string	RPL_UMODEIS(Client *caller, Channel *channel, Client *object);
 	void		RPL_BANLIST(Client *caller, Channel *channel);
 	std::string RPL_CHANNELMODEIS(Client *client, Channel *channel);
-	std::string RPL_AWAY(Client *cl, Client *toCl);
+	std::string RPL_AWAY(Client *cl);
 	std::string	RPL_UNAWAY(Client *client);
-	std::string	RPL_NOWAWAY(Client *client);
+	std::string	RPL_NOWAWAY(Client *client, Client *toCl);
 	std::string	RPL_NOTOPIC(Client *client, Channel *channel);
 	std::string	RPL_TOPIC(Client *client, Channel *channel);
     std::string RPL_ENDOFNAMES(Client *client, Channel *channel);

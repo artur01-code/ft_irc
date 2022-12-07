@@ -26,6 +26,7 @@ class Client;
 #define CHANMODE_BANMASK			'b'
 #define CHANMODE_VOICE				'v'
 #define CHANMODE_PASSWD				'k'
+#define CHANMODE_OWNER				'x'
 
 #include "ChannelAdditionals.hpp"
 #include "Server.hpp"

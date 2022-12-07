@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jtomala <jtomala@student.42wolfsburg.de>   +#+  +:+       +#+        */
+/*   By: jsubel <jsubel@student.42wolfsburg.de >    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 02:51:29 by rkultaev          #+#    #+#             */
-/*   Updated: 2022/11/23 14:46:39 by jtomala          ###   ########.fr       */
+/*   Updated: 2022/12/05 09:10:23 by jsubel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Client.hpp"
+#include "BOThan.hpp"
 
 int main(int argc, char **argv) {
     //     // if (argc < 3) {
@@ -43,7 +44,9 @@ int main(int argc, char **argv) {
         std::cerr << "bad port" << std::endl;
         return (1);
     }
-    Server server(port);
+    Client	botCl;
+	BOThan bethBot(&botCl);
+    Server server(port, &bethBot);
     //check that we have 2 or 3 args
     //when we have 3 args there is a password
     if (argc == 3)
