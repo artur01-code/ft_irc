@@ -30,18 +30,18 @@ class Client;
 class Channel : public Noun
 {
 	private:
-		const static std::string		_alphabet;
-		const static std::string		_clientAlphabet;
+		const static std::string	_alphabet;
+		const static std::string	_clientAlphabet;
 
-		std::string						_name;
-		std::string						_topic;
-		std::string						_pwd;
-		int								_channel_rules;
-		RuleSetter<int>					intRuleSetter;
-		RuleSetter<char>				charRuleSetter;
-		bool							_has_pwd;
-		std::vector<std::string>		_listInvitedClients;
-		size_t							_limit;
+		std::string					_name;
+		std::string					_topic;
+		std::string					_pwd;
+		int							_channel_rules;
+		RuleSetter<int>				intRuleSetter;
+		RuleSetter<char>			charRuleSetter;
+		bool						_has_pwd;
+		std::vector<std::string>	_listInvitedClients;
+		size_t						_limit;
 		class BanLst
 		{
 			private:
