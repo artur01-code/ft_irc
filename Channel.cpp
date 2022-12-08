@@ -8,7 +8,7 @@ const std::string Channel::_clientAlphabet = "iswovx"; // x is for serverowner
 int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller) // obj can be str, client or empty str
 {
 	(void)caller;
-	if (!isClientRight(caller.getNickname(), 'o') && !isClientRight(caller.getNickname(), 'x'))
+	if (!isClientRight(caller.getNickname(), CHANMODE_OPER) && !isClientRight(caller.getNickname(), CHANMODE_OWNER))
 	{
 		return (3);
 	}
@@ -37,24 +37,24 @@ int Channel::setFlag(char flag, Noun *obj, bool active, Client &caller) // obj c
 			intRuleSetter(_channel_rules, flag, active);
 		else
 		{
-			if ((flag == 'o' && !isClientRight(caller.getNickname(), 'x')) || \
-				(flag == 'k' && !isClientRight(caller.getNickname(), 'x')))
+			if ((flag == CHANMODE_OPER && !isClientRight(caller.getNickname(), CHANMODE_OWNER)) || \
+				(flag == CHANMODE_PASSWD && !isClientRight(caller.getNickname(), CHANMODE_OWNER)))
 			{
 				return (3);
 			}
 
-			if (flag == 'b')
+			if (flag == CHANMODE_BANMASK)
 			{
 				_banLst.add(str->content, active);
 				std::cout << *this << std::endl;
 			}
-			if (flag == 'k')
+			if (flag == CHANMODE_PASSWD)
 			{
 				if (active && _has_pwd)
 					return (4); // ERR_KEYSET()
 				setPwd(str->content, active);
 			}
-			else if (flag == 'l')
+			else if (flag == CHANMODE_USERLIMIT)
 			{
 				if (isNum(str->content))
 					_limit = std::atoi(str->content.c_str());
@@ -190,8 +190,8 @@ void Channel::rmClient(Client &obj)
 
 		if ( (**begin).getNickname() == obj.getNickname())
 		{
-			if (isClientRight(obj.getNickname(), 'x') && _clients.size() >= 2)// if it is the owner
-				charRuleSetter(client_rights[_clients[1]->getNickname()], 'x', true); // make next member owner
+			if (isClientRight(obj.getNickname(), CHANMODE_OWNER) && _clients.size() >= 2)// if it is the owner
+				charRuleSetter(client_rights[_clients[1]->getNickname()], CHANMODE_OWNER, true); // make next member owner
 			_clients.erase(begin);
 			if (_clients.size() == 0) // No more clients left
 				throw("destroyChannel");

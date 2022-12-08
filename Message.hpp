@@ -11,26 +11,26 @@
 #include <vector>
 
 class Message {
-   private:
-    std::string _prefix;
-    std::string _command;
-    std::vector<std::string> _parameters;
+	private:
+		std::string _prefix;
+		std::string _command;
+		std::vector<std::string> _parameters;
 
-   public:
-    Message();
-    Message(const Message &rhs);
-    Message(const std::string &input);
-    Message &operator=(const Message &rhs);
-    ~Message();
+	public:
+		Message();
+		Message(const Message &rhs);
+		Message(const std::string &input);
+		Message &operator=(const Message &rhs);
+		~Message();
 
-    std::string getPrefix() const;
-    std::string getCommand() const;
-    std::vector<std::string> getParameters() const;
-    std::string getRawInput() const;
-    void setPrefix(std::string prefix);
-    void setCommand(std::string command);
-    void setParameters(std::string rawParameters);
-    void parseMessage(std::string input);
+		std::string getPrefix() const;
+		std::string getCommand() const;
+		std::vector<std::string> getParameters() const;
+		std::string getRawInput() const;
+		void setPrefix(std::string prefix);
+		void setCommand(std::string command);
+		void setParameters(std::string rawParameters);
+		void parseMessage(std::string input);
 };
 
 std::ostream &operator<<(std::ostream &os, const Message &message);

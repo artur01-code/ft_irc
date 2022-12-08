@@ -27,11 +27,11 @@ std::string	Server::RPL_WHOREPLY(Client *client, Client *target)
 	msg += " " + target->getUsername() + " ";
 	msg += this->_host + " ";
 	msg += target->getNickname() + " ";
-	if (target->checkMode('a'))
+	if (target->checkMode(USERMODE_AWAY))
 		msg += "G";
 	else
 		msg += "H";
-	if (target->checkMode('o'))
+	if (target->checkMode(USERMODE_OPER))
 		msg += "*";
 	msg += " :0 ";
 	msg += target->getRealname();
@@ -210,7 +210,7 @@ std::string Server::RPL_NAMREPLY(Client *client, Channel *channel)
 	msg += ":" + this->getServerName();
 	msg += " 353 ";
 	msg += client->getNickname();
-	if (channel->isClientRight(client->getNickname(), 'o'))
+	if (channel->isClientRight(client->getNickname(), CHANMODE_OPER))
 		msg += " @ ";
 	else
 		msg += " = ";

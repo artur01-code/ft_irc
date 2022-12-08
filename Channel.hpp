@@ -16,15 +16,10 @@
 class Client;
 
 #define CHANMODE_OPER				'o'
-#define CHANMODE_PRIV				'p'
-#define CHANMODE_SECRET				's'
 #define CHANMODE_INVONLY			'i'
 #define CHANMODE_TOPIC				't'
-#define CHANMODE_NOMSGFROMOUTSIDE	'n'
-#define CHANMODE_MOD				'm'
 #define CHANMODE_USERLIMIT			'l'
 #define CHANMODE_BANMASK			'b'
-#define CHANMODE_VOICE				'v'
 #define CHANMODE_PASSWD				'k'
 #define CHANMODE_OWNER				'x'
 
@@ -35,18 +30,18 @@ class Client;
 class Channel : public Noun
 {
 	private:
-		const static std::string		_alphabet;
-		const static std::string		_clientAlphabet;
+		const static std::string	_alphabet;
+		const static std::string	_clientAlphabet;
 
-		std::string						_name;
-		std::string						_topic;
-		std::string						_pwd;
-		int								_channel_rules;
-		RuleSetter<int>					intRuleSetter;
-		RuleSetter<char>				charRuleSetter;
-		bool							_has_pwd;
-		std::vector<std::string>		_listInvitedClients;
-		size_t							_limit;
+		std::string					_name;
+		std::string					_topic;
+		std::string					_pwd;
+		int							_channel_rules;
+		RuleSetter<int>				intRuleSetter;
+		RuleSetter<char>			charRuleSetter;
+		bool						_has_pwd;
+		std::vector<std::string>	_listInvitedClients;
+		size_t						_limit;
 		class BanLst
 		{
 			private:
