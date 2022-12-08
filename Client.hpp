@@ -32,7 +32,7 @@ class Client : public Noun
 
 		int			_socket;
 		std::string	_nickname;
-		std::string _hostname;
+		std::string	_hostname;
 		std::string	_realname;
 		std::string	_username;
 		int			_regFlag;

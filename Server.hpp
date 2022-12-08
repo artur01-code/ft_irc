@@ -51,7 +51,7 @@ class Server {
 		std::map<std::string, Client *>		_regClients;
 		std::map<int, Client> 				_conClients;
 		std::string							_host;
-		std::string							servername;
+		std::string							_servername;
 		std::string							_motd;
 		std::string							_password_operator;
 		std::vector<Channel *>				_v_channels;
