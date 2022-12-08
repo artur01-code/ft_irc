@@ -143,12 +143,12 @@ void Server::AWAY(const Message &obj, Client &caller)
 	if (reduced_tree.size() == 0)
 	{
 		caller.awayMsg = "";
-		caller.changeMode('a', false);
+		caller.changeMode(USERMODE_AWAY, false);
 		sendMessage(&caller, RPL_UNAWAY(&caller));
 		return;
 	}
 
-	caller.changeMode('a', true);
+	caller.changeMode(USERMODE_AWAY, true);
 	sendMessage(&caller, RPL_AWAY(&caller));
 	std::string message;
 	{
@@ -221,7 +221,7 @@ void Server::WHO(const Message &obj, Client &caller)
 			std::vector<Client *>::iterator eachClient((*channel)->_clients.begin());
 			for (std::vector<Client *>::iterator eachClientEnd((*channel)->_clients.end()); eachClient < eachClientEnd; eachClient++) // for each client in those channels
 			{
-				if (!(*channel)->isClientRight((*eachClient)->getNickname(), 'i'))				 // only add visible users
+				if (!(*channel)->isClientRight((*eachClient)->getNickname(), USERMODE_INVIS))				 // only add visible users
 					commonClients.insert(std::pair<Client *, Channel *>(*eachClient, *channel)); // does not insert duplicate keys
 			}
 		}
@@ -354,7 +354,7 @@ void Server::KICK(const Message &msgObj, Client &caller)
 				sendMessage(&caller, ERR_NOTONCHANNEL(&caller, reduced_tree[0]));
 				return;
 			}
-			if (!channel->isClientRight(caller.getNickname(), 'o'))
+			if (!channel->isClientRight(caller.getNickname(), CHANMODE_OPER))
 			{
 				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
 				return;
@@ -380,7 +380,7 @@ void Server::KICK(const Message &msgObj, Client &caller)
 			return;
 		}
 	}
-	if (channel->isClientRight(snitch->getNickname(), 'x'))
+	if (channel->isClientRight(snitch->getNickname(), CHANMODE_OWNER))
 	{
 		sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[0]));
 		return;
@@ -432,7 +432,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 					std::cout << ERR_NOTONCHANNEL(&caller, reduced_tree[1]) << std::endl;
 				return;
 			}
-			if (channel->isChannelRule('i') && !channel->isClientRight(caller.getNickname(), 'o'))
+			if (channel->isChannelRule(CHANMODE_INVONLY) && !channel->isClientRight(caller.getNickname(), CHANMODE_OPER))
 			{
 				sendMessage(&caller, ERR_CHANOPRIVSNEEDED(&caller, reduced_tree[1]));
 				if (M_DEBUG)
@@ -466,7 +466,7 @@ void Server::INVITE(const Message &msgObj, Client &caller)
 	sendMessage(&caller, RPL_INVITING(&caller, channel, guest)); // Replies to both the caller and guest
 	sendMessage(guest, INVITEREPLY(guest, channel, &caller));
 
-	if (guest->checkMode('a')) // Get default answer when guest away
+	if (guest->checkMode(USERMODE_AWAY)) // Get default answer when guest away
 		sendMessage(&caller, RPL_AWAY(&caller));
 }
 
@@ -496,7 +496,7 @@ void Server::NAMES(const Message &msgObj, Client &clientObj)
 				int i = 0;
 				while (!vec[i].empty())
 				{
-					if (vec[i] == (*itChannel)->getName() && (!(*itChannel)->isChannelRule('i') || ((*itChannel)->isChannelRule('i') && (*itChannel)->contains(clientObj))))
+					if (vec[i] == (*itChannel)->getName() && (!(*itChannel)->isChannelRule(CHANMODE_INVONLY) || ((*itChannel)->isChannelRule(CHANMODE_INVONLY) && (*itChannel)->contains(clientObj))))
 						this->sendMessage(&clientObj, RPL_NAMREPLY(&clientObj, *itChannel));
 					i++;
 				}
@@ -722,7 +722,7 @@ void Server::JOIN(const Message &obj, Client &caller)
 					return;
 				}
 			}
-			if (chany->isChannelRule('i')) // see if the channel is invite only
+			if (chany->isChannelRule(CHANMODE_INVONLY)) // see if the channel is invite only
 			{
 				if (M_DEBUG)
 					std::cout << "IS EXECUTED" << std::endl;
@@ -1001,7 +1001,7 @@ void Server::PRIVMSG(Client *cl, const Message &msg)
 				toClient = this->_regClients[target];
 				if (M_DEBUG)
 					std::cout << COLOR_GREEN << this->buildPRIVMSG(cl, toClient->getNickname(), text) << END << std::endl;
-				if (toClient->checkMode('a'))
+				if (toClient->checkMode(USERMODE_AWAY))
 					sendMessage(cl, RPL_NOWAWAY(cl, toClient));
 				else
 					this->sendMessage(toClient, this->buildPRIVMSG(cl, toClient->getNickname(), text));
@@ -1110,12 +1110,12 @@ void Server::KILL(const Message &obj, Client &clientObj)
 		sendMessage(&clientObj, ERR_NEEDMOREPARAMS(&clientObj, "KILL"));
 		return;
 	}
-	if (clientObj.checkMode('o') == false)
+	if (clientObj.checkMode(USERMODE_OPER) == false)
 	{
 		sendMessage(&clientObj, ERR_NOPRIVILEGES(&clientObj));
 		return;
 	}
-	if (clientObj.getRegFlag() == 1 && _conClients.count(clientObj.getSocket()) && clientObj.checkMode('o'))
+	if (clientObj.getRegFlag() == 1 && _conClients.count(clientObj.getSocket()) && clientObj.checkMode(USERMODE_OPER))
 	{
 		int size = obj.getParameters().size();
 		std::string msg = "REASON : ";
@@ -1164,7 +1164,7 @@ void Server::DIE(const Message &obj, Client &clientObj)
 	(void)clientObj;
 	if (M_DEBUG)
 		std::cout << "DIE() FUNCTION TRIGGERED" << std::endl;
-	if (clientObj.checkMode('o'))
+	if (clientObj.checkMode(USERMODE_OPER))
 	{
 		std::cout << "Server is shutting down" << std::endl;
 		exit(1);

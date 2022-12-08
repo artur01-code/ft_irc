@@ -24,7 +24,7 @@ DFLAGS	=	-g -D M_DEBUG=1
 all:	${NAME}
 
 ${NAME}: ${SRCS} ${INC}
-	${CC} ${MAIN} ${SRCS} -o ${NAME}
+	${CC} ${FLAGS} ${MAIN} ${SRCS} -o ${NAME}
 
 docker:
 	docker run -ti -v $(PWD):/test memory-test:0.1 bash -c "cd /test/; make re && valgrind --leak-check=full ./${NAME}"

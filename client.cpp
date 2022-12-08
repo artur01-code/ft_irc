@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Client.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rkultaev <rkultaev@student.42wolfsburg.de> +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/07 16:07:52 by ljahn             #+#    #+#             */
-/*          										  ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Client.hpp"
 
 const std::string Client::_alphabet = "oa"; // a for away
@@ -36,9 +24,9 @@ int Client::setFlag(char flag, Noun *obj, bool active, Client &caller)
 
 void Client::setMeOperator()
 {
-	if (_alphabet.find('o') == std::string::npos)
+	if (_alphabet.find(USERMODE_OPER) == std::string::npos)
 		return ;
-	_charRuleSetter(_globalClientMode, 'o', true);
+	_charRuleSetter(_globalClientMode, USERMODE_OPER, true);
 }
 
 Client::Client() : _socket(-1), _nickname(""), _hostname(""), _realname(""), _username(""), _regFlag(0), _pwdFlag(1), _msgCounter(0)
